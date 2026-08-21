@@ -1,0 +1,78 @@
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
+
+type PostBase = Database['public']['Tables']['posts']['Row'];
+export type PostRow = PostBase & { author_is_vereador?: boolean };
+export type PostTipo = Database['public']['Enums']['post_tipo'];
+export type PostSelo = Database['public']['Enums']['post_selo'];
+
+export type FeedTab = 'alta' | 'recentes';
+
+interface Options {
+  tab?: FeedTab;
+  cidade?: string | null;
+  prefeituraId?: string | null;
+  tipo?: PostTipo | null;
+  selo?: PostSelo | null;
+  limit?: number;
+  enabled?: boolean;
+}
+
+async function fetchPostsFeed(opts: Required<Omit<Options, 'enabled'>>): Promise<PostRow[]> {
+  const { tab, cidade, prefeituraId, tipo, selo, limit } = opts;
+  // Lê da view pública que oculta autor_id em posts anônimos.
+  let q = supabase.from('posts_public' as never).select('*').eq('status', 'aprovado').limit(limit);
+  if (prefeituraId) q = q.eq('prefeitura_id', prefeituraId);
+  if (cidade) q = q.eq('cidade', cidade);
+  if (tipo) q = q.eq('tipo', tipo);
+  if (selo) q = q.eq('selo', selo);
+  if (tab === 'alta') {
+    q = q.order('like_count', { ascending: false }).order('comment_count', { ascending: false });
+  } else {
+    q = q.order('created_at', { ascending: false });
+  }
+  const { data, error } = await q;
+  if (error) throw error;
+  const base = (data ?? []) as unknown as PostBase[];
+  const authorIds = Array.from(new Set(base.map((p) => p.autor_id).filter(Boolean))) as string[];
+  let vereadorMap: Record<string, boolean> = {};
+  if (authorIds.length > 0) {
+    const { data: profs } = await supabase
+      .from('profiles')
+      .select('user_id,is_vereador')
+      .in('user_id', authorIds);
+    vereadorMap = Object.fromEntries((profs ?? []).map((p) => [p.user_id, !!p.is_vereador]));
+  }
+  return base.map((p) => ({
+    ...p,
+    author_is_vereador: p.autor_id ? !!vereadorMap[p.autor_id] : false,
+  }));
+}
+
+export function usePostsFeed(opts: Options = {}) {
+  const {
+    tab = 'recentes',
+    cidade = null,
+    prefeituraId = null,
+    tipo = null,
+    selo = null,
+    limit = 30,
+    enabled = true,
+  } = opts;
+
+  const query = useQuery({
+    queryKey: ['posts-feed', { tab, cidade, prefeituraId, tipo, selo, limit }],
+    queryFn: () => fetchPostsFeed({ tab, cidade, prefeituraId, tipo, selo, limit }),
+    enabled,
+    staleTime: 30_000,
+  });
+
+  return {
+    posts: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ? (query.error as Error).message : null,
+    refetch: query.refetch,
+  };
+}
+
