@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { Newspaper, Landmark, AlertTriangle, MessageCircle, ImagePlus, X, Loader2, ArrowLeft, ArrowRight, Upload, MapPin, ShieldCheck, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useCidade } from '@/hooks/useCidade';
+import CitySelect from '@/components/CitySelect';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
