@@ -282,7 +282,7 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
           onClick={() => react('like')}
           disabled={busy}
           aria-pressed={myReaction === 'like'}
-          aria-label={myReaction === 'like' ? 'Remover apoio' : 'Apoiar denúncia'}
+          aria-label={myReaction === 'like' ? 'Remover apoio' : 'Apoiar demanda'}
           className={cn(
             'group relative flex-1 items-center justify-center gap-2 rounded-xl py-2.5 px-3 min-h-[44px] transition-all duration-200 active:scale-[0.97]',
             'shadow-sm hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary/40',

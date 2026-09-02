@@ -334,7 +334,7 @@ export default function EnqueteDetalhe() {
                 )}
               </Button>
               <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                Participação Cidadã • Rio Verde-GO
+                Participação Cidadã • Goiás
               </p>
             </div>
           </motion.div>

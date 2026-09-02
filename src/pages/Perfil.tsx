@@ -49,13 +49,13 @@ export default function Perfil() {
             <User className="h-10 w-10" />
           </div>
           <h1 className="text-lg sm:text-xl font-black text-foreground">Cidadão</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">Rio Verde no Ar · Rio Verde</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">Magrão no Ar · Goiás</p>
           <p className="mt-2 text-[10px] text-muted-foreground/70 break-all">ID: {user.id.slice(0, 16)}...</p>
         </div>
 
         <div className="mb-5 sm:mb-6 grid grid-cols-2 gap-2 sm:gap-3">
           {[
-            { icon: FileText, value: myComplaints.length, label: 'Minhas Denúncias', color: 'bg-accent/10 text-accent' },
+            { icon: FileText, value: myComplaints.length, label: 'Minhas demandas', color: 'bg-accent/10 text-accent' },
             { icon: Heart, value: supports.size, label: 'Apoios dados', color: 'bg-highlight/10 text-highlight' },
           ].map((item) => (
             <div key={item.label} className="rounded-xl sm:rounded-2xl border bg-card p-3 sm:p-4 text-center shadow-card">
@@ -70,7 +70,7 @@ export default function Perfil() {
 
         <div className="flex items-center gap-2 mb-3">
           <div className="h-5 sm:h-6 w-1 rounded-full bg-gradient-highlight" />
-          <h2 className="font-bold text-sm sm:text-base text-foreground">Minhas Denúncias</h2>
+          <h2 className="font-bold text-sm sm:text-base text-foreground">Minhas demandas</h2>
         </div>
         <div className="space-y-2.5 sm:space-y-3">
           {myComplaints.map((c) => (
@@ -82,7 +82,7 @@ export default function Perfil() {
               <Badge className={`${statusColors[c.status]} shrink-0 rounded-md sm:rounded-lg font-semibold text-[10px] sm:text-xs`}>{statusLabels[c.status]}</Badge>
             </Link>
           ))}
-          {myComplaints.length === 0 && <p className="text-muted-foreground text-xs sm:text-sm py-6 sm:py-8 text-center">Você ainda não registrou denúncias.</p>}
+          {myComplaints.length === 0 && <p className="text-muted-foreground text-xs sm:text-sm py-6 sm:py-8 text-center">Você ainda não registrou demandas.</p>}
         </div>
       </div>
     </div>

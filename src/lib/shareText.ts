@@ -14,5 +14,5 @@ export function buildShareText({
     ? `Já tem *${supportCount.toLocaleString('pt-BR')} ${supportCount === 1 ? 'apoio' : 'apoios'}* — e a sua voz conta!`
     : 'Seja o primeiro a apoiar — a sua voz conta!';
 
-  return `🔥 *${title}* no Rio Verde no Ar\n\n${votesLine}\n\n👉 Veja e participe:\n${url}`;
+  return `🔥 *${title}* no Magrão no Ar\n\n${votesLine}\n\n👉 Veja e participe:\n${url}`;
 }

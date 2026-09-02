@@ -17,7 +17,7 @@ type Tipo = Exclude<Database['public']['Enums']['post_tipo'], 'enquete'>;
 const tipos: { v: Tipo; label: string; icon: any }[] = [
   { v: 'noticia', label: 'Notícia', icon: Newspaper },
   { v: 'projeto', label: 'Projeto', icon: Landmark },
-  { v: 'denuncia', label: 'Denúncia', icon: AlertTriangle },
+  { v: 'denuncia', label: 'Demanda', icon: AlertTriangle },
   { v: 'discussao', label: 'Discussão', icon: MessageCircle },
 ];
 
