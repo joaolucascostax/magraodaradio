@@ -1,106 +1,55 @@
+# Magrão no Ar — rebrand estadual + rede social de apoiadores
 
-# Plano: Engajamento + Distribuição via WhatsApp
+Transformar a plataforma municipal ("Rio Verde no Ar / vereador Magrão da Rádio") em **Magrão no Ar**: uma rede social de apoiadores para todo o estado de Goiás, usável na campanha a deputado estadual e definitiva durante o mandato.
 
-Quatro frentes: (1) disparo automático em grupos do WhatsApp via Evolution, (2) bairro nas publicações, (3) selos de status controlados pelo admin, (4) melhorias de marketing (compartilhar, enquete fixa, ranking de bairros, página `/como-funciona`).
+## Posicionamento
 
----
+- Nome: **Magrão no Ar** · assinatura: "A rede do povo de Goiás com o Magrão".
+- Escopo: Goiás inteiro. Cada pessoa escolhe sua cidade; feed e demandas podem ser filtrados por município e região.
+- Papel do Magrão: hoje candidato a deputado estadual, amanhã deputado. A copy nunca fixa "vereador" nem "Rio Verde" como limite — fala de mandato, estado e cidades.
+- Tom: cara de rede social. Feed contínuo, perfis, avatares, reações, contadores, "seguir", stories-like nos destaques. Nada de tabloide/brutalismo; segue a paleta atual (creme, amarelo Brasil, azul, marinho), tipografia Plus Jakarta Sans + Inter.
 
-## 1. Disparo automático no WhatsApp
+## Os três pilares
 
-**Quando dispara:** post aprovado (mudança de status `pendente → aprovado`) **e** nova enquete criada com `is_active=true`. Também redispara quando admin ativa/muda um selo.
+1. **Sou apoiador** — botão principal da plataforma. Pessoa se cadastra (WhatsApp OTP já existente), escolhe cidade, entra no contador público de apoiadores ("X apoiadores em Y cidades de Goiás"), ganha selo de apoiador no perfil e link para convidar amigos.
+2. **Diário do Magrão** — feed oficial com selo verificado: agenda, visitas às cidades, vídeos, projetos, prestação de contas. Vira a aba inicial do feed ("Magrão" ao lado de "Comunidade").
+3. **Demandas da minha cidade** — as denúncias atuais reposicionadas como demandas ao mandato: cidadão publica, vizinhos apoiam, o gabinete responde com status (Recebida → Em andamento → Encaminhada → Resolvida). Ranking de demandas por cidade.
 
-**Alvo:** vários grupos gerenciados no admin (nova tela `/admin/grupos`).
+Enquetes continuam existindo (participação), mas fora do destaque principal.
 
-**Formato da mensagem (médio, sem resumo):**
+## Estrutura de navegação
+
+```text
+Início (feed)   Diário do Magrão   Demandas   Apoiadores   Perfil
 ```
-📢 [Categoria] Título do post
-👤 Autor · 📍 Bairro (se houver)
-👉 https://rioverdenoar.lovable.app/post/<id>
-```
-Para enquete: `🗳️ Nova enquete: Pergunta ... 👉 link`.
 
-**Arquitetura**
-- Nova tabela `whatsapp_groups` (jid, nome, ativo).
-- Nova tabela `whatsapp_dispatch_log` (post_id/poll_id, group_jid, status, tentativas, erro, criado_em) — usada pra retry e histórico.
-- Edge function `whatsapp-broadcast` (nova): recebe `{ kind: 'post'|'poll'|'selo', id }`, monta mensagem, itera grupos ativos, envia via Evolution, grava log. Retry automático até 3x com backoff quando Evolution retorna erro.
-- Trigger no banco: `AFTER UPDATE ON posts` (quando `status` vira `aprovado` ou `selo` muda) e `AFTER INSERT ON polls` (quando `is_active=true`) → chama a function via `pg_net.http_post` com o service key.
-- Reutiliza `_shared/evolution.ts` (já existe); adiciona helper `sendGroupText(jid, text)`.
+- Header: logo "Magrão no Ar" + busca + botão "Sou apoiador" (ou avatar quando logado).
+- Barra inferior fixa no mobile (5 ícones, estilo app de rede social) substituindo o FAB solto.
+- Home = feed unificado com abas: **Para você · Diário do Magrão · Minha cidade · Enquetes**.
 
-**Tela `/admin/grupos`**
-- Lista grupos, botão "Adicionar" (JID + nome), toggle ativo, botão testar (envia "ping" pro grupo). Rota protegida por role admin.
+## Telas que mudam
 
----
+- **Home**: sai o hero "A voz de Rio Verde" (brasão + Kombi) e entra topo de rede social: card de identidade do Magrão, contador de apoiadores por Goiás, seletor de cidade, composer "O que sua cidade precisa?" e o feed.
+- **Perfil do Magrão** (`/magrao`, reaproveitando `Sobre`): bio de comunicador e candidato a deputado estadual, base em Rio Verde, atuação no estado, números do mandato, botão "Sou apoiador".
+- **Apoiadores** (`/apoiadores`): mapa/lista de Goiás com contagem por cidade, últimos apoiadores, convite.
+- **Demandas** (`/demandas`, com redirecionamento das rotas `/reclamacoes` e `/nova-reclamacao`): filtro por cidade/categoria/status.
+- **Como funciona**: reescrito nos 3 pilares, sem menções a "denúncia anônima contra a prefeitura" como eixo.
+- **Rodapé, textos de compartilhamento, e-mails/WhatsApp, metadados do `index.html`**: nome, descrição, título e OG atualizados.
+- **Componentes de marca**: `Logo`, `VereadorBadge` → selo "Magrão · Verificado", `AdminBadge` → "Equipe Magrão", `VereadorCard` → card de perfil oficial.
 
-## 2. Campo Bairro (sempre opcional)
+## Cidade em todo o produto
 
-- Nova coluna `posts.bairro TEXT` (nullable).
-- Nova tabela `bairros` (id, nome, ordem) pré-populada com principais bairros de Rio Verde. Admin pode adicionar mais depois.
-- Em `NovoPost.tsx`: combobox com lista fixa + opção "Outro bairro" que abre input livre. Não bloqueia envio.
-- Exibido no `PostCard` como pill discreta ao lado da cidade quando presente.
-
----
-
-## 3. Selos admin
-
-**Enum novo** `post_selo`: `resolvido_magrao` | `em_andamento` | `encaminhado_camara` | `null`.
-
-- Coluna `posts.selo post_selo`, `posts.selo_em timestamptz`, `posts.selo_por uuid` (admin que setou).
-- Só admin/editor pode alterar (RLS + policy).
-- UI no `AdminModeracao.tsx`: dropdown "Marcar selo" em cada post aprovado, com opção "Remover selo".
-- Alterar selo dispara `whatsapp-broadcast` com kind `selo` (mensagem tipo "✅ Atualização: 'Título' — Resolvido pelo Magrão").
-
-**Visual (Faixa no topo do card + filtro no feed)**
-- `PostCard`: quando `selo` presente, renderiza faixa colorida acima do card (verde=resolvido, amarelo=em andamento, azul=encaminhado) com ícone e texto.
-- Feed (`Reclamacoes.tsx` e/ou home): chips de filtro "Todos / Resolvidas / Em andamento / Encaminhadas". Query filtra por `selo`.
-
----
-
-## 4. Marketing / engajamento (itens 1, 2, 3, 5 da estratégia)
-
-**4.1 Compartilhar no WhatsApp (item 1)**
-- Botão "Compartilhar no zap" em cada `PostCard` → `https://wa.me/?text=...` com título + link do post.
-- OG image dinâmica: como não temos SSR, cria um template estático bonito por categoria em `index.html` como fallback + preenche `<title>` e `og:` na página de detalhe do post via `react-helmet-async`. (Melhoria opcional futura: edge function que gera og-image on-demand.)
-
-**4.2 Selo "Resolvida" + filtro (item 2)**
-- Já coberto na seção 3.
-
-**4.3 Ranking de bairros (item 3)**
-- Nova query no `Sidebar` (ou card na home): top 5 bairros com mais publicações nos últimos 30 dias. Alimentado pelo campo `posts.bairro`.
-
-**4.4 Página `/como-funciona` (item 5)**
-- Rota nova + link no Footer/Header. Explica: cadastro por WhatsApp, anonimato (o que é privado e o que aparece público), moderação, o que pode/não pode postar, selos, contato do Magrão. Reforça confiança.
-
----
+Hoje a criação de post fixa `cidade = "Rio Verde"`. Passa a usar o seletor com as cidades de Goiás (`src/data/goiasCities.ts`), guardando a cidade escolhida no perfil como padrão e permitindo filtrar o feed por cidade/região.
 
 ## Detalhes técnicos
 
-**Migrações (uma migration só):**
-- `CREATE TYPE post_selo AS ENUM (...)`.
-- `ALTER TABLE posts ADD COLUMN bairro TEXT, selo post_selo, selo_em timestamptz, selo_por uuid`.
-- `CREATE TABLE bairros (...)` + GRANT + RLS (select público, insert/update admin) + seed dos bairros.
-- `CREATE TABLE whatsapp_groups (...)` + GRANT + RLS (só admin).
-- `CREATE TABLE whatsapp_dispatch_log (...)` + GRANT + RLS (só admin/service_role).
-- Trigger `posts_notify_broadcast` (após approve ou mudança de selo) e `polls_notify_broadcast` (insert ativo) usando `pg_net.http_post` para chamar a edge function. Requer extensão `pg_net`.
-- View `posts_public` precisa expor `bairro` e `selo`.
+- Trabalho majoritariamente de copy, layout e navegação em React/Tailwind; nenhuma tabela existente é destruída.
+- Backend (Lovable Cloud) precisa de dois ajustes pequenos: coluna/uso de `cidade` no perfil como padrão do usuário e uma tabela `apoiadores` (user_id, cidade, criado_em) com RLS + GRANTs para o contador público e o selo de apoiador. Contagem pública exposta por view agregada, sem revelar telefone.
+- `posts` já possui `cidade`, `uf` e `prefeitura_id`, então o filtro por município usa o que existe; a dependência de `prefeitura_id` fixo em Rio Verde é removida.
+- Rotas antigas (`/reclamacoes`, `/reclamacao/:id`, `/sobre`) mantidas como redirects para não quebrar links compartilhados.
+- Admin continua funcionando; apenas rótulos ("Denúncias" → "Demandas") e uma visão de apoiadores por cidade.
 
-**Edge functions:**
-- `whatsapp-broadcast` (nova): valida payload, busca grupos ativos, monta texto, envia via Evolution, grava log, retry.
-- Reaproveita `_shared/evolution.ts`. Adiciona função `sendGroupText`.
+## Fora de escopo agora
 
-**Secrets:** todos os necessários já existem (`EVOLUTION_API_URL`, `EVOLUTION_API_KEY`, `EVOLUTION_INSTANCE`, `SUPABASE_SERVICE_ROLE_KEY`). Nenhum novo.
-
-**Frontend a mudar:**
-- `NovoPost.tsx` (bairro), `PostCard.tsx` (faixa selo, pill bairro, botão compartilhar), `Reclamacoes.tsx`/`Index.tsx` (filtro selo), `Sidebar.tsx` (ranking bairros), `AdminModeracao.tsx` (dropdown selo), novo `AdminGrupos.tsx`, nova `ComoFunciona.tsx`, `App.tsx` (rotas), `Footer.tsx` (link).
-- Hook `usePostsFeed.ts`: aceitar filtro `selo`.
-
-**Fora de escopo (pra próxima rodada):** OG image dinâmica via edge function, notificar autor quando post ganha selo, agendamento de disparos.
-
----
-
-## Ordem de implementação
-
-1. Migration (tipos, colunas, tabelas, seed, triggers, view).
-2. Edge function `whatsapp-broadcast` + helper Evolution.
-3. Admin: `/admin/grupos` + dropdown de selo em `AdminModeracao`.
-4. Frontend público: bairro no NovoPost, faixa de selo + botão compartilhar no PostCard, filtro selo, ranking bairros no Sidebar.
-5. Página `/como-funciona` + link no Footer.
+- Mapa interativo avançado de Goiás (começa como lista/ranking por cidade).
+- Grupos de WhatsApp por cidade e gamificação de apoiadores (fase seguinte).
