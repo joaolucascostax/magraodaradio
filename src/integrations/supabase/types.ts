@@ -41,6 +41,27 @@ export type Database = {
         }
         Relationships: []
       }
+      apoiadores_stats: {
+        Row: {
+          cidade: string
+          total: number
+          uf: string
+          updated_at: string
+        }
+        Insert: {
+          cidade: string
+          total?: number
+          uf?: string
+          updated_at?: string
+        }
+        Update: {
+          cidade?: string
+          total?: number
+          uf?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bairros: {
         Row: {
           ativo: boolean
@@ -717,14 +738,6 @@ export type Database = {
       }
     }
     Views: {
-      apoiadores_por_cidade: {
-        Row: {
-          cidade: string | null
-          total: number | null
-          uf: string | null
-        }
-        Relationships: []
-      }
       post_comments_public: {
         Row: {
           autor_display_name: string | null
