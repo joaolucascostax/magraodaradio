@@ -15,16 +15,19 @@ interface Options {
   prefeituraId?: string | null;
   tipo?: PostTipo | null;
   selo?: PostSelo | null;
+  /** Só publicações oficiais do Magrão (Diário do Magrão). */
+  official?: boolean | null;
   limit?: number;
   enabled?: boolean;
 }
 
 async function fetchPostsFeed(opts: Required<Omit<Options, 'enabled'>>): Promise<PostRow[]> {
-  const { tab, cidade, prefeituraId, tipo, selo, limit } = opts;
+  const { tab, cidade, prefeituraId, tipo, selo, official, limit } = opts;
   // Lê da view pública que oculta autor_id em posts anônimos.
   let q = supabase.from('posts_public' as never).select('*').eq('status', 'aprovado').limit(limit);
   if (prefeituraId) q = q.eq('prefeitura_id', prefeituraId);
   if (cidade) q = q.eq('cidade', cidade);
+  if (official) q = q.eq('is_official', true);
   if (tipo) q = q.eq('tipo', tipo);
   if (selo) q = q.eq('selo', selo);
   if (tab === 'alta') {
