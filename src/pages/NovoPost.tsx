@@ -216,10 +216,10 @@ export default function NovoPost() {
             </div>
 
             <h1 className="font-display text-[26px] sm:text-3xl font-extrabold tracking-[-0.02em] text-secondary leading-[1.1]">
-              O que está <span className="text-primary">acontecendo</span> em Rio Verde?
+              O que <span className="text-primary">sua cidade</span> precisa?
             </h1>
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-              Publique um fato, projeto, denúncia ou debate.
+              Mande sua demanda, uma notícia, um projeto ou abra um debate. O Magrão e a equipe leem.
             </p>
           </div>
 
