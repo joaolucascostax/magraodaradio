@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.close_expired_polls() FROM PUBLIC, anon, authenticated;
