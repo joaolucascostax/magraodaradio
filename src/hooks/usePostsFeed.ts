@@ -60,13 +60,14 @@ export function usePostsFeed(opts: Options = {}) {
     prefeituraId = null,
     tipo = null,
     selo = null,
+    official = null,
     limit = 30,
     enabled = true,
   } = opts;
 
   const query = useQuery({
-    queryKey: ['posts-feed', { tab, cidade, prefeituraId, tipo, selo, limit }],
-    queryFn: () => fetchPostsFeed({ tab, cidade, prefeituraId, tipo, selo, limit }),
+    queryKey: ['posts-feed', { tab, cidade, prefeituraId, tipo, selo, official, limit }],
+    queryFn: () => fetchPostsFeed({ tab, cidade, prefeituraId, tipo, selo, official, limit }),
     enabled,
     staleTime: 30_000,
   });
