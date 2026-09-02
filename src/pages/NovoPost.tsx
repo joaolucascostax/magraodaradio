@@ -52,16 +52,22 @@ export default function NovoPost() {
   const [bairroOutro, setBairroOutro] = useState<string>('');
   const [bairrosLista, setBairrosLista] = useState<{ nome: string }[]>([]);
 
+  // Cidade escolhida pelo usuário (qualquer município de Goiás). A prefeitura
+  // é opcional: se ainda não existir cadastro, o post fica só com cidade/UF.
   useEffect(() => {
-    if (cidade) return;
+    let ativo = true;
     supabase
       .from('prefeituras')
       .select('id,cidade,uf')
-      .eq('cidade', 'Rio Verde')
+      .eq('cidade', cidadeNome)
       .eq('uf', 'GO')
       .maybeSingle()
-      .then(({ data }) => { if (data) setCidade(data as Prefeitura); });
-  }, [cidade]);
+      .then(({ data }) => {
+        if (!ativo) return;
+        setCidade({ id: (data as any)?.id ?? null, cidade: cidadeNome, uf: 'GO' } as unknown as Prefeitura);
+      });
+    return () => { ativo = false; };
+  }, [cidadeNome]);
 
   useEffect(() => {
     supabase.from('bairros').select('nome').eq('ativo', true).order('ordem')
