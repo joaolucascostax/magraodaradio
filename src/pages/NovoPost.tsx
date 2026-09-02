@@ -40,8 +40,12 @@ export default function NovoPost() {
   const [tipo, setTipo] = useState<Tipo>('noticia');
   const [titulo, setTitulo] = useState('');
   const [corpo, setCorpo] = useState('');
+  const { cidade: cidadePadrao, setCidade: setCidadePadrao } = useCidade();
   const [cidade, setCidade] = useState<Prefeitura | null>(
     (location.state as any)?.prefeitura ?? null,
+  );
+  const [cidadeNome, setCidadeNome] = useState<string>(
+    (location.state as any)?.prefeitura?.cidade ?? cidadePadrao,
   );
   const MAX_IMAGENS = 3;
   const [imagens, setImagens] = useState<{ file: File; preview: string }[]>([]);
