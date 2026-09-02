@@ -10,7 +10,7 @@ export default function ComoFunciona() {
       </Link>
 
       <h1 className="font-display text-3xl sm:text-4xl font-black tracking-tight text-secondary">
-        Como funciona o <span className="text-primary">Rio Verde no Ar</span>
+        Como funciona o <span className="text-primary">Magrão no Ar</span>
       </h1>
       <p className="mt-2 text-muted-foreground">
         Uma plataforma pra dar voz à cidade. Aqui vai o resumo do que rola por baixo do pano.
@@ -24,7 +24,7 @@ export default function ComoFunciona() {
 
         <Bloco icon={<EyeOff className="h-5 w-5" />} title="Publicar anônimo é sua escolha">
           Em cada publicação você decide se aparece com seu nome ou como <em>Anônimo</em>.
-          Denúncias polêmicas podem ir anônimas sem medo — só a equipe interna sabe a origem, e apenas em caso de investigação legítima.
+          Demandas polêmicas podem ir anônimas sem medo — só a equipe interna sabe a origem, e apenas em caso de investigação legítima.
         </Bloco>
 
         <Bloco icon={<ShieldCheck className="h-5 w-5" />} title="Moderação antes de publicar">
@@ -33,13 +33,13 @@ export default function ComoFunciona() {
         </Bloco>
 
         <Bloco icon={<Award className="h-5 w-5" />} title="Selos de acompanhamento">
-          Quando o vereador Éder Magrão resolve uma denúncia, encaminha à Câmara ou está acompanhando, o post recebe um selo colorido.
+          Quando o Magrão resolve uma demanda, encaminha pro órgão responsável ou está acompanhando, o post recebe um selo colorido.
           Assim você vê preto no branco o que virou solução.
         </Bloco>
 
         <Bloco icon={<CheckCircle2 className="h-5 w-5" />} title="Regras básicas">
           <ul className="list-disc pl-5 space-y-1 text-sm">
-            <li>Pode: denúncia com fato, projeto de bairro, discussão política, cobrança pública.</li>
+            <li>Pode: demanda com fato, projeto de bairro, discussão política, cobrança pública.</li>
             <li>Não pode: xingamento pessoal, calúnia sem base, discurso de ódio, spam comercial.</li>
             <li>Reincidência derruba a conta.</li>
           </ul>

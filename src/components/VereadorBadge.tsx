@@ -2,6 +2,7 @@ import { BadgeCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
+/** Selo oficial do Magrão — perfil verificado do mandato. */
 export default function VereadorBadge({ className }: { className?: string }) {
   return (
     <Badge
@@ -11,7 +12,7 @@ export default function VereadorBadge({ className }: { className?: string }) {
         className,
       )}
     >
-      <BadgeCheck className="h-3 w-3" /> Vereador Magrão
+      <BadgeCheck className="h-3 w-3" /> Magrão · Verificado
     </Badge>
   );
 }

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Layout from "@/components/layout/Layout";
@@ -13,7 +13,9 @@ import Reclamacoes from "./pages/Reclamacoes";
 import DetalheReclamacao from "./pages/DetalheReclamacao";
 import Enquetes from "./pages/Enquetes";
 import EnqueteDetalhe from "./pages/EnqueteDetalhe";
-import Sobre from "./pages/Sobre";
+import Magrao from "./pages/Magrao";
+import Diario from "./pages/Diario";
+import Apoiadores from "./pages/Apoiadores";
 import Perfil from "./pages/Perfil";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
@@ -51,18 +53,22 @@ const App = () => (
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
-              <Route path="/reclamacoes" element={<ErrorBoundary><Reclamacoes /></ErrorBoundary>} />
-              <Route
-                path="/nova-reclamacao"
-                element={<ErrorBoundary><NovoPost /></ErrorBoundary>}
-              />
+              <Route path="/demandas" element={<ErrorBoundary><Reclamacoes /></ErrorBoundary>} />
+              <Route path="/nova-demanda" element={<ErrorBoundary><NovoPost /></ErrorBoundary>} />
+              <Route path="/diario" element={<ErrorBoundary><Diario /></ErrorBoundary>} />
+              <Route path="/apoiadores" element={<ErrorBoundary><Apoiadores /></ErrorBoundary>} />
+              <Route path="/magrao" element={<ErrorBoundary><Magrao /></ErrorBoundary>} />
+
+              {/* Rotas antigas — mantidas para não quebrar links compartilhados */}
+              <Route path="/reclamacoes" element={<Navigate to="/demandas" replace />} />
+              <Route path="/nova-reclamacao" element={<Navigate to="/nova-demanda" replace />} />
+              <Route path="/sobre" element={<Navigate to="/magrao" replace />} />
 
               <Route path="/reclamacao/:id" element={<ErrorBoundary><DetalheReclamacao /></ErrorBoundary>} />
               <Route path="/enquetes" element={<ErrorBoundary><Enquetes /></ErrorBoundary>} />
               <Route path="/enquetes/:id" element={<ErrorBoundary><EnqueteDetalhe /></ErrorBoundary>} />
-              <Route path="/sobre" element={<Sobre />} />
               <Route path="/como-funciona" element={<ErrorBoundary><ComoFunciona /></ErrorBoundary>} />
-              <Route path="/perfil" element={<RequireAuth message="Entre pra ver suas denúncias e apoios."><ErrorBoundary><Perfil /></ErrorBoundary></RequireAuth>} />
+              <Route path="/perfil" element={<RequireAuth message="Entre pra ver suas demandas e seu apoio."><ErrorBoundary><Perfil /></ErrorBoundary></RequireAuth>} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/criar" element={<ErrorBoundary><NovoPost /></ErrorBoundary>} />
             </Route>

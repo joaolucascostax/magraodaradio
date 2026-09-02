@@ -4,13 +4,15 @@ import PostCard from '@/components/feed/PostCard';
 import { usePostsFeed, type FeedTab, type PostTipo, type PostSelo } from '@/hooks/usePostsFeed';
 import { FeedSkeleton } from '@/components/ui/skeletons';
 import { Button } from '@/components/ui/button';
+import CitySelect from '@/components/CitySelect';
+import { useCidade } from '@/hooks/useCidade';
 
 type TipoFiltro = PostTipo | 'todos';
 type SeloFiltro = PostSelo | 'todos';
 
 const TIPOS: { value: TipoFiltro; label: string }[] = [
   { value: 'todos', label: 'Todos' },
-  { value: 'denuncia', label: 'Denúncia' },
+  { value: 'denuncia', label: 'Demanda' },
   { value: 'noticia', label: 'Notícia' },
   { value: 'projeto', label: 'Projeto' },
   { value: 'discussao', label: 'Discussão' },
@@ -20,20 +22,22 @@ const SELOS: { value: SeloFiltro; label: string }[] = [
   { value: 'todos', label: 'Todos' },
   { value: 'resolvido_magrao', label: 'Resolvido pelo Magrão' },
   { value: 'em_andamento', label: 'Em andamento' },
-  { value: 'encaminhado_camara', label: 'Encaminhado à Câmara' },
+  { value: 'encaminhado_camara', label: 'Encaminhado' },
 ];
 
 /**
- * Feed unificado — denúncias, notícias, projetos, enquetes e discussões
- * são todos "publicações" da mesma rede cívica. Um só card, uma só fonte.
+ * Demandas da minha cidade — feed único de Goiás: pedidos do povo, notícias,
+ * projetos e discussões, filtrados por cidade.
  */
 export default function Reclamacoes() {
   const [tab, setTab] = useState<FeedTab>('alta');
   const [tipo, setTipo] = useState<TipoFiltro>('todos');
   const [selo, setSelo] = useState<SeloFiltro>('todos');
+  const [todasCidades, setTodasCidades] = useState(false);
+  const { cidade, setCidade } = useCidade();
   const { posts, loading } = usePostsFeed({
     tab,
-    cidade: 'Rio Verde',
+    cidade: todasCidades ? null : cidade,
     tipo: tipo === 'todos' ? null : tipo,
     selo: selo === 'todos' ? null : selo,
   });
@@ -42,10 +46,28 @@ export default function Reclamacoes() {
     <div className="px-4 pb-20 sm:pb-10 w-full max-w-full overflow-hidden">
       <div className="max-w-3xl mx-auto pt-4 sm:pt-6">
         <div className="mb-4">
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold">Publicações de Rio Verde</h1>
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold">
+            {todasCidades ? 'Demandas de Goiás' : `Demandas de ${cidade}`}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Tudo o que o povo está publicando, apoiando e discutindo agora.
+            O que o povo está pedindo, apoiando e discutindo com o Magrão agora.
           </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <CitySelect
+              value={cidade}
+              onChange={(c) => { setCidade(c); setTodasCidades(false); }}
+              size="sm"
+              className="max-w-[14rem]"
+            />
+            <Button
+              size="sm"
+              variant={todasCidades ? 'default' : 'outline'}
+              className="h-9 rounded-full text-xs font-bold"
+              onClick={() => setTodasCidades((v) => !v)}
+            >
+              Goiás inteiro
+            </Button>
+          </div>
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as FeedTab)}>

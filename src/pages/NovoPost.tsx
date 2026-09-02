@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { Newspaper, Landmark, AlertTriangle, MessageCircle, ImagePlus, X, Loader2, ArrowLeft, ArrowRight, Upload, MapPin, ShieldCheck, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useCidade } from '@/hooks/useCidade';
+import CitySelect from '@/components/CitySelect';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +19,7 @@ type Tipo = Exclude<Database['public']['Enums']['post_tipo'], 'enquete'>;
 const tipos: { v: Tipo; label: string; icon: any }[] = [
   { v: 'noticia', label: 'Notícia', icon: Newspaper },
   { v: 'projeto', label: 'Projeto', icon: Landmark },
-  { v: 'denuncia', label: 'Denúncia', icon: AlertTriangle },
+  { v: 'denuncia', label: 'Demanda', icon: AlertTriangle },
   { v: 'discussao', label: 'Discussão', icon: MessageCircle },
 ];
 
@@ -40,8 +42,12 @@ export default function NovoPost() {
   const [tipo, setTipo] = useState<Tipo>('noticia');
   const [titulo, setTitulo] = useState('');
   const [corpo, setCorpo] = useState('');
+  const { cidade: cidadePadrao, setCidade: setCidadePadrao } = useCidade();
   const [cidade, setCidade] = useState<Prefeitura | null>(
     (location.state as any)?.prefeitura ?? null,
+  );
+  const [cidadeNome, setCidadeNome] = useState<string>(
+    (location.state as any)?.prefeitura?.cidade ?? cidadePadrao,
   );
   const MAX_IMAGENS = 3;
   const [imagens, setImagens] = useState<{ file: File; preview: string }[]>([]);
@@ -52,16 +58,22 @@ export default function NovoPost() {
   const [bairroOutro, setBairroOutro] = useState<string>('');
   const [bairrosLista, setBairrosLista] = useState<{ nome: string }[]>([]);
 
+  // Cidade escolhida pelo usuário (qualquer município de Goiás). A prefeitura
+  // é opcional: se ainda não existir cadastro, o post fica só com cidade/UF.
   useEffect(() => {
-    if (cidade) return;
+    let ativo = true;
     supabase
       .from('prefeituras')
       .select('id,cidade,uf')
-      .eq('cidade', 'Rio Verde')
+      .eq('cidade', cidadeNome)
       .eq('uf', 'GO')
       .maybeSingle()
-      .then(({ data }) => { if (data) setCidade(data as Prefeitura); });
-  }, [cidade]);
+      .then(({ data }) => {
+        if (!ativo) return;
+        setCidade({ id: (data as any)?.id ?? null, cidade: cidadeNome, uf: 'GO' } as unknown as Prefeitura);
+      });
+    return () => { ativo = false; };
+  }, [cidadeNome]);
 
   useEffect(() => {
     supabase.from('bairros').select('nome').eq('ativo', true).order('ordem')
@@ -204,10 +216,10 @@ export default function NovoPost() {
             </div>
 
             <h1 className="font-display text-[26px] sm:text-3xl font-extrabold tracking-[-0.02em] text-secondary leading-[1.1]">
-              O que está <span className="text-primary">acontecendo</span> em Rio Verde?
+              O que <span className="text-primary">sua cidade</span> precisa?
             </h1>
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-              Publique um fato, projeto, denúncia ou debate.
+              Mande sua demanda, uma notícia, um projeto ou abra um debate. O Magrão e a equipe leem.
             </p>
           </div>
 
@@ -351,10 +363,14 @@ export default function NovoPost() {
               )}
             </div>
 
-            {/* Cidade — pill discreta */}
-            <div className="flex items-center gap-2 rounded-full bg-muted/60 px-3 py-2 w-fit">
-              <MapPin className="h-3.5 w-3.5 text-primary" />
-              <span className="text-xs font-semibold text-secondary">Rio Verde / GO</span>
+            {/* Cidade — qualquer município de Goiás */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-secondary uppercase tracking-wider">Cidade</label>
+              <CitySelect
+                value={cidadeNome}
+                onChange={(c) => { setCidadeNome(c); setCidadePadrao(c); }}
+                className="w-full sm:w-auto"
+              />
             </div>
 
             {/* Bairro — opcional */}

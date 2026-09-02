@@ -49,7 +49,7 @@ function AdminSidebar({ pendingPosts }: { pendingPosts: number }) {
           </div>
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-bold">Painel Admin</span>
-            <span className="text-[10px] text-muted-foreground">Rio Verde no Ar</span>
+            <span className="text-[10px] text-muted-foreground">Magrão no Ar</span>
           </div>
         </div>
       </SidebarHeader>
