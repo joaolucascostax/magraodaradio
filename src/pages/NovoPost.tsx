@@ -363,10 +363,14 @@ export default function NovoPost() {
               )}
             </div>
 
-            {/* Cidade — pill discreta */}
-            <div className="flex items-center gap-2 rounded-full bg-muted/60 px-3 py-2 w-fit">
-              <MapPin className="h-3.5 w-3.5 text-primary" />
-              <span className="text-xs font-semibold text-secondary">Rio Verde / GO</span>
+            {/* Cidade — qualquer município de Goiás */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-secondary uppercase tracking-wider">Cidade</label>
+              <CitySelect
+                value={cidadeNome}
+                onChange={(c) => { setCidadeNome(c); setCidadePadrao(c); }}
+                className="w-full sm:w-auto"
+              />
             </div>
 
             {/* Bairro — opcional */}
