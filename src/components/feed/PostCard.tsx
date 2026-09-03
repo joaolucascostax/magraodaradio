@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ThumbsUp, MessageCircle, Share2, MapPin, BadgeCheck, UserRound, CheckCircle2, Clock, Landmark } from 'lucide-react';
 import VereadorBadge from '@/components/VereadorBadge';
 import AdminBadge from '@/components/AdminBadge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminIds } from '@/hooks/useAdminIds';
@@ -18,6 +18,7 @@ import { getVideoEmbedUrl } from '@/lib/videoEmbed';
 import { fetchComplaint, fetchComments } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
 import { postTipoLabels } from '@/data/mockData';
+import magraoAvatar from '@/assets/magrao-campanha-2026.jpg.asset.json';
 import type { PostRow } from '@/hooks/usePostsFeed';
 
 const tipoBadgeClasses: Record<string, string> = {
@@ -153,7 +154,14 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
     >
       {/* cabeçalho: autor · cidade · tempo */}
       <div className="flex items-center gap-3">
-        <Avatar className="h-10 w-10 shrink-0">
+        <Avatar className="h-10 w-10 shrink-0 border border-border/60 bg-background">
+          {(isAdminAuthor || isVereador || post.is_official) && (
+            <AvatarImage
+              src={magraoAvatar.url}
+              alt="Magrão da Rádio"
+              className="object-cover"
+            />
+          )}
           <AvatarFallback
             className={cn(
               'text-xs font-bold',
