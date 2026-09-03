@@ -421,6 +421,7 @@ export type Database = {
           titulo: string
           uf: string | null
           updated_at: string
+          video_url: string | null
           weekly_support_count: number
         }
         Insert: {
@@ -462,6 +463,7 @@ export type Database = {
           titulo: string
           uf?: string | null
           updated_at?: string
+          video_url?: string | null
           weekly_support_count?: number
         }
         Update: {
@@ -503,6 +505,7 @@ export type Database = {
           titulo?: string
           uf?: string | null
           updated_at?: string
+          video_url?: string | null
           weekly_support_count?: number
         }
         Relationships: [
