@@ -36,8 +36,7 @@ export default function ApoioHero() {
                 Você é apoiador{apoio?.cidade ? ` em ${apoio.cidade}` : ''}
               </h3>
               <p className="mt-0.5 text-xs font-medium text-secondary/60">
-                Somos <span className="font-semibold text-primary">{totalApoiadores.toLocaleString('pt-BR')}</span> apoiadores
-                em <span className="font-semibold text-primary">{totalCidades}</span> {totalCidades === 1 ? 'cidade' : 'cidades'} de Goiás
+                Vote 20.111 Magrão da Rádio para Deputado Estadual em Goiás
               </p>
             </div>
           </div>
