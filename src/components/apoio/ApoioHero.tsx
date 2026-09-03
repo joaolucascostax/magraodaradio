@@ -54,10 +54,8 @@ export default function ApoioHero() {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <ApoiarButton
-          size="lg"
-          className="border-0 bg-accent text-accent-foreground shadow-card hover:bg-accent/90"
-        />
+        <ApoiarButton size="lg" />
+
         <Link
           to="/apoiadores"
           className="inline-flex items-center gap-1 text-sm font-bold underline-offset-4 hover:underline"
