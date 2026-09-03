@@ -14,6 +14,7 @@ import { useAdminIds } from '@/hooks/useAdminIds';
 import { toast } from 'sonner';
 import { timeAgoBr } from '@/lib/timeAgoBr';
 import { cn } from '@/lib/utils';
+import { getVideoEmbedUrl } from '@/lib/videoEmbed';
 import { fetchComplaint, fetchComments } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
 import { postTipoLabels } from '@/data/mockData';
@@ -217,6 +218,18 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
               alt={post.titulo}
               loading="lazy"
               className="h-40 w-full object-cover sm:h-48"
+            />
+          </div>
+        )}
+        {post.video_url && getVideoEmbedUrl(post.video_url) && (
+          <div className="mt-3 aspect-video overflow-hidden rounded-xl bg-muted/40">
+            <iframe
+              src={getVideoEmbedUrl(post.video_url) ?? undefined}
+              title={`Vídeo: ${post.titulo}`}
+              className="h-full w-full"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
             />
           </div>
         )}

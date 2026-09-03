@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { timeAgo } from '@/lib/timeAgo';
 import { DetailSkeleton } from '@/components/ui/skeletons';
 import { cn } from '@/lib/utils';
+import { getVideoEmbedUrl } from '@/lib/videoEmbed';
 import { useAdminIds } from '@/hooks/useAdminIds';
 import AdminBadge from '@/components/AdminBadge';
 
