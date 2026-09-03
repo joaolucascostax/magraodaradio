@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS trg_default_uf_polls ON public.polls;
