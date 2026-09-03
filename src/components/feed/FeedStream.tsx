@@ -34,7 +34,7 @@ interface Props {
 export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity }: Props) {
   const { cidade, setCidade } = useCidade();
   const [filter, setFilter] = useState<FeedFilter>(initialFilter);
-  const [todoGoias, setTodoGoias] = useState(initialFilter === 'oficial');
+  const [todoGoias, setTodoGoias] = useState(true);
 
   const semCidade = hideCity || todoGoias || filter === 'oficial';
   const { posts, loading } = usePostsFeed({

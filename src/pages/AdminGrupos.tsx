@@ -157,7 +157,7 @@ export default function AdminGrupos() {
           <div className="space-y-3">
             <div>
               <Label className="text-sm">Nome amigável</Label>
-              <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: Grupo Magrão Rio Verde" />
+              <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: Grupo Magrão Goiás" />
             </div>
             <div>
               <Label className="text-sm">JID do grupo</Label>
