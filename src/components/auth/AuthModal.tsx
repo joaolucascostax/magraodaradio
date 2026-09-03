@@ -301,7 +301,7 @@ export default function AuthModal() {
             <form onSubmit={submitSignup} className="space-y-4 animate-fade-up">
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-foreground/80 flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 text-secondary shrink-0 mt-0.5" />
-                <span>Número novo por aqui — vamos criar sua conta. É rapidinho.</span>
+                 <span>Número novo por aqui — vamos criar seu cadastro.</span>
               </div>
 
               <div className="space-y-1.5">
@@ -340,9 +340,9 @@ export default function AuthModal() {
                     <CheckCircle2 className="absolute right-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-success" />
                   )}
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Usado só para garantir 1 pessoa = 1 voto. Nunca aparece publicamente.
-                </p>
+                 <p className="text-[11px] text-muted-foreground">
+                   {"\n"}
+                 </p>
               </div>
 
               <div className="rounded-xl border border-border bg-muted/30 p-3">
