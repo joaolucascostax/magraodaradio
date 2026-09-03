@@ -313,7 +313,7 @@ export default function DetalheReclamacao() {
                   >
                     {isAnonimo ? <Ghost className="h-3.5 w-3.5" /> : <User className="h-3.5 w-3.5" />}
                   </span>
-                  {isAnonimo ? 'Anônimo' : 'Meu nome'}
+                  {isAnonimo ? 'Anônimo' : 'Fulano X.'}
                 </button>
               )}
               <Button
