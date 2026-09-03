@@ -78,8 +78,8 @@ function parseJson<T>(bodyText: string): T | null {
 export async function getInstanceState(): Promise<EvolutionInstanceState> {
   const { ok, status, bodyText } = await evoFetch(`/instance/connectionState/${INSTANCE}`, { method: "GET" });
   if (!ok) throw new Error(`connectionState HTTP ${status}: ${bodyText.slice(0, 200)}`);
-  const parsed = parseJson<{ instance?: { state?: string; instanceName?: string } }>(bodyText);
-  const state = parsed?.instance?.state ?? "unknown";
+  const parsed = parseJson<Record<string, any>>(bodyText);
+  const state = parsed?.instance?.state ?? parsed?.state ?? parsed?.instance?.connectionStatus ?? parsed?.connectionStatus ?? "unknown";
   return {
     instance: parsed?.instance?.instanceName ?? INSTANCE,
     state,
@@ -101,7 +101,6 @@ export async function connectInstance(): Promise<{ base64?: string; code?: strin
     base64: (parsed.base64 as string | undefined) ?? undefined,
     code: (parsed.code as string | undefined) ?? undefined,
     pairingCode: (parsed.pairingCode as string | undefined) ?? undefined,
-    raw: parsed,
   };
 }
 
