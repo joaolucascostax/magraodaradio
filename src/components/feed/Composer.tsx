@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 /** Campo discreto de uma linha: única porta de entrada pra criar demanda. */
 export default function Composer() {
   const { user, openAuth } = useAuth();
-  const placeholder = 'O que Goiás precisa?';
+  const placeholder = 'O que sua cidade precisa?';
 
   const inner = (
     <>
