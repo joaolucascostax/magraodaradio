@@ -83,11 +83,15 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
               <Button
                 size="sm"
                 variant={todoGoias ? 'default' : 'ghost'}
-                className="h-9 shrink-0 rounded-full text-xs font-bold"
+                className={cn(
+                  'h-9 shrink-0 rounded-full text-xs font-bold',
+                  todoGoias && 'rounded-2xl border-2 border-secondary bg-accent text-accent-foreground shadow-card hover:bg-accent/90',
+                )}
                 onClick={() => setTodoGoias((v) => !v)}
               >
                 Goiás inteiro
               </Button>
+
             </div>
           )}
         </div>
