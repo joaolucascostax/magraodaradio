@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2, MapPin, Megaphone } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Loader2, MapPin, Megaphone, Vote } from 'lucide-react';
 import PostCard from '@/components/feed/PostCard';
+import PollFeedCard from '@/components/feed/PollFeedCard';
 import CitySelect from '@/components/CitySelect';
 import { Button } from '@/components/ui/button';
 import { usePostsFeed, type PostTipo } from '@/hooks/usePostsFeed';
 import { useCidade } from '@/hooks/useCidade';
+import { fetchPolls } from '@/lib/api';
+import { isPollLive } from '@/lib/pollLifecycle';
 import { cn } from '@/lib/utils';
+
 
 export type FeedFilter = 'tudo' | 'oficial' | 'demandas' | 'enquetes';
 
@@ -44,6 +49,15 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
     tipo: tipoOf(filter),
     limit: 30,
   });
+
+  const showPolls = filter === 'tudo' || filter === 'enquetes';
+  const { data: allPolls = [], isLoading: loadingPolls } = useQuery({
+    queryKey: ['polls'],
+    queryFn: fetchPolls,
+    enabled: showPolls,
+  });
+  const polls = filter === 'tudo' ? allPolls.filter(isPollLive) : allPolls;
+
 
   return (
     <div>
@@ -94,19 +108,21 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
         </div>
       )}
 
-      {loading ? (
+      {loading || (showPolls && loadingPolls) ? (
         <div className="flex justify-center py-16 text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
-      ) : posts.length === 0 ? (
+      ) : posts.length === 0 && polls.length === 0 ? (
         <EmptyFeed filter={filter} cidade={semCidade ? 'Goiás' : cidade} />
       ) : (
         <div className="divide-y divide-border">
+          {showPolls && polls.map((p) => <PollFeedCard key={p.id} poll={p} />)}
           {posts.map((p) => (
             <PostCard key={p.id} post={p} />
           ))}
         </div>
       )}
+
     </div>
   );
 }
@@ -122,6 +138,18 @@ function EmptyFeed({ filter, cidade }: { filter: FeedFilter; cidade: string }) {
       </div>
     );
   }
+  if (filter === 'enquetes') {
+    return (
+      <div className="py-14 text-center">
+        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/50 text-secondary">
+          <Vote className="h-6 w-6" />
+        </span>
+        <p className="mt-3 font-display text-lg font-extrabold">Nenhuma enquete no ar</p>
+        <p className="mt-1 text-sm text-muted-foreground">Em breve o Magrão vai perguntar algo pra você.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="py-14 text-center">
       <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/50 text-secondary">
