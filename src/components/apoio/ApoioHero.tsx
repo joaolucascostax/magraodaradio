@@ -32,9 +32,14 @@ export default function ApoioHero() {
             </div>
 
             <div className="flex min-w-0 flex-col">
-              <h3 className="truncate font-display text-[15px] font-bold leading-tight text-secondary">
-                Você é apoiador{apoio?.cidade ? ` em ${apoio.cidade}` : ''}
+              <h3 className="font-display text-[15px] font-bold leading-tight text-secondary">
+                Você é apoiador
               </h3>
+              {apoio?.cidade && (
+                <p className="text-xs font-medium text-secondary/70">
+                  em {apoio.cidade}
+                </p>
+              )}
               <p className="mt-0.5 text-xs font-medium text-secondary/60">
                 Magrão da Rádio 20.111
               </p>
@@ -43,9 +48,9 @@ export default function ApoioHero() {
 
           {/* Direita: chip de status */}
           <div className="shrink-0">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-secondary/10 bg-background px-3 py-2 shadow-sm">
-              <Heart className="h-3.5 w-3.5 fill-primary text-primary" />
-              <span className="font-display text-[11px] font-bold uppercase tracking-wider text-secondary">
+            <span className="inline-flex items-center gap-1 rounded-full border border-secondary/10 bg-background px-2 py-1.5 shadow-sm">
+              <Heart className="h-3 w-3 fill-primary text-primary" />
+              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-secondary">
                 {apoio?.cidade ?? 'Goiás'}
               </span>
             </span>
