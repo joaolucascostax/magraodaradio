@@ -138,6 +138,18 @@ function EmptyFeed({ filter, cidade }: { filter: FeedFilter; cidade: string }) {
       </div>
     );
   }
+  if (filter === 'enquetes') {
+    return (
+      <div className="py-14 text-center">
+        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/50 text-secondary">
+          <Vote className="h-6 w-6" />
+        </span>
+        <p className="mt-3 font-display text-lg font-extrabold">Nenhuma enquete no ar</p>
+        <p className="mt-1 text-sm text-muted-foreground">Em breve o Magrão vai perguntar algo pra você.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="py-14 text-center">
       <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/50 text-secondary">
