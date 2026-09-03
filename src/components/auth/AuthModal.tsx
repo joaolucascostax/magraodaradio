@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import {
   IdCard,
   Loader2,
   CheckCircle2,
-  AlertTriangle,
+  MessageCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCpf, cpfDigits, isValidCpf } from '@/lib/cpf';
@@ -28,49 +28,80 @@ function formatPhone(value: string) {
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
 }
 
-type Step = 'phone' | 'signup';
+type Step = 'phone' | 'code' | 'signup';
 
 export default function AuthModal() {
   const { isAuthOpen, closeAuth } = useAuth();
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [cpf, setCpf] = useState('');
   const [lgpd, setLgpd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
   const inFlightRef = useRef(false);
   const sessionStartedRef = useRef(false);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
 
   const reset = () => {
     setStep('phone');
     setPhone('');
+    setCode('');
     setName('');
     setCpf('');
     setLgpd(false);
+    setResendIn(0);
     inFlightRef.current = false;
     sessionStartedRef.current = false;
   };
 
   const phoneDigits = phone.replace(/\D/g, '');
   const phoneOk = phoneDigits.length >= 10 && phoneDigits.length <= 11;
+  const codeOk = /^\d{4}$/.test(code);
   const cpfOk = isValidCpf(cpf);
   const nameOk = name.trim().length >= 2;
 
-  const login = async (signupData?: { name: string; cpf: string; lgpd: boolean }) => {
+  const sendCode = async () => {
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('whatsapp-send-otp', { body: { phone } });
+      const d = (data ?? {}) as { ok?: boolean; error?: string };
+      if (error || d.error) {
+        toast.error(d.error || error?.message || 'Não foi possível enviar o código.');
+        return;
+      }
+      setStep('code');
+      setResendIn(60);
+      toast.success('Código enviado no seu WhatsApp.');
+    } finally {
+      inFlightRef.current = false;
+      setLoading(false);
+    }
+  };
+
+  const verify = async (signupData?: { name: string; cpf: string; lgpd: boolean }) => {
     if (inFlightRef.current || sessionStartedRef.current) return;
     inFlightRef.current = true;
     setLoading(true);
     try {
-      const body: Record<string, unknown> = { phone };
+      const body: Record<string, unknown> = { phone, code };
       if (signupData) {
         body.name = signupData.name;
         body.cpf = signupData.cpf;
         body.lgpd = signupData.lgpd;
       }
-      const { data, error } = await supabase.functions.invoke('dev-phone-login', { body });
+      const { data, error } = await supabase.functions.invoke('whatsapp-verify-otp', { body });
       const d = (data ?? {}) as { error?: string; needs_signup?: boolean; token_hash?: string; display_name?: string };
       if (error || d.error) {
-        toast.error(d.error || error?.message || 'Erro ao entrar.');
+        toast.error(d.error || error?.message || 'Código inválido.');
         return;
       }
       if (d.needs_signup) {
@@ -104,7 +135,13 @@ export default function AuthModal() {
   const submitPhone = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneOk) return toast.error('Digite um WhatsApp válido.');
-    await login();
+    await sendCode();
+  };
+
+  const submitCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!codeOk) return toast.error('Digite o código de 4 dígitos.');
+    await verify();
   };
 
   const submitSignup = async (e: React.FormEvent) => {
@@ -112,11 +149,11 @@ export default function AuthModal() {
     if (!nameOk) return toast.error('Informe seu nome ou apelido.');
     if (!cpfOk) return toast.error('CPF inválido.');
     if (!lgpd) return toast.error('É preciso aceitar os termos.');
-    await login({ name: name.trim(), cpf: cpfDigits(cpf), lgpd: true });
+    await verify({ name: name.trim(), cpf: cpfDigits(cpf), lgpd: true });
   };
 
-  const stepIndex = step === 'phone' ? 0 : 1;
-  const totalSteps = 2;
+  const stepIndex = step === 'phone' ? 0 : step === 'code' ? 1 : 2;
+  const totalSteps = 3;
 
   return (
     <Dialog open={isAuthOpen} onOpenChange={(o) => { if (!o) { closeAuth(); reset(); } }}>
@@ -129,7 +166,7 @@ export default function AuthModal() {
             <button
               onClick={() => {
                 if (loading) return;
-                setStep('phone');
+                setStep(step === 'signup' ? 'code' : 'phone');
               }}
               className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition"
               aria-label="Voltar"
@@ -145,12 +182,14 @@ export default function AuthModal() {
           <h2 className="mt-4 text-center text-2xl font-display font-black tracking-tight">
             <span>
               {step === 'phone' && 'Entrar no site'}
+              {step === 'code' && 'Confirme seu código'}
               {step === 'signup' && 'Falta pouco!'}
             </span>
           </h2>
           <p className="mt-1 text-center text-sm text-white/85">
             <span>
               {step === 'phone' && 'Cadastro seguro.'}
+              {step === 'code' && `Enviamos um código para ${phone}`}
               {step === 'signup' && 'Complete seu cadastro'}
             </span>
           </p>
@@ -169,13 +208,6 @@ export default function AuthModal() {
         </div>
 
         <div className="bg-background px-6 py-6">
-          <div className="mb-4 rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs text-foreground/80 flex items-start gap-2">
-            <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-            <span>
-              <strong>Modo teste:</strong> a verificação por WhatsApp está temporariamente desativada. Em breve voltaremos com a confirmação por código.
-            </span>
-          </div>
-
           {step === 'phone' && (
             <form onSubmit={submitPhone} className="space-y-5 animate-fade-up">
               <div className="space-y-2">
@@ -196,7 +228,7 @@ export default function AuthModal() {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Durante os testes, entramos direto sem enviar código.
+                  Enviamos um código de 4 dígitos no seu WhatsApp.
                 </p>
               </div>
 
@@ -208,7 +240,7 @@ export default function AuthModal() {
                 {loading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  <>Entrar <ArrowRight className="ml-1 h-4 w-4" /></>
+                  <>Receber código <ArrowRight className="ml-1 h-4 w-4" /></>
                 )}
               </Button>
 
@@ -216,6 +248,52 @@ export default function AuthModal() {
                 <ShieldCheck className="h-3.5 w-3.5 text-secondary" />
                 <span>Seu telefone não será exposto.</span>
               </div>
+            </form>
+          )}
+
+          {step === 'code' && (
+            <form onSubmit={submitCode} className="space-y-5 animate-fade-up">
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-foreground/80 flex items-start gap-2">
+                <MessageCircle className="h-4 w-4 text-secondary shrink-0 mt-0.5" />
+                <span>Confira a mensagem do WhatsApp. O código expira em 5 minutos.</span>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="code" className="text-sm font-semibold text-foreground">
+                  Código de 4 dígitos
+                </Label>
+                <Input
+                  id="code"
+                  autoFocus
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  placeholder="0000"
+                  inputMode="numeric"
+                  maxLength={4}
+                  className="h-14 rounded-xl text-center text-2xl font-bold tracking-[0.5em]"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-12 rounded-xl text-base font-bold shadow-md hover:shadow-lg transition-all"
+                disabled={loading || !codeOk}
+              >
+                {loading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>Confirmar <ArrowRight className="ml-1 h-4 w-4" /></>
+                )}
+              </Button>
+
+              <button
+                type="button"
+                onClick={() => { if (resendIn === 0 && !loading) sendCode(); }}
+                disabled={resendIn > 0 || loading}
+                className="w-full text-xs text-muted-foreground hover:text-foreground disabled:opacity-60"
+              >
+                {resendIn > 0 ? `Reenviar código em ${resendIn}s` : 'Não recebeu? Reenviar código'}
+              </button>
             </form>
           )}
 
