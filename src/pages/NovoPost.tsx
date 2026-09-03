@@ -546,7 +546,7 @@ export default function NovoPost() {
                   variant="outline"
                   onClick={() => setEtapa(etapa - 1)}
                   disabled={submitting}
-                  className="h-13 px-5 rounded-[0.875rem] font-bold"
+                  className="h-14 px-5 rounded-[0.875rem] font-bold"
                 >
                   <ArrowLeft className="mr-1.5 h-4 w-4" />
                   Voltar
@@ -557,7 +557,7 @@ export default function NovoPost() {
                   type="button"
                   onClick={avancar}
                   disabled={!canContinue}
-                  className="flex-1 h-13 rounded-[0.875rem] bg-primary hover:bg-secondary text-primary-foreground font-bold text-base shadow-lg shadow-primary/25 active:scale-[0.98] transition-all"
+                  className="flex-1 h-14 rounded-[0.875rem] bg-primary hover:bg-secondary text-primary-foreground font-bold text-base shadow-lg shadow-primary/25 active:scale-[0.98] transition-all"
                 >
                   Continuar
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -566,7 +566,7 @@ export default function NovoPost() {
                 <Button
                   onClick={submit}
                   disabled={!canContinue || submitting}
-                  className="flex-1 h-13 rounded-[0.875rem] bg-primary hover:bg-secondary text-primary-foreground font-bold text-base shadow-lg shadow-primary/25 active:scale-[0.98] transition-all"
+                  className="flex-1 h-14 rounded-[0.875rem] bg-primary hover:bg-secondary text-primary-foreground font-bold text-base shadow-lg shadow-primary/25 active:scale-[0.98] transition-all"
                 >
                   {submitting ? (
                     <>
