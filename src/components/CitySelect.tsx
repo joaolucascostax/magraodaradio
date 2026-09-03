@@ -35,7 +35,7 @@ export default function CitySelect({ value, onChange, className, size = 'md', la
         >
           <span className="flex min-w-0 items-center gap-1.5">
             <MapPin className={size === 'sm' ? 'h-3.5 w-3.5 shrink-0 text-primary' : 'h-4 w-4 shrink-0 text-primary'} />
-            <span className="truncate">{value || 'Escolher cidade'}</span>
+            <span className="truncate">{value || 'Cidade'}</span>
             <span className="text-muted-foreground">/ GO</span>
           </span>
           <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 opacity-50" />
