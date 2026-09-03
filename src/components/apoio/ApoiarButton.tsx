@@ -4,10 +4,12 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import CitySelect from '@/components/CitySelect';
+import Placa20111 from '@/components/campanha/Placa20111';
 import { useApoioStats, useMeuApoio } from '@/hooks/useApoio';
 import { useAuth } from '@/hooks/useAuth';
 import { useCidade } from '@/hooks/useCidade';
 import { cn } from '@/lib/utils';
+
 
 interface Props {
   className?: string;
@@ -59,11 +61,23 @@ export default function ApoiarButton({ className, size = 'lg', full }: Props) {
         onClick={handleClick}
         size={size === 'lg' ? 'lg' : 'sm'}
         variant={isApoiador ? 'outline' : 'default'}
-        className={cn('gap-2 rounded-full font-bold', full && 'w-full', className)}
+        className={cn(
+          'gap-2 font-bold',
+          isApoiador
+            ? 'rounded-full'
+            : 'rounded-2xl border-2 border-secondary bg-accent text-accent-foreground shadow-card hover:bg-accent/90',
+          full && 'w-full',
+          className,
+        )}
       >
-        <Heart className={cn('h-4 w-4', isApoiador && 'fill-primary text-primary')} />
+        {isApoiador ? (
+          <Heart className="h-4 w-4 fill-primary text-primary" />
+        ) : (
+          <Placa20111 size="xs" className="shadow-none" label="Número de campanha 20.111" />
+        )}
         {isApoiador ? `Apoiador · ${apoio?.cidade}` : 'Sou apoiador'}
       </Button>
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-sm">

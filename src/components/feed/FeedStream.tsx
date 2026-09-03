@@ -50,26 +50,27 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
       {(!hideChips || !hideCity) && (
         <div className="sticky top-16 z-20 -mx-4 mb-1 bg-background/90 px-4 py-2 backdrop-blur-md">
           {!hideChips && (
-            <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-              {CHIPS.map((c) => {
-                const active = filter === c.value;
-                return (
-                  <button
-                    key={c.value}
-                    type="button"
-                    onClick={() => setFilter(c.value)}
-                    className={cn(
-                      'shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-colors',
-                      active
-                        ? 'bg-secondary text-secondary-foreground'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/70',
-                    )}
-                  >
-                    {c.label}
-                  </button>
-                );
-              })}
-            </div>
+          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+            {CHIPS.map((c) => {
+              const active = filter === c.value;
+              return (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => setFilter(c.value)}
+                  className={cn(
+                    'shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-colors',
+                    active
+                      ? 'rounded-2xl border-2 border-secondary bg-accent text-accent-foreground shadow-card'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/70',
+                  )}
+                >
+                  {c.label}
+                </button>
+              );
+            })}
+          </div>
+
           )}
           {!hideCity && filter !== 'oficial' && (
             <div className="mt-1 flex items-center gap-2">
@@ -82,11 +83,15 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
               <Button
                 size="sm"
                 variant={todoGoias ? 'default' : 'ghost'}
-                className="h-9 shrink-0 rounded-full text-xs font-bold"
+                className={cn(
+                  'h-9 shrink-0 rounded-full text-xs font-bold',
+                  todoGoias && 'rounded-2xl border-2 border-secondary bg-accent text-accent-foreground shadow-card hover:bg-accent/90',
+                )}
                 onClick={() => setTodoGoias((v) => !v)}
               >
                 Goiás inteiro
               </Button>
+
             </div>
           )}
         </div>

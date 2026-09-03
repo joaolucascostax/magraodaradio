@@ -151,6 +151,41 @@
     background-clip: text;
   }
 
+  /* Selo de campanha 20.111 — números azul-marinho com outline branco e sombra suave */
+  .text-placa-xs {
+    text-shadow:
+      -0.5px -0.5px 0 hsl(var(--primary-foreground)),
+      0.5px -0.5px 0 hsl(var(--primary-foreground)),
+      -0.5px 0.5px 0 hsl(var(--primary-foreground)),
+      0.5px 0.5px 0 hsl(var(--primary-foreground)),
+      1px 1px 0 hsl(var(--secondary) / 0.18);
+  }
+  .text-placa-sm {
+    text-shadow:
+      -0.75px -0.75px 0 hsl(var(--primary-foreground)),
+      0.75px -0.75px 0 hsl(var(--primary-foreground)),
+      -0.75px 0.75px 0 hsl(var(--primary-foreground)),
+      0.75px 0.75px 0 hsl(var(--primary-foreground)),
+      1.5px 1.5px 0 hsl(var(--secondary) / 0.18);
+  }
+  .text-placa-md {
+    text-shadow:
+      -1px -1px 0 hsl(var(--primary-foreground)),
+      1px -1px 0 hsl(var(--primary-foreground)),
+      -1px 1px 0 hsl(var(--primary-foreground)),
+      1px 1px 0 hsl(var(--primary-foreground)),
+      2.5px 2.5px 0 hsl(var(--secondary) / 0.18);
+  }
+  .text-placa-lg {
+    text-shadow:
+      -1.5px -1.5px 0 hsl(var(--primary-foreground)),
+      1.5px -1.5px 0 hsl(var(--primary-foreground)),
+      -1.5px 1.5px 0 hsl(var(--primary-foreground)),
+      1.5px 1.5px 0 hsl(var(--primary-foreground)),
+      3px 3px 0 hsl(var(--secondary) / 0.18);
+  }
+
+
   .shadow-soft { box-shadow: var(--shadow-soft); }
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-lifted { box-shadow: var(--shadow-lifted); }

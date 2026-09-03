@@ -4,7 +4,9 @@ import { Menu, X, LogOut, Megaphone, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import ApoiarButton from '@/components/apoio/ApoiarButton';
+import Placa20111 from '@/components/campanha/Placa20111';
 import { useAuth } from '@/hooks/useAuth';
+
 
 const navItems = [
   { label: 'Início', path: '/' },
@@ -22,9 +24,13 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between gap-3">
-        <Logo size="md" />
+        <div className="flex items-center gap-2">
+          <Logo size="md" />
+          <Placa20111 size="xs" className="hidden sm:inline-flex" label="Número de campanha 20.111" />
+        </div>
 
         <nav className="hidden items-center gap-1 lg:flex">
+
           {navItems.map(item => {
             const active = loc.pathname === item.path;
             return (
