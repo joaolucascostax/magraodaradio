@@ -83,7 +83,7 @@ export default function ApoiarButton({ className, size = 'lg', full }: Props) {
               <span className="text-[11px] font-bold uppercase tracking-wider text-secondary">Minha cidade</span>
               <CitySelect value={escolhida} onChange={setEscolhida} className="w-full" />
             </div>
-            <Button onClick={confirmar} disabled={apoiar.isPending} className="w-full gap-2 rounded-full font-bold">
+            <Button onClick={confirmar} disabled={apoiar.isPending || !escolhida} className="w-full gap-2 rounded-full font-bold">
               {apoiar.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4" />}
               {isApoiador ? 'Atualizar minha cidade' : 'Confirmar meu apoio'}
             </Button>
