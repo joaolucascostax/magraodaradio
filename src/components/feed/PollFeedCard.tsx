@@ -40,7 +40,17 @@ export default function PollFeedCard({ poll }: { poll: Poll }) {
         {sorted.map((opt, i) => (
           <div key={opt.id}>
             <div className="mb-1 flex items-center justify-between gap-2">
-              <span className="truncate text-[11px] font-medium text-foreground/80">{opt.text}</span>
+              <span className="flex min-w-0 items-center gap-2">
+                {opt.imageUrl ? (
+                  <img
+                    src={opt.imageUrl}
+                    alt={opt.text}
+                    className="h-7 w-7 shrink-0 rounded-full border border-border object-cover"
+                    loading="lazy"
+                  />
+                ) : null}
+                <span className="truncate text-[11px] font-medium text-foreground/80">{opt.text}</span>
+              </span>
               <span className="shrink-0 text-xs font-bold tabular-nums">{pct(opt.votes)}%</span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
