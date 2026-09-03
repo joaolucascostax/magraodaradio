@@ -5,7 +5,6 @@ import { ArrowLeft, BadgeCheck, Heart, Share2, AlertCircle, Trash2, MessageSquar
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { postTipoLabels, postTipoColors, statusLabels, statusColors } from '@/data/mockData';
 import { fetchComplaint, fetchComments, fetchUserSupports } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
