@@ -61,7 +61,7 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
                   className={cn(
                     'shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-colors',
                     active
-                      ? 'rounded-2xl border-2 border-secondary bg-accent text-accent-foreground shadow-card'
+                      ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground hover:bg-muted/70',
                   )}
                 >
@@ -83,10 +83,7 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
               <Button
                 size="sm"
                 variant={todoGoias ? 'default' : 'ghost'}
-                className={cn(
-                  'h-9 shrink-0 rounded-full text-xs font-bold',
-                  todoGoias && 'rounded-2xl border-2 border-secondary bg-accent text-accent-foreground shadow-card hover:bg-accent/90',
-                )}
+                className="h-9 shrink-0 rounded-full text-xs font-bold"
                 onClick={() => setTodoGoias((v) => !v)}
               >
                 Goiás inteiro
