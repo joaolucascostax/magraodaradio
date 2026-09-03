@@ -1,13 +1,11 @@
 import { Link } from 'react-router-dom';
 import { PenLine } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useCidade } from '@/hooks/useCidade';
 
 /** Campo discreto de uma linha: única porta de entrada pra criar demanda. */
 export default function Composer() {
   const { user, openAuth } = useAuth();
-  const { cidade } = useCidade();
-  const placeholder = `O que ${cidade} precisa?`;
+  const placeholder = 'O que Goiás precisa?';
 
   const inner = (
     <>
