@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
     // Gera código de 4 dígitos (1000-9999) + hash
     const code = String(Math.floor(1000 + Math.random() * 9000));
     const codeHash = await sha256Hex(`${SALT}:${phoneE164}:${code}`);
-    const expiresAt = new Date(Date.now() + 5 * 60_000).toISOString();
+    const expiresAt = new Date(Date.now() + 15 * 60_000).toISOString();
 
     const { error: insErr } = await admin.from("phone_otps").insert({
       phone_e164: phoneE164,
