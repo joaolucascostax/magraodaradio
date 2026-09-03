@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import { BarChart3, Inbox, MessagesSquare, Shield, LogOut, ExternalLink, BarChart2, MessageSquare, Award } from 'lucide-react';
+import { BarChart3, Inbox, MessagesSquare, Shield, LogOut, ExternalLink, BarChart2, MessageSquare, Award, Radio } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -32,6 +32,7 @@ function AdminSidebar({ pendingPosts }: { pendingPosts: number }) {
     { title: 'Comentários', url: '/admin/comentarios', icon: MessagesSquare },
     { title: 'Enquetes', url: '/admin/enquetes', icon: BarChart2 },
     { title: 'Publicados & Selos', url: '/admin/publicados', icon: Award },
+    { title: 'Diário do Magrão', url: '/admin/diario', icon: Radio },
     { title: 'Grupos WhatsApp', url: '/admin/grupos', icon: MessageSquare },
   ];
 
