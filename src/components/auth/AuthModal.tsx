@@ -255,7 +255,7 @@ export default function AuthModal() {
             <form onSubmit={submitCode} className="space-y-5 animate-fade-up">
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-foreground/80 flex items-start gap-2">
                 <MessageCircle className="h-4 w-4 text-secondary shrink-0 mt-0.5" />
-                <span>Confira a mensagem do WhatsApp. O código expira em 5 minutos.</span>
+                <span>Confira a mensagem do WhatsApp. O código expira em 15 minutos.</span>
               </div>
 
               <div className="space-y-2">
