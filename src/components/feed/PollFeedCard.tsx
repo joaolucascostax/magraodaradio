@@ -15,7 +15,8 @@ export default function PollFeedCard({ poll }: { poll: Poll }) {
   return (
     <Link
       to={`/enquetes/${poll.id}`}
-      className="block rounded-2xl border border-primary/15 bg-card p-4 shadow-soft transition-all hover:border-primary/25 hover:shadow-card my-3"
+      className="my-3 block rounded-2xl border border-primary/15 bg-card p-4 shadow-soft transition-all hover:border-primary/25 hover:shadow-card"
+    >
       <div className="mb-2 flex flex-wrap items-center gap-1.5">
         <Badge className="gap-1 border-0 bg-highlight/10 text-[10px] font-bold text-highlight">
           <Vote className="h-3 w-3" /> Enquete
