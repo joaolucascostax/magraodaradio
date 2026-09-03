@@ -85,7 +85,7 @@ export async function getInstanceState(): Promise<EvolutionInstanceState> {
     instance: parsed?.instance?.instanceName ?? INSTANCE,
     state,
     connected: state === "open",
-    raw: parsed,
+    raw: parsed ?? bodyText.slice(0, 300),
   };
 }
 
@@ -103,7 +103,7 @@ export async function connectInstance(): Promise<{ base64?: string; code?: strin
     base64: (parsed.base64 as string | undefined) ?? undefined,
     code: (parsed.code as string | undefined) ?? undefined,
     pairingCode: (parsed.pairingCode as string | undefined) ?? undefined,
-    raw: parsed,
+    raw: parsed ?? bodyText.slice(0, 300),
   };
 }
 
