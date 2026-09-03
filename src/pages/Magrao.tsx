@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Radio, Megaphone, Users, BadgeCheck, MapPin, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ApoiarButton from '@/components/apoio/ApoiarButton';
-import magraoKombi from '@/assets/magrao-kombi.png.asset.json';
+import magraoCampanha from '@/assets/magrao-campanha-2026.jpg.asset.json';
 
 const PILARES = [
   {

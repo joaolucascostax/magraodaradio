@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ThumbsUp, MessageCircle, Share2, MapPin, BadgeCheck, UserRound, CheckCircle2, Clock, Landmark } from 'lucide-react';
 import VereadorBadge from '@/components/VereadorBadge';
 import AdminBadge from '@/components/AdminBadge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminIds } from '@/hooks/useAdminIds';
@@ -18,6 +18,7 @@ import { getVideoEmbedUrl } from '@/lib/videoEmbed';
 import { fetchComplaint, fetchComments } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
 import { postTipoLabels } from '@/data/mockData';
+import magraoAvatar from '@/assets/magrao-campanha-2026.jpg.asset.json';
 import type { PostRow } from '@/hooks/usePostsFeed';
 
 const tipoBadgeClasses: Record<string, string> = {
