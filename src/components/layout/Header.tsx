@@ -4,7 +4,9 @@ import { Menu, X, LogOut, Megaphone, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import ApoiarButton from '@/components/apoio/ApoiarButton';
+import Placa20111 from '@/components/campanha/Placa20111';
 import { useAuth } from '@/hooks/useAuth';
+
 
 const navItems = [
   { label: 'Início', path: '/' },

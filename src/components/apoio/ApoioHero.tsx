@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { BadgeCheck, Radio, ArrowRight } from 'lucide-react';
 import ApoiarButton from '@/components/apoio/ApoiarButton';
+import Placa20111 from '@/components/campanha/Placa20111';
 import { useApoioStats } from '@/hooks/useApoio';
 import { useMeuApoio } from '@/hooks/useApoio';
 
@@ -8,6 +9,7 @@ import { useMeuApoio } from '@/hooks/useApoio';
  * Bloco de topo do feed: a única área de cor cheia da tela.
  * Ação dominante = virar apoiador. Quando já apoia, vira barra de status.
  */
+
 export default function ApoioHero() {
   const { totalApoiadores, totalCidades } = useApoioStats();
   const { isApoiador, apoio } = useMeuApoio();
