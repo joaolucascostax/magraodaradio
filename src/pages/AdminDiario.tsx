@@ -51,6 +51,8 @@ export default function AdminDiario() {
   const [imagens, setImagens] = useState<ImageItem[]>([]);
   const [publishing, setPublishing] = useState(false);
   const [editing, setEditing] = useState<Post | null>(null);
+  const [step, setStep] = useState(0);
+
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['admin-diario'],
