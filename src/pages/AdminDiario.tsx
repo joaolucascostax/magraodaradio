@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ImagePlus, Link2, Loader2, Megaphone, Pencil, Plus, Send, Trash2, Video, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ImagePlus, Link2, Loader2, Megaphone, Pencil, Send, Trash2, Video, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -51,6 +51,8 @@ export default function AdminDiario() {
   const [imagens, setImagens] = useState<ImageItem[]>([]);
   const [publishing, setPublishing] = useState(false);
   const [editing, setEditing] = useState<Post | null>(null);
+  const [step, setStep] = useState(0);
+
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['admin-diario'],
@@ -92,7 +94,25 @@ export default function AdminDiario() {
     setVideoUrl('');
     setAvisarWhatsapp(true);
     setImagens([]);
+    setStep(0);
   }
+
+  const steps = ['Tipo', 'Conteúdo', 'Detalhes', 'Revisar'] as const;
+  const tituloOk = titulo.trim().length >= 3 && titulo.trim().length <= 120;
+  const corpoOk = corpo.trim().length >= 10;
+  const videoOk = tipo !== 'video' || isSupportedVideoUrl(videoUrl.trim());
+  const stepValid = step === 0 ? true : step === 1 ? tituloOk && corpoOk && videoOk : true;
+
+  function nextStep() {
+    if (!stepValid) {
+      if (!tituloOk) toast.error('O título deve ter entre 3 e 120 caracteres.');
+      else if (!corpoOk) toast.error('Escreva pelo menos 10 caracteres no texto.');
+      else toast.error('Use um link válido do YouTube ou Instagram.');
+      return;
+    }
+    setStep((current) => Math.min(current + 1, steps.length - 1));
+  }
+
 
   async function publish() {
     if (!user) return;
@@ -177,21 +197,41 @@ export default function AdminDiario() {
         <div className="mb-5 flex items-start justify-between gap-3 border-b pb-4">
           <div>
             <h2 className="font-display text-lg font-extrabold">Nova publicação</h2>
-            <p className="mt-1 text-xs text-muted-foreground">Este conteúdo entra publicado imediatamente.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Etapa {step + 1} de {steps.length} · {steps[step]}</p>
           </div>
           <Badge className="gap-1 bg-success/10 text-success hover:bg-success/10"><Send className="h-3 w-3" /> Ao vivo</Badge>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
-          <div className="space-y-4">
+        <ol className="mb-5 flex items-center gap-2">
+          {steps.map((label, index) => (
+            <li key={label} className="flex flex-1 items-center gap-2">
+              <button
+                type="button"
+                onClick={() => index < step && setStep(index)}
+                disabled={index > step}
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-colors ${
+                  index < step ? 'bg-success/15 text-success' : index === step ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                }`}
+                aria-label={`Etapa ${index + 1}: ${label}`}
+              >
+                {index < step ? <Check className="h-3.5 w-3.5" /> : index + 1}
+              </button>
+              <span className={`hidden text-xs font-semibold sm:block ${index === step ? 'text-foreground' : 'text-muted-foreground'}`}>{label}</span>
+              {index < steps.length - 1 && <span className={`h-0.5 flex-1 rounded-full ${index < step ? 'bg-success/40' : 'bg-muted'}`} />}
+            </li>
+          ))}
+        </ol>
+
+        <div className="min-h-[280px] space-y-4">
+          {step === 0 && (
             <div className="grid gap-3 sm:grid-cols-3">
               {(Object.keys(tipoMeta) as DiarioTipo[]).map((option) => (
                 <Button
                   key={option}
                   type="button"
                   variant={tipo === option ? 'default' : 'outline'}
-                  onClick={() => setTipo(option)}
-                  className="h-auto min-h-[78px] justify-start rounded-xl p-3 text-left"
+                  onClick={() => { setTipo(option); setStep(1); }}
+                  className="h-auto min-h-[92px] justify-start rounded-xl p-3 text-left"
                 >
                   <span>
                     <span className="block text-sm font-bold">{tipoMeta[option].label}</span>
@@ -200,49 +240,91 @@ export default function AdminDiario() {
                 </Button>
               ))}
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="diario-title">Título</Label>
-              <Input id="diario-title" value={titulo} onChange={(event) => setTitulo(event.target.value)} maxLength={120} placeholder="Ex.: Um novo passo para Goiás" />
-              <p className="text-right text-[11px] text-muted-foreground">{titulo.length}/120</p>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="diario-body">Texto da publicação</Label>
-              <Textarea id="diario-body" value={corpo} onChange={(event) => setCorpo(event.target.value)} rows={7} maxLength={5000} placeholder="Conte a atualização com a voz do Magrão..." />
-            </div>
-            {tipo === 'video' && (
-              <div className="space-y-1.5">
-                <Label htmlFor="diario-video" className="flex items-center gap-1.5"><Video className="h-4 w-4 text-primary" /> Link do vídeo</Label>
-                <div className="relative"><Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input id="diario-video" value={videoUrl} onChange={(event) => setVideoUrl(event.target.value)} className="pl-9" placeholder="https://youtube.com/... ou instagram.com/..." /></div>
-              </div>
-            )}
-          </div>
+          )}
 
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label>Onde aconteceu?</Label>
-              <CitySelect value={cidade} onChange={setCidade} className="w-full" label="Escolher cidade da publicação" />
-              <p className="text-[11px] text-muted-foreground">Sem cidade, a publicação vale para todo Goiás.</p>
+          {step === 1 && (
+            <>
+              <div className="space-y-1.5">
+                <Label htmlFor="diario-title">Título</Label>
+                <Input id="diario-title" value={titulo} onChange={(event) => setTitulo(event.target.value)} maxLength={120} placeholder="Ex.: Um novo passo para Goiás" />
+                <p className="text-right text-[11px] text-muted-foreground">{titulo.length}/120</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="diario-body">Texto da publicação</Label>
+                <Textarea id="diario-body" value={corpo} onChange={(event) => setCorpo(event.target.value)} rows={7} maxLength={5000} placeholder="Conte a atualização com a voz do Magrão..." />
+                <p className="text-right text-[11px] text-muted-foreground">{corpo.length}/5000</p>
+              </div>
+              {tipo === 'video' && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="diario-video" className="flex items-center gap-1.5"><Video className="h-4 w-4 text-primary" /> Link do vídeo</Label>
+                  <div className="relative"><Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input id="diario-video" value={videoUrl} onChange={(event) => setVideoUrl(event.target.value)} className="pl-9" placeholder="https://youtube.com/... ou instagram.com/..." /></div>
+                </div>
+              )}
+            </>
+          )}
+
+          {step === 2 && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>Onde aconteceu?</Label>
+                <CitySelect value={cidade} onChange={setCidade} className="w-full" label="Escolher cidade da publicação" />
+                <p className="text-[11px] text-muted-foreground">Sem cidade, a publicação vale para todo Goiás.</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Fotos da publicação</Label>
+                <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed bg-muted/20 px-4 text-center transition-colors hover:bg-muted/50">
+                  <ImagePlus className="mb-2 h-6 w-6 text-primary" />
+                  <span className="text-xs font-semibold">Adicionar fotos</span>
+                  <span className="mt-1 text-[10px] text-muted-foreground">Até 2MB cada · primeira vira capa</span>
+                  <input type="file" accept="image/*" multiple className="sr-only" onChange={(event) => { pickImages(event.target.files); event.currentTarget.value = ''; }} />
+                </label>
+                {imagens.length > 0 && <div className="grid grid-cols-3 gap-2">{imagens.map((item, index) => <div key={item.preview} className="group relative aspect-square overflow-hidden rounded-lg"><img src={item.preview} alt={`Prévia ${index + 1}`} className="h-full w-full object-cover" /><Button type="button" variant="ghost" size="icon" onClick={() => removeImage(index)} aria-label={`Remover foto ${index + 1}`} className="absolute right-1 top-1 h-7 w-7 rounded-full bg-foreground/70 p-1 text-background opacity-0 transition-opacity hover:bg-foreground group-hover:opacity-100"><X className="h-3 w-3" /></Button></div>)}</div>}
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Fotos da publicação</Label>
-              <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed bg-muted/20 px-4 text-center transition-colors hover:bg-muted/50">
-                <ImagePlus className="mb-2 h-6 w-6 text-primary" />
-                <span className="text-xs font-semibold">Adicionar fotos</span>
-                <span className="mt-1 text-[10px] text-muted-foreground">Até 2MB cada · primeira vira capa</span>
-                <input type="file" accept="image/*" multiple className="sr-only" onChange={(event) => { pickImages(event.target.files); event.currentTarget.value = ''; }} />
-              </label>
-              {imagens.length > 0 && <div className="grid grid-cols-3 gap-2">{imagens.map((item, index) => <div key={item.preview} className="group relative aspect-square overflow-hidden rounded-lg"><img src={item.preview} alt={`Prévia ${index + 1}`} className="h-full w-full object-cover" /><Button type="button" variant="ghost" size="icon" onClick={() => removeImage(index)} aria-label={`Remover foto ${index + 1}`} className="absolute right-1 top-1 h-7 w-7 rounded-full bg-foreground/70 p-1 text-background opacity-0 transition-opacity hover:bg-foreground group-hover:opacity-100"><X className="h-3 w-3" /></Button></div>)}</div>}
+          )}
+
+          {step === 3 && (
+            <div className="space-y-4">
+              <div className="rounded-xl border bg-muted/20 p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary" className="text-[10px]">{tipoMeta[tipo].label}</Badge>
+                  <span className="text-[11px] text-muted-foreground">{cidade ? `${cidade}/GO` : 'Goiás inteiro'}</span>
+                  {imagens.length > 0 && <span className="text-[11px] text-muted-foreground">· {imagens.length} foto(s)</span>}
+                </div>
+                <h3 className="mt-2 font-display text-base font-extrabold">{titulo || 'Sem título'}</h3>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{corpo || 'Sem texto'}</p>
+                {imagens.length > 0 && (
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    {imagens.map((item, index) => <img key={item.preview} src={item.preview} alt={`Prévia ${index + 1}`} className="aspect-square w-full rounded-lg object-cover" />)}
+                  </div>
+                )}
+                {tipo === 'video' && videoUrl && <p className="mt-3 break-all text-[11px] text-primary">{videoUrl}</p>}
+              </div>
+              <div className="flex items-start gap-2 rounded-xl bg-muted/40 p-3">
+                <Checkbox id="diario-whatsapp" checked={avisarWhatsapp} onCheckedChange={(checked) => setAvisarWhatsapp(checked === true)} />
+                <div><Label htmlFor="diario-whatsapp" className="cursor-pointer text-xs font-bold">Avisar nos grupos de WhatsApp</Label><p className="mt-1 text-[11px] text-muted-foreground">Envia o link assim que publicar.</p></div>
+              </div>
+              <p className="text-[11px] text-muted-foreground">Ao publicar, o conteúdo entra no ar imediatamente como publicação oficial.</p>
             </div>
-            <div className="flex items-start gap-2 rounded-xl bg-muted/40 p-3">
-              <Checkbox id="diario-whatsapp" checked={avisarWhatsapp} onCheckedChange={(checked) => setAvisarWhatsapp(checked === true)} />
-              <div><Label htmlFor="diario-whatsapp" className="cursor-pointer text-xs font-bold">Avisar nos grupos de WhatsApp</Label><p className="mt-1 text-[11px] text-muted-foreground">Envia o link assim que publicar.</p></div>
-            </div>
-            <Button onClick={publish} disabled={publishing} className="h-11 w-full gap-2 rounded-full font-bold">
+          )}
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t pt-4">
+          <Button type="button" variant="ghost" className="h-11 gap-1.5 rounded-full" onClick={() => setStep((current) => Math.max(current - 1, 0))} disabled={step === 0 || publishing}>
+            <ArrowLeft className="h-4 w-4" /> Voltar
+          </Button>
+          {step < steps.length - 1 ? (
+            <Button type="button" onClick={nextStep} className="h-11 gap-1.5 rounded-full font-bold">
+              Continuar <ArrowRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button onClick={publish} disabled={publishing} className="h-11 gap-2 rounded-full font-bold">
               {publishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               {publishing ? 'Publicando...' : 'Publicar agora'}
             </Button>
-          </div>
+          )}
         </div>
+
       </section>
 
       <section>
