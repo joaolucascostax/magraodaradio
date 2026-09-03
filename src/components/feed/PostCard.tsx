@@ -154,7 +154,14 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
     >
       {/* cabeçalho: autor · cidade · tempo */}
       <div className="flex items-center gap-3">
-        <Avatar className="h-10 w-10 shrink-0">
+        <Avatar className="h-10 w-10 shrink-0 border border-border/60 bg-background">
+          {(isAdminAuthor || isVereador || post.is_official) && (
+            <AvatarImage
+              src={magraoAvatar.url}
+              alt="Magrão da Rádio"
+              className="object-cover"
+            />
+          )}
           <AvatarFallback
             className={cn(
               'text-xs font-bold',

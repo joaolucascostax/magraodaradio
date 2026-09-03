@@ -31,7 +31,7 @@ export default function Magrao() {
       <div className="mx-auto max-w-2xl pt-5">
         <section className="overflow-hidden rounded-2xl border border-border bg-gradient-soft shadow-card">
           <div className="flex flex-col items-center px-5 py-6 text-center">
-            <img src={magraoKombi.url} alt="Magrão da Rádio em campanha pelas cidades de Goiás" className="h-32 w-auto drop-shadow-md" />
+            <img src={magraoCampanha.url} alt="Magrão da Rádio em campanha pelas cidades de Goiás" className="h-32 w-auto drop-shadow-md" />
             <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent/50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-secondary">
               <BadgeCheck className="h-3 w-3" /> Perfil oficial
             </div>
