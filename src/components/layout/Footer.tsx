@@ -29,7 +29,7 @@ export default function Footer() {
         <div>
           <h4 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Onde estamos</h4>
           <p className="text-sm text-foreground/80">Goiás inteiro — 246 municípios</p>
-          <p className="mt-1 text-sm text-muted-foreground">Da capital ao interior</p>
+          <p className="mt-1 text-sm text-muted-foreground">Base em Rio Verde-GO</p>
         </div>
         <div>
           <h4 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Redes</h4>

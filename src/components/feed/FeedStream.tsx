@@ -34,7 +34,9 @@ interface Props {
 export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity }: Props) {
   const { cidade, setCidade } = useCidade();
   const [filter, setFilter] = useState<FeedFilter>(initialFilter);
-  const semCidade = hideCity || !cidade || filter === 'oficial';
+  const [todoGoias, setTodoGoias] = useState(initialFilter === 'oficial');
+
+  const semCidade = hideCity || todoGoias || filter === 'oficial';
   const { posts, loading } = usePostsFeed({
     tab: 'recentes',
     cidade: semCidade ? null : cidade,
@@ -73,22 +75,18 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
             <div className="mt-1 flex items-center gap-2">
               <CitySelect
                 value={cidade}
-                onChange={setCidade}
+                onChange={(c) => { setCidade(c); setTodoGoias(false); }}
                 size="sm"
-                allowAll
-                className="max-w-[15rem]"
-                label="Filtrar por cidade de Goiás"
+                className="max-w-[13rem]"
               />
-              {cidade && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-9 shrink-0 rounded-full text-xs font-bold"
-                  onClick={() => setCidade('')}
-                >
-                  Goiás inteiro
-                </Button>
-              )}
+              <Button
+                size="sm"
+                variant={todoGoias ? 'default' : 'ghost'}
+                className="h-9 shrink-0 rounded-full text-xs font-bold"
+                onClick={() => setTodoGoias((v) => !v)}
+              >
+                Goiás inteiro
+              </Button>
             </div>
           )}
         </div>

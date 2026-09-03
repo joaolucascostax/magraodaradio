@@ -3,7 +3,7 @@ import { Check, ChevronsUpDown, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { GOIAS_CITIES } from '@/data/goiasCities';
+import { GOIAS_CITIES, PRIMARY_CITY } from '@/data/goiasCities';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -12,13 +12,11 @@ interface Props {
   className?: string;
   size?: 'sm' | 'md';
   label?: string;
-  /** Inclui a opção "Goiás inteiro" (valor vazio). */
-  allowAll?: boolean;
 }
 
-const ordered = GOIAS_CITIES;
+const ordered = [PRIMARY_CITY, ...GOIAS_CITIES.filter((c) => c !== PRIMARY_CITY)];
 
-export default function CitySelect({ value, onChange, className, size = 'md', label, allowAll }: Props) {
+export default function CitySelect({ value, onChange, className, size = 'md', label }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -37,8 +35,8 @@ export default function CitySelect({ value, onChange, className, size = 'md', la
         >
           <span className="flex min-w-0 items-center gap-1.5">
             <MapPin className={size === 'sm' ? 'h-3.5 w-3.5 shrink-0 text-primary' : 'h-4 w-4 shrink-0 text-primary'} />
-            <span className="truncate">{value || (allowAll ? 'Goiás inteiro' : 'Escolher cidade')}</span>
-            {value && <span className="text-muted-foreground">/ GO</span>}
+            <span className="truncate">{value || 'Escolher cidade'}</span>
+            <span className="text-muted-foreground">/ GO</span>
           </span>
           <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 opacity-50" />
         </Button>
@@ -49,18 +47,6 @@ export default function CitySelect({ value, onChange, className, size = 'md', la
           <CommandList className="max-h-72">
             <CommandEmpty>Nenhuma cidade encontrada.</CommandEmpty>
             <CommandGroup>
-              {allowAll && (
-                <CommandItem
-                  value="Goiás inteiro"
-                  onSelect={() => {
-                    onChange('');
-                    setOpen(false);
-                  }}
-                >
-                  <Check className={cn('mr-2 h-4 w-4', value ? 'opacity-0' : 'opacity-100')} />
-                  Goiás inteiro
-                </CommandItem>
-              )}
               {ordered.map((c) => (
                 <CommandItem
                   key={c}

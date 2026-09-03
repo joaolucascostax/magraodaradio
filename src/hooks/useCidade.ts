@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
+import { PRIMARY_CITY } from '@/data/goiasCities';
+
 const KEY = 'mna:cidade';
 const EVT = 'mna:cidade-change';
 
 function read(): string {
   try {
-    return localStorage.getItem(KEY) ?? '';
+    return localStorage.getItem(KEY) || PRIMARY_CITY;
   } catch {
-    return '';
+    return PRIMARY_CITY;
   }
 }
 
 /**
- * Cidade ativa do usuário dentro de Goiás. Vazio = Goiás inteiro (padrão). Guardada no aparelho e sincronizada
+ * Cidade ativa do usuário dentro de Goiás. Guardada no aparelho e sincronizada
  * entre componentes por um evento próprio (sem provider global).
  */
 export function useCidade() {

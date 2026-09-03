@@ -7,7 +7,7 @@ import { useCidade } from '@/hooks/useCidade';
 export default function Composer() {
   const { user, openAuth } = useAuth();
   const { cidade } = useCidade();
-  const placeholder = cidade ? `O que ${cidade} precisa?` : 'O que sua cidade precisa?';
+  const placeholder = `O que ${cidade} precisa?`;
 
   const inner = (
     <>
