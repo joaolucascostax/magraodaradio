@@ -94,7 +94,25 @@ export default function AdminDiario() {
     setVideoUrl('');
     setAvisarWhatsapp(true);
     setImagens([]);
+    setStep(0);
   }
+
+  const steps = ['Tipo', 'Conteúdo', 'Detalhes', 'Revisar'] as const;
+  const tituloOk = titulo.trim().length >= 3 && titulo.trim().length <= 120;
+  const corpoOk = corpo.trim().length >= 10;
+  const videoOk = tipo !== 'video' || isSupportedVideoUrl(videoUrl.trim());
+  const stepValid = step === 0 ? true : step === 1 ? tituloOk && corpoOk && videoOk : true;
+
+  function nextStep() {
+    if (!stepValid) {
+      if (!tituloOk) toast.error('O título deve ter entre 3 e 120 caracteres.');
+      else if (!corpoOk) toast.error('Escreva pelo menos 10 caracteres no texto.');
+      else toast.error('Use um link válido do YouTube ou Instagram.');
+      return;
+    }
+    setStep((current) => Math.min(current + 1, steps.length - 1));
+  }
+
 
   async function publish() {
     if (!user) return;
