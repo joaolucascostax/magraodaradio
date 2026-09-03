@@ -46,7 +46,7 @@ export default function Apoiadores() {
           <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
             <div className="flex items-center justify-between gap-3">
               <span className="inline-flex items-center gap-1.5 font-semibold">
-                <MapPin className="h-4 w-4 text-primary" /> {cidade}
+                <MapPin className="h-4 w-4 text-primary" /> {cidade || 'Escolha sua cidade'}
               </span>
               <span className="font-display text-lg font-extrabold text-secondary">
                 {(minhaCidade?.total ?? 0).toLocaleString('pt-BR')}
