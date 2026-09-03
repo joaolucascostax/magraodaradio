@@ -186,15 +186,18 @@ export default function AdminDiario() {
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-3">
               {(Object.keys(tipoMeta) as DiarioTipo[]).map((option) => (
-                <button
+                <Button
                   key={option}
                   type="button"
+                  variant={tipo === option ? 'default' : 'outline'}
                   onClick={() => setTipo(option)}
-                  className={`rounded-xl border p-3 text-left transition-colors ${tipo === option ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'hover:bg-muted/50'}`}
+                  className="h-auto min-h-[78px] justify-start rounded-xl p-3 text-left"
                 >
-                  <span className="block text-sm font-bold">{tipoMeta[option].label}</span>
-                  <span className="mt-1 block text-[11px] leading-snug text-muted-foreground">{tipoMeta[option].helper}</span>
-                </button>
+                  <span>
+                    <span className="block text-sm font-bold">{tipoMeta[option].label}</span>
+                    <span className="mt-1 block text-[11px] leading-snug opacity-80">{tipoMeta[option].helper}</span>
+                  </span>
+                </Button>
               ))}
             </div>
             <div className="space-y-1.5">
@@ -228,7 +231,7 @@ export default function AdminDiario() {
                 <span className="mt-1 text-[10px] text-muted-foreground">Até 2MB cada · primeira vira capa</span>
                 <input type="file" accept="image/*" multiple className="sr-only" onChange={(event) => { pickImages(event.target.files); event.currentTarget.value = ''; }} />
               </label>
-              {imagens.length > 0 && <div className="grid grid-cols-3 gap-2">{imagens.map((item, index) => <div key={item.preview} className="group relative aspect-square overflow-hidden rounded-lg"><img src={item.preview} alt={`Prévia ${index + 1}`} className="h-full w-full object-cover" /><button type="button" onClick={() => removeImage(index)} aria-label={`Remover foto ${index + 1}`} className="absolute right-1 top-1 rounded-full bg-foreground/70 p-1 text-background opacity-0 transition-opacity group-hover:opacity-100"><X className="h-3 w-3" /></button></div>)}</div>}
+              {imagens.length > 0 && <div className="grid grid-cols-3 gap-2">{imagens.map((item, index) => <div key={item.preview} className="group relative aspect-square overflow-hidden rounded-lg"><img src={item.preview} alt={`Prévia ${index + 1}`} className="h-full w-full object-cover" /><Button type="button" variant="ghost" size="icon" onClick={() => removeImage(index)} aria-label={`Remover foto ${index + 1}`} className="absolute right-1 top-1 h-7 w-7 rounded-full bg-foreground/70 p-1 text-background opacity-0 transition-opacity hover:bg-foreground group-hover:opacity-100"><X className="h-3 w-3" /></Button></div>)}</div>}
             </div>
             <div className="flex items-start gap-2 rounded-xl bg-muted/40 p-3">
               <Checkbox id="diario-whatsapp" checked={avisarWhatsapp} onCheckedChange={(checked) => setAvisarWhatsapp(checked === true)} />
@@ -243,7 +246,7 @@ export default function AdminDiario() {
       </section>
 
       <section>
-        <div className="mb-3 flex items-center justify-between"><div><h2 className="font-display text-lg font-extrabold">Publicações recentes</h2><p className="text-xs text-muted-foreground">Gerencie o que está visível no Diário.</p></div><Plus className="h-5 w-5 text-muted-foreground" /></div>
+        <div className="mb-3 flex items-center justify-between"><div><h2 className="font-display text-lg font-extrabold">Publicações recentes</h2><p className="text-xs text-muted-foreground">Gerencie o que está visível no Diário.</p></div></div>
         {isLoading ? <div className="py-10 text-center"><Loader2 className="mx-auto h-5 w-5 animate-spin" /></div> : posts.length === 0 ? <div className="rounded-2xl border border-dashed bg-card p-12 text-center text-sm text-muted-foreground">Ainda não há publicações oficiais.</div> : <div className="space-y-2">{posts.map((post) => <article key={post.id} className="rounded-2xl border bg-card p-4"><div className="flex gap-3">{post.cover_url ? <img src={post.cover_url} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" /> : <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Video className="h-5 w-5" /></div>}<div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><Badge variant="secondary" className="text-[10px]">{post.video_url ? 'Vídeo' : post.tipo === 'projeto' ? 'Projeto' : 'Notícia'}</Badge><span className="text-[11px] text-muted-foreground">{post.cidade ? `${post.cidade}/GO` : 'Goiás inteiro'} · {timeAgoBr(post.created_at)}</span>{post.status !== 'aprovado' && <Badge variant="outline" className="text-[10px]">Oculto</Badge>}</div><h3 className="mt-1 line-clamp-2 text-sm font-bold">{post.titulo}</h3></div></div><div className="mt-3 flex flex-wrap gap-2 border-t pt-3"><Button size="sm" variant="outline" className="h-9 gap-1.5" onClick={() => setEditing(post)}><Pencil className="h-3.5 w-3.5" /> Editar</Button>{post.status === 'aprovado' && <Button size="sm" variant="ghost" className="h-9 text-muted-foreground" onClick={() => unpublish(post)}>Ocultar</Button>}<Button size="sm" variant="ghost" className="h-9 gap-1.5 text-destructive hover:text-destructive" onClick={() => remove(post)}><Trash2 className="h-3.5 w-3.5" /> Excluir</Button></div></article>)}</div>}
       </section>
       <EditPostDialog post={editing} open={!!editing} onOpenChange={(open) => { if (!open) setEditing(null); }} onSaved={() => { qc.invalidateQueries({ queryKey: ['admin-diario'] }); qc.invalidateQueries({ queryKey: ['posts-feed'] }); }} />
