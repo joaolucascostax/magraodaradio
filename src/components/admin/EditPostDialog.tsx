@@ -52,6 +52,7 @@ export default function EditPostDialog({ post, open, onOpenChange, onSaved }: Pr
   const [categoria, setCategoria] = useState<Categoria | 'none'>('none');
   const [bairro, setBairro] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {

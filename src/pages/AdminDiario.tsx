@@ -15,7 +15,7 @@ import EditPostDialog from '@/components/admin/EditPostDialog';
 import { toast } from 'sonner';
 import { timeAgoBr } from '@/lib/timeAgoBr';
 import type { Database } from '@/integrations/supabase/types';
-import type { PostRow } from '@/hooks/usePostsFeed';
+
 import { isSupportedVideoUrl } from '@/lib/videoEmbed';
 
 type Post = Database['public']['Tables']['posts']['Row'];

@@ -168,6 +168,18 @@ export default function DetalheReclamacao() {
           <img src={complaint.photoUrl} alt="" className="w-full max-h-56 sm:max-h-80 object-cover" />
         </div>
       )}
+      {complaint.videoUrl && getVideoEmbedUrl(complaint.videoUrl) && (
+        <div className="relative mb-5 aspect-video overflow-hidden rounded-xl sm:mb-6 sm:rounded-2xl bg-muted/40">
+          <iframe
+            src={getVideoEmbedUrl(complaint.videoUrl) ?? undefined}
+            title={`Vídeo: ${complaint.title}`}
+            className="h-full w-full"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      )}
 
       {/* Before/After slider */}
       {complaint.afterPhotoUrl && complaint.photoUrl && (
