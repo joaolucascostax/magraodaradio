@@ -74,7 +74,7 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
           {!hideCity && filter !== 'oficial' && (
             <div className="mt-1 flex items-center gap-2">
               <CitySelect
-                value={cidade}
+                value={todoGoias ? '' : cidade}
                 onChange={(c) => { setCidade(c); setTodoGoias(false); }}
                 size="sm"
                 className="max-w-[13rem]"
