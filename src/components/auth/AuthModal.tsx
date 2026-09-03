@@ -144,13 +144,13 @@ export default function AuthModal() {
 
           <h2 className="mt-4 text-center text-2xl font-display font-black tracking-tight">
             <span>
-              {step === 'phone' && 'Entrar no Portal da Cidade'}
+              {step === 'phone' && 'Entrar no site'}
               {step === 'signup' && 'Falta pouco!'}
             </span>
           </h2>
           <p className="mt-1 text-center text-sm text-white/85">
             <span>
-              {step === 'phone' && '1 WhatsApp = 1 Pessoa'}
+              {step === 'phone' && 'Cadastro seguro.'}
               {step === 'signup' && 'Complete seu cadastro'}
             </span>
           </p>
