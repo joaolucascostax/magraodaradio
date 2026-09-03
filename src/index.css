@@ -209,3 +209,34 @@
     overflow: hidden;
   }
 }
+
+/* Hero banner: revela de baixo pra cima, empurrando o conteúdo, e vai e volta */
+@keyframes hero-banner-cycle {
+  0% { max-height: 0; opacity: 0; }
+  12% { max-height: 320px; opacity: 1; }
+  78% { max-height: 320px; opacity: 1; }
+  92%, 100% { max-height: 0; opacity: 0; }
+}
+
+@keyframes hero-banner-slide {
+  0% { transform: translateY(60%); }
+  12% { transform: translateY(0); }
+  78% { transform: translateY(0); }
+  92%, 100% { transform: translateY(60%); }
+}
+
+.hero-banner-cycle {
+  overflow: hidden;
+  max-height: 0;
+  animation: hero-banner-cycle 9s ease-in-out infinite;
+  will-change: max-height, opacity;
+}
+
+.hero-banner-slide {
+  animation: hero-banner-slide 9s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-banner-cycle, .hero-banner-slide { animation: none; max-height: none; opacity: 1; transform: none; }
+}
