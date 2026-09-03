@@ -305,15 +305,19 @@ export default function DetalheReclamacao() {
             </Button>
           </div>
           {user && (
-            <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
-              <input
-                type="checkbox"
+            <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5">
+              <div className="flex items-center gap-2">
+                <Ghost className={cn('h-4 w-4', isAnonimo ? 'text-primary' : 'text-muted-foreground')} />
+                <span className="text-xs font-medium text-foreground">
+                  {isAnonimo ? 'Você comentará anonimamente' : 'Comentar com meu nome'}
+                </span>
+              </div>
+              <Switch
                 checked={isAnonimo}
-                onChange={(e) => setIsAnonimo(e.target.checked)}
-                className="h-4 w-4 rounded border-border accent-primary"
+                onCheckedChange={setIsAnonimo}
+                aria-label="Comentar anonimamente"
               />
-              Comentar como <span className="font-semibold text-foreground">Cidadão Anônimo</span>
-            </label>
+            </div>
           )}
         </div>
 
