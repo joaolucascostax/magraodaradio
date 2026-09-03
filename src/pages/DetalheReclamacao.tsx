@@ -1,11 +1,10 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, BadgeCheck, Heart, Share2, AlertCircle, Trash2, MessageSquare, Ghost } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, Heart, Share2, AlertCircle, Trash2, MessageSquare, Ghost, User, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { postTipoLabels, postTipoColors, statusLabels, statusColors } from '@/data/mockData';
 import { fetchComplaint, fetchComments, fetchUserSupports } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
@@ -285,39 +284,62 @@ export default function DetalheReclamacao() {
         <h3 className="mb-3 sm:mb-4 font-bold text-foreground text-base sm:text-lg">Comentários ({comments.length})</h3>
 
         <div className="space-y-2 mb-5 sm:mb-6">
-          <div className="flex gap-2">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20">
             <Textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Escreva um comentário..."
               rows={2}
-              className="flex-1 rounded-lg sm:rounded-xl text-sm"
+              className="resize-none rounded-none border-0 bg-transparent px-4 py-3 text-sm shadow-none focus-visible:ring-0"
             />
-            <Button
-              onClick={() => {
-                if (!user) { openAuth(); return; }
-                commentMutation.mutate();
-              }}
-              disabled={!newComment.trim() || commentMutation.isPending}
-              className="self-end bg-primary hover:bg-primary/90 rounded-xl min-h-[44px]"
-            >
-              Enviar
-            </Button>
+            <div className="flex items-center justify-end gap-2 border-t border-border/50 bg-muted/30 px-3 py-2">
+              {user && (
+                <button
+                  type="button"
+                  onClick={() => setIsAnonimo(!isAnonimo)}
+                  className={cn(
+                    'flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all active:scale-95',
+                    isAnonimo
+                      ? 'bg-secondary text-secondary-foreground shadow-md'
+                      : 'bg-muted text-foreground hover:bg-muted/80'
+                  )}
+                  aria-label={isAnonimo ? 'Comentar anonimamente' : 'Comentar com meu nome'}
+                >
+                  <span
+                    className={cn(
+                      'flex h-6 w-6 items-center justify-center rounded-full',
+                      isAnonimo ? 'bg-accent text-secondary' : 'bg-background text-muted-foreground'
+                    )}
+                  >
+                    {isAnonimo ? <Ghost className="h-3.5 w-3.5" /> : <User className="h-3.5 w-3.5" />}
+                  </span>
+                  {isAnonimo ? 'Anônimo' : 'Meu nome'}
+                </button>
+              )}
+              <Button
+                onClick={() => {
+                  if (!user) { openAuth(); return; }
+                  commentMutation.mutate();
+                }}
+                disabled={!newComment.trim() || commentMutation.isPending}
+                className="h-10 w-10 rounded-full bg-primary p-0 text-primary-foreground shadow-md hover:bg-primary/90 disabled:opacity-50"
+                aria-label="Enviar comentário"
+              >
+                {commentMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </div>
           {user && (
-            <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5">
-              <div className="flex items-center gap-2">
-                <Ghost className={cn('h-4 w-4', isAnonimo ? 'text-primary' : 'text-muted-foreground')} />
-                <span className="text-xs font-medium text-foreground">
-                  {isAnonimo ? 'Você comentará anonimamente' : 'Comentar com meu nome'}
-                </span>
-              </div>
-              <Switch
-                checked={isAnonimo}
-                onCheckedChange={setIsAnonimo}
-                aria-label="Comentar anonimamente"
-              />
-            </div>
+            <p className="flex items-center gap-2 px-1 text-[11px] text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              {isAnonimo
+                ? 'Você comentará anonimamente. Toque no chip para mudar.'
+                : 'Seu nome ficará visível no comentário. Toque no chip para mudar.'}
+            </p>
           )}
         </div>
 
