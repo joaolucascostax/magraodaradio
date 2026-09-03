@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { PenLine } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
-
 /** Campo discreto de uma linha: única porta de entrada pra criar demanda. */
 export default function Composer() {
   const { user, openAuth } = useAuth();
