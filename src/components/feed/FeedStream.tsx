@@ -50,6 +50,15 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
     limit: 30,
   });
 
+  const showPolls = filter === 'tudo' || filter === 'enquetes';
+  const { data: allPolls = [], isLoading: loadingPolls } = useQuery({
+    queryKey: ['polls'],
+    queryFn: fetchPolls,
+    enabled: showPolls,
+  });
+  const polls = filter === 'tudo' ? allPolls.filter(isPollLive) : allPolls;
+
+
   return (
     <div>
       {(!hideChips || !hideCity) && (
