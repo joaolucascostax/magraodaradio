@@ -15,6 +15,7 @@ export interface Complaint {
   city: string;
   neighborhood?: string;
   photoUrl?: string;
+  videoUrl?: string;
   audioUrl?: string;
   afterPhotoUrl?: string;
   status: ComplaintStatus;

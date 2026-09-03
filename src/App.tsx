@@ -24,6 +24,7 @@ import AdminComentarios from "./pages/AdminComentarios";
 import AdminEnquetes from "./pages/AdminEnquetes";
 import AdminGrupos from "./pages/AdminGrupos";
 import AdminPublicados from "./pages/AdminPublicados";
+import AdminDiario from "./pages/AdminDiario";
 import AdminLayout from "./layouts/AdminLayout";
 import NovoPost from "./pages/NovoPost";
 import ComoFunciona from "./pages/ComoFunciona";
@@ -78,6 +79,7 @@ const App = () => (
               <Route path="comentarios" element={<ErrorBoundary><AdminComentarios /></ErrorBoundary>} />
               <Route path="enquetes" element={<ErrorBoundary><AdminEnquetes /></ErrorBoundary>} />
               <Route path="publicados" element={<ErrorBoundary><AdminPublicados /></ErrorBoundary>} />
+              <Route path="diario" element={<ErrorBoundary><AdminDiario /></ErrorBoundary>} />
               <Route path="grupos" element={<ErrorBoundary><AdminGrupos /></ErrorBoundary>} />
             </Route>
             <Route path="*" element={<NotFound />} />

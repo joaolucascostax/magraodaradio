@@ -52,6 +52,7 @@ export default function EditPostDialog({ post, open, onOpenChange, onSaved }: Pr
   const [categoria, setCategoria] = useState<Categoria | 'none'>('none');
   const [bairro, setBairro] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export default function EditPostDialog({ post, open, onOpenChange, onSaved }: Pr
     setCategoria((post.categoria as Categoria | null) ?? 'none');
     setBairro(post.bairro ?? '');
     setCoverUrl(post.cover_url ?? '');
+    setVideoUrl(post.video_url ?? '');
   }, [post]);
 
   async function handleSave() {
@@ -75,6 +77,7 @@ export default function EditPostDialog({ post, open, onOpenChange, onSaved }: Pr
       categoria: categoria === 'none' ? null : categoria,
       bairro: bairro.trim() || null,
       cover_url: coverUrl.trim() || null,
+      video_url: videoUrl.trim() || null,
     };
     const { data, error } = await supabase
       .from('posts').update(patch).eq('id', post.id).select('*').maybeSingle();
@@ -129,7 +132,7 @@ export default function EditPostDialog({ post, open, onOpenChange, onSaved }: Pr
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="edit-bairro">Bairro</Label>
               <Input id="edit-bairro" value={bairro} onChange={e => setBairro(e.target.value)} placeholder="Opcional" />
@@ -137,6 +140,10 @@ export default function EditPostDialog({ post, open, onOpenChange, onSaved }: Pr
             <div className="space-y-1.5">
               <Label htmlFor="edit-cover">Imagem (URL)</Label>
               <Input id="edit-cover" value={coverUrl} onChange={e => setCoverUrl(e.target.value)} placeholder="https://..." />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="edit-video">Link do vídeo</Label>
+              <Input id="edit-video" value={videoUrl} onChange={e => setVideoUrl(e.target.value)} placeholder="https://youtube.com/... ou instagram.com/..." />
             </div>
           </div>
 
