@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
       return json({ error: "Falha ao gerar código." }, 500);
     }
 
-    const msg = `*Rio Verde no Ar* — seu código é: *${code}*\n\nNão compartilhe com ninguém. Expira em 5 minutos.`;
+    const msg = `*Magrão no Ar* — seu código é: *${code}*\n\nNão compartilhe com ninguém. Expira em 5 minutos.`;
     try {
       const delivery = await sendWhatsAppText(phoneE164, msg);
       console.log("evolution accepted", {
