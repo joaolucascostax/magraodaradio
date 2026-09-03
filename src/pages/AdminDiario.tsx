@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ImagePlus, Link2, Loader2, Megaphone, Pencil, Plus, Send, Trash2, Video, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ImagePlus, Link2, Loader2, Megaphone, Pencil, Send, Trash2, Video, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
