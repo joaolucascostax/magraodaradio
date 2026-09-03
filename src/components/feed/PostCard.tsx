@@ -140,142 +140,90 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
     navigate(`/reclamacao/${post.id}`);
   }
 
+  const selo = post.selo ? SELO_META[post.selo as string] : null;
+  const SeloIcon = selo?.icon;
+
   return (
-    <Card
+    <article
       onClick={handleCardClick}
       onMouseEnter={prefetchDetail}
       onFocus={prefetchDetail}
-      className={cn(
-        'group relative cursor-pointer overflow-hidden bg-card shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover',
-        highlight ? 'border-accent/60 ring-1 ring-accent/40' : 'border-border',
-        isAdminAuthor && 'bg-gradient-to-br from-card to-accent/10',
-      )}
+      className="group cursor-pointer bg-background px-1 py-4 transition-colors hover:bg-muted/30 sm:px-2"
     >
-      {/* Faixa de selo (quando aplicado) */}
-      {post.selo && SELO_META[post.selo] && (() => {
-        const s = SELO_META[post.selo as string];
-        const Icon = s.icon;
-        return (
-          <div className={cn('flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wide', s.className)}>
-            <Icon className="h-3.5 w-3.5" />
-            <span>{s.label}</span>
-          </div>
-        );
-      })()}
-
-      {/* faixa superior sutil */}
-      {!post.selo && (
-        <div
-          className={cn(
-            'h-1 w-full',
-            highlight
-              ? 'bg-gradient-to-r from-accent via-primary to-secondary'
-              : post.is_official
-                ? 'bg-gradient-to-r from-primary/70 to-secondary/70'
-                : 'bg-gradient-to-r from-primary/20 via-transparent to-accent/30',
-          )}
-        />
-      )}
-
-      {post.tipo && (
-        <Badge
-          variant="outline"
-          className={cn(
-            'absolute right-3 z-10 font-display text-[10px] font-bold uppercase tracking-wide',
-            post.selo ? 'top-12' : 'top-3',
-            tipoBadgeClasses[post.tipo] ?? 'bg-muted text-muted-foreground border-border',
-          )}
-        >
-          {postTipoLabels[post.tipo as keyof typeof postTipoLabels] ?? post.tipo}
-        </Badge>
-      )}
-
-
-      <div className="p-4 sm:p-5">
-        {/* cabeçalho: autor + tempo */}
-        <div className="mb-3 flex items-center gap-3">
-          <Avatar
+      {/* cabeçalho: autor · cidade · tempo */}
+      <div className="flex items-center gap-3">
+        <Avatar className="h-10 w-10 shrink-0">
+          <AvatarFallback
             className={cn(
-              'h-10 w-10 shrink-0 ring-2 ring-background shadow-soft',
-              highlight && 'ring-accent/60',
+              'text-xs font-bold',
+              post.is_anonimo
+                ? 'bg-muted text-muted-foreground'
+                : highlight
+                  ? 'bg-secondary text-secondary-foreground'
+                  : 'bg-primary/10 text-primary',
             )}
           >
-            <AvatarFallback
-              className={cn(
-                'text-xs font-bold',
-                post.is_anonimo
-                  ? 'bg-muted text-muted-foreground'
-                  : highlight
-                    ? 'bg-secondary text-secondary-foreground'
-                    : 'bg-primary/10 text-primary',
-              )}
-            >
-              {post.is_anonimo || !initials ? <UserRound className="h-4 w-4" /> : initials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className={cn(
-                'truncate text-sm font-semibold text-foreground',
-                isAdminAuthor && 'text-secondary font-extrabold',
-              )}>{authorName}</span>
-              {isAdminAuthor && <AdminBadge />}
-              {!isAdminAuthor && isVereador && <VereadorBadge />}
-              {post.is_official && (
-                <Badge variant="outline" className="gap-1 border-primary/30 bg-primary/5 text-primary">
-                  <BadgeCheck className="h-3 w-3" /> Oficial
-                </Badge>
-              )}
-            </div>
-            <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-              <span>{timeAgoBr(post.created_at)}</span>
-              {post.cidade && (
-                <>
-                  <span aria-hidden>•</span>
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" /> {post.cidade}{post.uf ? `/${post.uf}` : ''}
-                  </span>
-                </>
-              )}
-              {post.bairro && (
-                <>
-                  <span aria-hidden>•</span>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-secondary">
-                    {post.bairro}
-                  </span>
-                </>
-              )}
-            </div>
+            {post.is_anonimo || !initials ? <UserRound className="h-4 w-4" /> : initials}
+          </AvatarFallback>
+        </Avatar>
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <span className={cn('truncate text-sm font-bold', isAdminAuthor && 'text-secondary')}>
+              {authorName}
+            </span>
+            {(isAdminAuthor || isVereador || post.is_official) && (
+              <BadgeCheck className="h-4 w-4 shrink-0 text-primary" aria-label="Verificado" />
+            )}
+          </div>
+          <div className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+            {post.cidade && (
+              <>
+                <span className="flex items-center gap-1 truncate">
+                  <MapPin className="h-3 w-3 shrink-0" /> {post.cidade}{post.uf ? `/${post.uf}` : ''}
+                </span>
+                <span aria-hidden>·</span>
+              </>
+            )}
+            <span className="shrink-0">{timeAgoBr(post.created_at)}</span>
+            {post.tipo && (
+              <>
+                <span aria-hidden>·</span>
+                <span className="shrink-0 font-semibold">
+                  {postTipoLabels[post.tipo as keyof typeof postTipoLabels] ?? post.tipo}
+                </span>
+              </>
+            )}
           </div>
         </div>
-
-        <Link to={`/reclamacao/${post.id}`} className="block">
-          <h3 className="font-display text-lg sm:text-xl font-extrabold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary">
-            {post.titulo}
-          </h3>
-          {post.corpo && (
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-3">
-              {post.corpo}
-            </p>
-          )}
-          {post.cover_url && (
-            <div className="mt-3 overflow-hidden rounded-lg border border-border/70 bg-muted/40">
-              <img
-                src={post.cover_url}
-                alt={post.titulo}
-                loading="lazy"
-                className="h-28 w-full object-cover sm:h-32"
-              />
-            </div>
-          )}
-
-        </Link>
       </div>
 
+      {selo && SeloIcon && (
+        <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-secondary">
+          <SeloIcon className="h-3 w-3" /> {selo.label}
+        </div>
+      )}
 
+      <Link to={`/reclamacao/${post.id}`} className="mt-2 block">
+        <h3 className="font-display text-base font-extrabold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-lg">
+          {post.titulo}
+        </h3>
+        {post.corpo && (
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground line-clamp-3">{post.corpo}</p>
+        )}
+        {post.cover_url && (
+          <div className="mt-3 overflow-hidden rounded-xl bg-muted/40">
+            <img
+              src={post.cover_url}
+              alt={post.titulo}
+              loading="lazy"
+              className="h-40 w-full object-cover sm:h-48"
+            />
+          </div>
+        )}
+      </Link>
 
-      <div className="flex items-center justify-between gap-2 border-t border-border/70 px-3 py-3 sm:py-4">
-        {/* Apoiar */}
+      {/* ações essenciais */}
+      <div className="mt-3 flex items-center gap-1">
         <Button
           variant="ghost"
           size="sm"
@@ -284,63 +232,41 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
           aria-pressed={myReaction === 'like'}
           aria-label={myReaction === 'like' ? 'Remover apoio' : 'Apoiar demanda'}
           className={cn(
-            'group relative flex-1 items-center justify-center gap-2 rounded-xl py-2.5 px-3 min-h-[44px] transition-all duration-200 active:scale-[0.97]',
-            'shadow-sm hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary/40',
-            myReaction === 'like'
-              ? 'bg-primary text-primary-foreground ring-2 ring-primary/30'
-              : 'bg-accent/60 text-accent-foreground hover:bg-accent',
+            'min-h-[44px] gap-2 rounded-full px-3 text-sm font-bold',
+            myReaction === 'like' ? 'text-primary' : 'text-muted-foreground',
           )}
         >
           <ThumbsUp
-            className={cn(
-              'h-[18px] w-[18px] shrink-0 transition-all duration-300',
-              myReaction === 'like' && 'fill-current',
-              pulse && 'scale-125',
-            )}
-            strokeWidth={2.5}
+            className={cn('h-[18px] w-[18px]', myReaction === 'like' && 'fill-current', pulse && 'scale-125')}
+            strokeWidth={2.2}
           />
-          <div className="flex flex-col items-start leading-tight">
-            <span className="font-display text-[13px] font-extrabold">Apoiar</span>
-            <span className="tabular-nums text-[10px] font-semibold opacity-80">
-              {post.like_count.toLocaleString('pt-BR')} {post.like_count === 1 ? 'voto' : 'votos'}
-            </span>
-          </div>
+          <span className="tabular-nums">{post.like_count.toLocaleString('pt-BR')}</span>
         </Button>
 
-        {/* Comentar */}
         <Button
           asChild
           variant="ghost"
           size="sm"
-          className="group flex-1 items-center justify-center gap-2 rounded-xl bg-secondary/5 py-2.5 px-3 min-h-[44px] text-secondary transition-all hover:bg-secondary/10 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-secondary/40"
+          className="min-h-[44px] gap-2 rounded-full px-3 text-sm font-bold text-muted-foreground"
         >
           <Link to={`/reclamacao/${post.id}`} aria-label={`Ver comentários (${post.comment_count})`}>
-            <MessageCircle
-              className="h-[18px] w-[18px] shrink-0 transition-colors"
-              strokeWidth={2.2}
-            />
-            <div className="flex flex-col items-start leading-tight">
-              <span className="font-display text-[13px] font-bold">Comentar</span>
-              <span className="tabular-nums text-[10px] font-semibold opacity-70">
-                {post.comment_count.toLocaleString('pt-BR')}
-              </span>
-            </div>
+            <MessageCircle className="h-[18px] w-[18px]" strokeWidth={2.2} />
+            <span className="tabular-nums">{post.comment_count.toLocaleString('pt-BR')}</span>
           </Link>
         </Button>
 
-        {/* Compartilhar no WhatsApp */}
         <Button
           variant="ghost"
-          size="icon"
+          size="sm"
           onClick={share}
           onContextMenu={(e) => { e.preventDefault(); copyLink(); }}
           aria-label="Compartilhar no WhatsApp (segure para copiar link)"
-          title="Compartilhar no WhatsApp"
-          className="h-11 w-11 shrink-0 rounded-xl bg-success/10 text-success transition-all hover:bg-success/20 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-success/40"
+          className="ml-auto min-h-[44px] w-11 rounded-full text-muted-foreground"
         >
-          <Share2 className="h-[18px] w-[18px] transition-transform group-hover:rotate-12" strokeWidth={2} />
+          <Share2 className="h-[18px] w-[18px]" strokeWidth={2} />
         </Button>
       </div>
-    </Card>
+    </article>
   );
 }
+
