@@ -1,10 +1,11 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, BadgeCheck, Heart, Share2, AlertCircle, Trash2, MessageSquare } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, Heart, Share2, AlertCircle, Trash2, MessageSquare, Ghost } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { postTipoLabels, postTipoColors, statusLabels, statusColors } from '@/data/mockData';
 import { fetchComplaint, fetchComments, fetchUserSupports } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
@@ -304,15 +305,19 @@ export default function DetalheReclamacao() {
             </Button>
           </div>
           {user && (
-            <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
-              <input
-                type="checkbox"
+            <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5">
+              <div className="flex items-center gap-2">
+                <Ghost className={cn('h-4 w-4', isAnonimo ? 'text-primary' : 'text-muted-foreground')} />
+                <span className="text-xs font-medium text-foreground">
+                  {isAnonimo ? 'Você comentará anonimamente' : 'Comentar com meu nome'}
+                </span>
+              </div>
+              <Switch
                 checked={isAnonimo}
-                onChange={(e) => setIsAnonimo(e.target.checked)}
-                className="h-4 w-4 rounded border-border accent-primary"
+                onCheckedChange={setIsAnonimo}
+                aria-label="Comentar anonimamente"
               />
-              Comentar como <span className="font-semibold text-foreground">Cidadão Anônimo</span>
-            </label>
+            </div>
           )}
         </div>
 
