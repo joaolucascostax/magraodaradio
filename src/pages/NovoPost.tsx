@@ -10,7 +10,7 @@ import CitySelect from '@/components/CitySelect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -63,8 +63,6 @@ export default function NovoPost() {
   const [pendingSubmit, setPendingSubmit] = useState(false);
   const [anonimo, setAnonimo] = useState(false);
   const [bairro, setBairro] = useState<string>('');
-  const [bairroOutro, setBairroOutro] = useState<string>('');
-  const [bairrosLista, setBairrosLista] = useState<{ nome: string }[]>([]);
 
   // Cidade escolhida pelo usuário (qualquer município de Goiás). A prefeitura
   // é opcional: se ainda não existir cadastro, o post fica só com cidade/UF.
@@ -83,10 +81,6 @@ export default function NovoPost() {
     return () => { ativo = false; };
   }, [cidadeNome]);
 
-  useEffect(() => {
-    supabase.from('bairros').select('nome').eq('ativo', true).order('ordem')
-      .then(({ data }) => setBairrosLista((data ?? []) as { nome: string }[]));
-  }, []);
 
   useEffect(() => {
     if (user && pendingSubmit) {
@@ -167,9 +161,7 @@ export default function NovoPost() {
       const { data: prof } = await supabase
         .from('profiles').select('display_name').eq('user_id', user.id).maybeSingle();
 
-      const bairroFinal = bairro === '__outro__'
-        ? (bairroOutro.trim() || null)
-        : (bairro ? bairro : null);
+      const bairroFinal = bairro.trim() || null;
 
       const { error } = await supabase.from('posts').insert({
         tipo,
@@ -198,7 +190,7 @@ export default function NovoPost() {
   }
 
   const tipoAtivo = tipos.find((t) => t.v === tipo);
-  const bairroFinal = bairro === '__outro__' ? (bairroOutro.trim() || null) : (bairro || null);
+  const bairroFinal = bairro.trim() || null;
 
   const canContinue =
     etapa === 1 ? !!tipo
@@ -443,26 +435,13 @@ export default function NovoPost() {
                   <label className="text-[11px] font-bold text-secondary uppercase tracking-wider">
                     Bairro <span className="text-muted-foreground font-medium normal-case tracking-normal">(opcional)</span>
                   </label>
-                  <Select value={bairro} onValueChange={setBairro}>
-                    <SelectTrigger className="h-11 bg-muted border-border/70">
-                      <SelectValue placeholder="Selecione seu bairro" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-72">
-                      {bairrosLista.map((b) => (
-                        <SelectItem key={b.nome} value={b.nome}>{b.nome}</SelectItem>
-                      ))}
-                      <SelectItem value="__outro__">Outro bairro…</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {bairro === '__outro__' && (
-                    <Input
-                      value={bairroOutro}
-                      onChange={(e) => setBairroOutro(e.target.value)}
-                      maxLength={60}
-                      placeholder="Digite o nome do bairro"
-                      className="h-11 bg-muted border-border/70"
-                    />
-                  )}
+                  <Input
+                    value={bairro}
+                    onChange={(e) => setBairro(e.target.value)}
+                    maxLength={60}
+                    placeholder="Escreva o nome do seu bairro"
+                    className="h-11 bg-muted border-border/70"
+                  />
                 </div>
               </div>
             )}
