@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, PenLine, LogOut, Megaphone } from 'lucide-react';
+import { Menu, X, LogOut, Megaphone, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import ApoiarButton from '@/components/apoio/ApoiarButton';
-import CitySelect from '@/components/CitySelect';
 import { useAuth } from '@/hooks/useAuth';
-import { useCidade } from '@/hooks/useCidade';
 
 const navItems = [
   { label: 'Início', path: '/' },
@@ -19,13 +17,12 @@ const navItems = [
 export default function Header() {
   const [open, setOpen] = useState(false);
   const { user, openAuth, signOut } = useAuth();
-  const { cidade, setCidade } = useCidade();
   const loc = useLocation();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
-      <div className="container flex h-16 items-center justify-between gap-4">
-        <Logo size="md" showTagline />
+    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-md">
+      <div className="container flex h-16 items-center justify-between gap-3">
+        <Logo size="md" />
 
         <nav className="hidden items-center gap-1 lg:flex">
           {navItems.map(item => {
@@ -44,22 +41,9 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <CitySelect value={cidade} onChange={setCidade} size="sm" className="hidden max-w-[12rem] sm:inline-flex" />
-          <ApoiarButton size="sm" className="hidden sm:inline-flex" />
-          {user ? (
-            <>
-              <Button asChild size="sm" variant="ghost" className="hidden gap-1.5 font-semibold text-secondary sm:inline-flex">
-                <Link to="/criar"><PenLine className="h-4 w-4" /> Postar</Link>
-              </Button>
-              <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sair">
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </>
-          ) : (
-            <Button size="sm" variant="ghost" onClick={openAuth} className="hidden sm:inline-flex">Entrar</Button>
-          )}
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(!open)} aria-label="Menu">
+        <div className="flex items-center gap-1">
+          <ApoiarButton size="sm" className="hidden lg:inline-flex" />
+          <Button variant="ghost" size="icon" onClick={() => setOpen(!open)} aria-label="Menu" className="lg:hidden">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
@@ -68,7 +52,6 @@ export default function Header() {
       {open && (
         <div className="border-t border-border bg-background lg:hidden">
           <nav className="container flex flex-col gap-1 py-3">
-            <CitySelect value={cidade} onChange={setCidade} className="mb-1 w-full" />
             {navItems.map(item => (
               <Link
                 key={item.path}
@@ -81,14 +64,27 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-            <div className="mt-2 space-y-2">
-              <ApoiarButton full />
+            <div className="mt-2 space-y-2 border-t border-border pt-3">
+              <Button asChild variant="outline" className="w-full gap-2 rounded-full">
+                <Link to="/nova-demanda" onClick={() => setOpen(false)}>
+                  <Megaphone className="h-4 w-4" /> Criar demanda
+                </Link>
+              </Button>
               {user ? (
-                <Button asChild variant="outline" className="w-full gap-2 rounded-full">
-                  <Link to="/nova-demanda" onClick={() => setOpen(false)}><Megaphone className="h-4 w-4" /> Criar demanda</Link>
-                </Button>
+                <>
+                  <Button asChild variant="ghost" className="w-full justify-start gap-2">
+                    <Link to="/perfil" onClick={() => setOpen(false)}><User className="h-4 w-4" /> Meu perfil</Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 text-muted-foreground"
+                    onClick={() => { setOpen(false); signOut(); }}
+                  >
+                    <LogOut className="h-4 w-4" /> Sair
+                  </Button>
+                </>
               ) : (
-                <Button variant="outline" className="w-full rounded-full" onClick={() => { setOpen(false); openAuth(); }}>
+                <Button variant="ghost" className="w-full rounded-full" onClick={() => { setOpen(false); openAuth(); }}>
                   Entrar / Cadastrar
                 </Button>
               )}

@@ -1,0 +1,60 @@
+import { Link } from 'react-router-dom';
+import { BadgeCheck, Radio, ArrowRight } from 'lucide-react';
+import ApoiarButton from '@/components/apoio/ApoiarButton';
+import { useApoioStats } from '@/hooks/useApoio';
+import { useMeuApoio } from '@/hooks/useApoio';
+
+/**
+ * Bloco de topo do feed: a única área de cor cheia da tela.
+ * Ação dominante = virar apoiador. Quando já apoia, vira barra de status.
+ */
+export default function ApoioHero() {
+  const { totalApoiadores, totalCidades } = useApoioStats();
+  const { isApoiador, apoio } = useMeuApoio();
+
+  if (isApoiador) {
+    return (
+      <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+          <BadgeCheck className="h-5 w-5" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-bold text-secondary">
+            Você é apoiador{apoio?.cidade ? ` em ${apoio.cidade}` : ''}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {totalApoiadores.toLocaleString('pt-BR')} apoiadores em {totalCidades} cidades de Goiás
+          </p>
+        </div>
+        <ApoiarButton size="sm" className="shrink-0" />
+      </div>
+    );
+  }
+
+  return (
+    <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lifted">
+      <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider opacity-90">
+        <Radio className="h-3.5 w-3.5" /> Magrão da Rádio · Goiás
+      </div>
+      <h1 className="mt-2 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
+        Entre no time do Magrão
+      </h1>
+      <p className="mt-1.5 max-w-md text-sm leading-relaxed opacity-90">
+        Apoie, acompanhe o trabalho de perto e mande a demanda da sua cidade direto pra Assembleia.
+      </p>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <ApoiarButton
+          size="lg"
+          className="border-0 bg-accent text-accent-foreground shadow-card hover:bg-accent/90"
+        />
+        <Link
+          to="/apoiadores"
+          className="inline-flex items-center gap-1 text-sm font-bold underline-offset-4 hover:underline"
+        >
+          {totalApoiadores.toLocaleString('pt-BR')} apoiadores <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </section>
+  );
+}
