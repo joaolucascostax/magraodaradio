@@ -1,7 +1,7 @@
 // Helper compartilhado para Evolution API v2 (WhatsApp / Baileys).
 // Reescrito para ser mais estrito, com timeouts, retries e diagnóstico claro.
 
-const URL_BASE = (Deno.env.get("EVOLUTION_API_URL") ?? "").replace(/\/$/, "");
+const URL_BASE = (Deno.env.get("EVOLUTION_API_URL") ?? "").trim().replace(/\/+$/, "").replace(/\/manager$/i, "");
 const API_KEY = Deno.env.get("EVOLUTION_API_KEY") ?? "";
 const INSTANCE = Deno.env.get("EVOLUTION_INSTANCE") ?? "";
 
