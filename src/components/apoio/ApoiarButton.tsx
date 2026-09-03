@@ -60,9 +60,14 @@ export default function ApoiarButton({ className, size = 'lg', full }: Props) {
         onClick={handleClick}
         size={size === 'lg' ? 'lg' : 'sm'}
         variant={isApoiador ? 'outline' : 'default'}
-        className={cn('gap-2 rounded-full font-bold', full && 'w-full', className)}
+        className={cn(
+          'gap-2 rounded-full font-bold',
+          !isApoiador && 'bg-accent text-secondary hover:bg-accent/90 hover:text-secondary',
+          full && 'w-full',
+          className
+        )}
       >
-        <Heart className={cn('h-4 w-4', isApoiador && 'fill-primary text-primary')} />
+        <Heart className={cn('h-4 w-4', !isApoiador ? 'text-secondary' : isApoiador && 'fill-primary text-primary')} />
         {isApoiador ? `Apoiador · ${apoio?.cidade}` : 'Sou apoiador'}
       </Button>
 
