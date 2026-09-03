@@ -11,23 +11,6 @@ Deno.serve(async (req) => {
 
   try {
     if (req.method === "GET") {
-      const url = new URL(req.url);
-      if (url.searchParams.get("diag") === "1") {
-        const base = (Deno.env.get("EVOLUTION_API_URL") ?? "").replace(/\/$/, "");
-        let host = "", path = "";
-        try { const u = new URL(base); host = u.host; path = u.pathname; } catch { host = "URL_INVALIDA"; }
-        const probe = async (p: string) => {
-          const r = await fetch(`${base}${p}`, { headers: { apikey: Deno.env.get("EVOLUTION_API_KEY") ?? "" } });
-          const t = await r.text();
-          return { status: r.status, ct: r.headers.get("content-type"), body: t.slice(0, 200) };
-        };
-        return json({
-          host, path,
-          instance: Deno.env.get("EVOLUTION_INSTANCE"),
-          root: await probe("/").catch((e) => String(e)),
-          fetchInstances: await probe("/instance/fetchInstances").catch((e) => String(e)),
-        });
-      }
       const state = await getInstanceState();
       return json(state);
     }
