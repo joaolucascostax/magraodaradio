@@ -1,12 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Radio, Megaphone, Users, User } from 'lucide-react';
+import { Home, Radio, Megaphone, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const items = [
   { to: '/', label: 'Início', icon: Home },
   { to: '/diario', label: 'Diário', icon: Radio },
   { to: '/demandas', label: 'Demandas', icon: Megaphone },
-  { to: '/apoiadores', label: 'Apoio', icon: Users },
   { to: '/perfil', label: 'Perfil', icon: User },
 ];
 
@@ -30,7 +29,7 @@ export default function BottomNav() {
               <Link
                 to={it.to}
                 className={cn(
-                  'flex min-h-[56px] flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-semibold transition-colors',
+                  'flex min-h-[56px] flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-semibold transition-colors',
                   active ? 'text-primary' : 'text-muted-foreground',
                 )}
               >
