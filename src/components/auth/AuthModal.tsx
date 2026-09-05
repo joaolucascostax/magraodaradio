@@ -200,6 +200,8 @@ export default function AuthModal() {
       <DialogContent
         className="sm:max-w-md p-0 gap-0 overflow-hidden border-0 shadow-2xl rounded-2xl"
         aria-describedby={undefined}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+
       >
         <div className="relative bg-gradient-to-br from-secondary via-secondary to-primary/90 px-6 pt-6 pb-8 text-white">
           {step !== 'phone' && (
