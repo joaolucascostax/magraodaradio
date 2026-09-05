@@ -158,170 +158,179 @@ export default function EnqueteDetalhe() {
   const canSubmit = selected.size > 0 && !hasVoted && live && !vote.isPending && !isCheckingExistingVote;
 
   return (
-    <div className={cn('px-4 max-w-2xl mx-auto py-6 sm:py-10', !hasVoted && live ? 'pb-32' : 'pb-20')}>
-      <Link to="/enquetes" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> Todas as enquetes
-      </Link>
+    <div className={cn('mx-auto max-w-2xl', !hasVoted && live ? 'pb-32' : 'pb-20')}>
+      {/* Banner de apuração */}
+      <div className="relative">
+        {poll.coverUrl ? (
+          <div className="h-44 sm:h-64 w-full overflow-hidden">
+            <img src={poll.coverUrl} alt="" className="h-full w-full object-cover" />
+          </div>
+        ) : (
+          <div className="h-32 sm:h-40 w-full bg-gradient-to-br from-primary via-primary/70 to-highlight" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-background/40" />
 
-      <div className={cn(
-        'rounded-2xl border bg-card shadow-card relative overflow-hidden',
-        byAdmin ? 'ring-1 ring-accent/50 border-accent/60' : 'border-highlight/20',
-      )}>
-        {poll.coverUrl && (
-          <div className="h-40 sm:h-56 w-full overflow-hidden border-b">
-            <img src={poll.coverUrl} alt="" className="w-full h-full object-cover" />
+        <Link
+          to="/enquetes"
+          className="absolute left-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-background/85 backdrop-blur text-foreground shadow-card"
+          aria-label="Todas as enquetes"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
+
+        <div className="absolute bottom-3 left-4 right-4 flex flex-wrap items-center gap-1.5">
+          <Badge className="rounded-full border-0 bg-background/90 px-2.5 text-[9px] font-extrabold uppercase tracking-wider text-foreground backdrop-blur">
+            Consulta Popular
+          </Badge>
+          {live ? (
+            <Badge className="rounded-full border-0 bg-destructive px-2.5 text-[9px] font-extrabold uppercase tracking-wider text-destructive-foreground gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-destructive-foreground animate-pulse" /> Ao vivo
+            </Badge>
+          ) : (
+            <Badge className="rounded-full border-0 bg-muted px-2.5 text-[9px] font-extrabold uppercase tracking-wider text-muted-foreground">
+              Encerrada
+            </Badge>
+          )}
+          {countdown && (
+            <Badge className="rounded-full border-0 bg-warning/15 px-2.5 text-[9px] font-extrabold uppercase tracking-wider text-warning gap-1">
+              <Clock className="h-3 w-3" /> {countdown}
+            </Badge>
+          )}
+          {poll.allowMultiple && (
+            <Badge className="rounded-full border-0 bg-background/90 px-2.5 text-[9px] font-extrabold uppercase tracking-wider text-foreground backdrop-blur gap-1">
+              <ListChecks className="h-3 w-3" /> Múltipla
+            </Badge>
+          )}
+          <span className="ml-auto flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
+            <Calendar className="h-3 w-3" /> {timeAgoBr(poll.createdAt)}
+          </span>
+        </div>
+      </div>
+
+      <div className="px-5">
+        {byAdmin && <div className="mb-3"><AdminBadge size="md" /></div>}
+
+        <h1 className="mt-2 mb-5 font-display text-2xl sm:text-4xl font-extrabold leading-tight tracking-tight text-foreground break-words">
+          {poll.question}
+        </h1>
+
+        {poll.allowMultiple && !hasVoted && live && (
+          <p className="-mt-3 mb-5 text-xs text-muted-foreground">Você pode escolher mais de uma opção.</p>
+        )}
+
+        {!live && winner && total > 0 && (
+          <div className="mb-6 rounded-2xl border-2 border-highlight/50 bg-highlight/10 p-4">
+            <div className="mb-1.5 flex items-center gap-2">
+              <Trophy className="h-4 w-4 text-highlight" />
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-highlight">Resultado final</span>
+            </div>
+            <p className="font-display text-lg font-extrabold leading-tight text-foreground break-words">{winner.text}</p>
+            <p className="mt-1 text-sm font-semibold text-foreground/80">
+              {Math.round((winner.votes / total) * 100)}% dos votos
+              <span className="font-normal text-muted-foreground"> · {winner.votes.toLocaleString('pt-BR')} de {total.toLocaleString('pt-BR')}</span>
+            </p>
+            {endedLabel && <p className="mt-1 text-[11px] capitalize text-muted-foreground">{endedLabel}</p>}
           </div>
         )}
 
-        <div className="p-5 sm:p-7 relative">
-          <div className="mb-4 flex items-center gap-1.5 flex-wrap">
-            <Badge className="bg-highlight/10 text-highlight border-0 font-bold text-[10px] sm:text-xs gap-1">
-              <Vote className="h-3 w-3" /> Consulta Popular
-            </Badge>
-            <Badge className={`border-0 text-[10px] sm:text-xs ${live ? 'bg-success/10 text-success gap-1' : 'bg-muted text-muted-foreground'}`}>
-              {live && <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />}
-              {live ? 'AO VIVO' : 'Encerrada'}
-            </Badge>
-            {countdown && (
-              <Badge variant="outline" className="text-[10px] sm:text-xs gap-1 border-warning/40 text-warning">
-                <Clock className="h-3 w-3" /> {countdown}
-              </Badge>
-            )}
-            {poll.allowMultiple && (
-              <Badge variant="outline" className="text-[10px] gap-1">
-                <ListChecks className="h-3 w-3" /> Múltipla escolha
-              </Badge>
-            )}
-            <span className="text-[10px] sm:text-xs text-muted-foreground ml-auto flex items-center gap-1">
-              <Calendar className="h-3 w-3" />{timeAgoBr(poll.createdAt)}
-            </span>
-          </div>
-
-          {byAdmin && (
-            <div className="mb-3"><AdminBadge size="md" /></div>
-          )}
-
-          <h1 className="mb-2 font-display text-xl sm:text-3xl font-black text-foreground leading-tight break-words tracking-tight">
-            {poll.question}
-          </h1>
-          {poll.allowMultiple && !hasVoted && live && (
-            <p className="mb-4 text-xs text-muted-foreground">Você pode escolher mais de uma opção.</p>
-          )}
-
-          {!live && winner && total > 0 && (
-            <div className="mt-4 rounded-2xl border-2 border-highlight/50 bg-gradient-to-br from-highlight/10 to-highlight/5 p-4 sm:p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <Trophy className="h-5 w-5 text-highlight" />
-                <span className="text-xs sm:text-sm font-bold uppercase tracking-wide text-highlight">Resultado final</span>
-              </div>
-              <p className="font-display text-lg sm:text-2xl font-black text-foreground leading-tight break-words">
-                {winner.text}
-              </p>
-              <p className="mt-1 text-sm text-foreground/80 font-semibold">
-                {Math.round((winner.votes / total) * 100)}% dos votos
-                <span className="text-muted-foreground font-normal"> · {winner.votes.toLocaleString('pt-BR')} de {total.toLocaleString('pt-BR')}</span>
-              </p>
-              {endedLabel && (
-                <p className="mt-1 text-[11px] text-muted-foreground capitalize">{endedLabel}</p>
-              )}
-            </div>
-          )}
-
-
-          <div className="mt-5 space-y-3">
-            {poll.options.map((option) => {
-              const pct = total ? Math.round((option.votes / total) * 100) : 0;
-              const wasVoted = voted.has(option.id);
-              const isSelected = wasVoted || (!hasVoted && !isCheckingExistingVote && selected.has(option.id));
-              const isWinner = (hasVoted || !live) && winner?.id === option.id && total > 0;
-              const showResults = !live || hasVoted;
-              return (
-                <button
-                  key={option.id}
-                  onClick={() => toggleSelect(option.id)}
-                  disabled={!live || hasVoted}
-                  className={cn(
-                    'group relative w-full rounded-2xl text-left transition-all duration-200 overflow-hidden',
-                    isSelected
-                      ? 'bg-primary/10 border-2 border-primary ring-1 ring-primary/20'
-                      : 'bg-card border-2 border-border hover:border-primary/30',
-                    isWinner && 'bg-highlight/5 border-highlight/60',
-                    (!live || hasVoted) && 'cursor-default',
-                  )}
-                >
-                  {option.imageUrl && (
-                    <div className="w-full aspect-[16/9] bg-muted overflow-hidden">
-                      <img src={option.imageUrl} alt="" className="w-full h-full object-cover" />
+        {/* Linhas compactas de apuração */}
+        <div className="space-y-2.5">
+          {poll.options.map((option) => {
+            const pct = total ? Math.round((option.votes / total) * 100) : 0;
+            const wasVoted = voted.has(option.id);
+            const isSelected = wasVoted || (!hasVoted && !isCheckingExistingVote && selected.has(option.id));
+            const isWinner = (hasVoted || !live) && winner?.id === option.id && total > 0;
+            const showResults = !live || hasVoted;
+            return (
+              <button
+                key={option.id}
+                onClick={() => toggleSelect(option.id)}
+                disabled={!live || hasVoted}
+                className={cn(
+                  'relative w-full overflow-hidden rounded-2xl text-left transition-all duration-200',
+                  isSelected || isWinner
+                    ? 'border-2 border-primary bg-primary/5'
+                    : 'border border-border bg-card hover:border-primary/40',
+                  (!live || hasVoted) ? 'cursor-default' : 'active:scale-[0.99]',
+                )}
+              >
+                {showResults && (
+                  <div
+                    className={cn(
+                      'absolute inset-y-0 left-0 transition-all duration-700 ease-out',
+                      isWinner ? 'bg-highlight/20' : isSelected ? 'bg-primary/15' : 'bg-muted',
+                    )}
+                    style={{ width: `${pct}%` }}
+                  />
+                )}
+                <div className="relative flex items-center gap-3.5 p-3">
+                  {option.imageUrl ? (
+                    <img
+                      src={option.imageUrl}
+                      alt=""
+                      className={cn(
+                        'h-12 w-12 shrink-0 rounded-full border-2 border-background object-cover shadow-card',
+                        showResults && !isSelected && !isWinner && 'grayscale opacity-70',
+                      )}
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-extrabold text-muted-foreground">
+                      {option.text.slice(0, 2).toUpperCase()}
                     </div>
                   )}
-                  <div className="relative p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
-                    {/* Custom radio/check indicator */}
+
+                  <div className="min-w-0 flex-1">
+                    <p className={cn('text-sm font-bold leading-snug break-words', isSelected || isWinner ? 'text-foreground' : 'text-foreground/80')}>
+                      {option.text}
+                    </p>
+                    {showResults && (
+                      <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        {option.votes.toLocaleString('pt-BR')} {option.votes === 1 ? 'voto' : 'votos'}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="shrink-0 text-right">
+                    {showResults && (
+                      <div className={cn('font-display text-lg font-extrabold tabular-nums', isWinner || isSelected ? 'text-primary' : 'text-muted-foreground')}>
+                        {pct}%
+                      </div>
+                    )}
                     <div
                       className={cn(
-                        'shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors duration-200',
-                        isSelected
-                          ? 'bg-primary border-primary'
-                          : 'bg-transparent border-muted-foreground/30 group-hover:border-primary/50',
-                        poll.allowMultiple && 'rounded-md',
+                        'ml-auto mt-0.5 flex h-5 w-5 items-center justify-center border-2 transition-colors',
+                        poll.allowMultiple ? 'rounded-md' : 'rounded-full',
+                        isSelected ? 'border-primary bg-primary' : 'border-border bg-background',
                       )}
                     >
-                      {isSelected && (
-                        <div className={cn(
-                          'bg-highlight rounded-full',
-                          poll.allowMultiple ? 'w-3 h-3 rounded-sm' : 'w-2 h-2',
-                        )} />
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3">
-                        <span className={cn(
-                          'text-sm sm:text-base font-semibold break-words leading-snug',
-                          isSelected ? 'text-foreground' : 'text-foreground/80 group-hover:text-foreground',
-                        )}>
-                          {option.text}
-                        </span>
-                        {showResults && (
-                          <span className="text-sm font-bold text-muted-foreground shrink-0 tabular-nums">{pct}%</span>
-                        )}
-                      </div>
-
-                      {showResults && (
-                        <>
-                          <div className="mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-muted">
-                            <div className={cn(
-                              'h-full rounded-full transition-all duration-700',
-                              isWinner ? 'bg-gradient-to-r from-highlight to-warning' : isSelected ? 'bg-primary' : 'bg-primary/30',
-                            )} style={{ width: `${pct}%` }} />
-                          </div>
-                          <p className="mt-1.5 text-[11px] text-muted-foreground">
-                            {option.votes.toLocaleString('pt-BR')} {option.votes === 1 ? 'voto' : 'votos'}
-                          </p>
-                        </>
-                      )}
+                      {isSelected && <div className={cn('bg-primary-foreground', poll.allowMultiple ? 'h-2 w-2 rounded-sm' : 'h-2 w-2 rounded-full')} />}
                     </div>
                   </div>
-                </button>
-              );
-            })}
-          </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-            <span className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium">
-              <BarChart3 className="h-4 w-4" />
-              {total.toLocaleString('pt-BR')} {total === 1 ? 'voto' : 'votos'} no total
-            </span>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={onShare} className="gap-1.5 min-h-[40px]">
-                <Share2 className="h-3.5 w-3.5" /> Compartilhar
-              </Button>
-              {hasVoted && (
-                <Badge className="bg-success/10 text-success border-0">Você já votou</Badge>
-              )}
-            </div>
+        {/* Participação + compartilhar */}
+        <div className="mt-7 flex items-end justify-between border-t border-dashed border-border pt-5">
+          <div>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Participação total</p>
+            <p className="font-display text-2xl font-extrabold text-foreground tabular-nums">
+              {total.toLocaleString('pt-BR')} <span className="text-xs font-bold text-primary">{total === 1 ? 'voto' : 'votos'}</span>
+            </p>
+            {hasVoted && (
+              <span className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-success">
+                <CheckCircle2 className="h-3.5 w-3.5" /> Você já votou
+              </span>
+            )}
           </div>
+          <Button onClick={onShare} size="icon" className="h-12 w-12 rounded-2xl" aria-label="Compartilhar">
+            <Share2 className="h-5 w-5" />
+          </Button>
         </div>
       </div>
+
 
       <PollComments pollId={poll.id} />
 
