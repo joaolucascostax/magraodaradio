@@ -3,7 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 
 type PostBase = Database['public']['Tables']['posts']['Row'];
-export type PostRow = PostBase & { author_is_vereador?: boolean };
+export type PostRow = PostBase & {
+  author_is_vereador?: boolean;
+  author_name?: string | null;
+  author_avatar_url?: string | null;
+};
 export type PostTipo = Database['public']['Enums']['post_tipo'];
 export type PostSelo = Database['public']['Enums']['post_selo'];
 
