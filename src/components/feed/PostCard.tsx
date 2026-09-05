@@ -119,8 +119,15 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
   const isAdminAuthor = !post.is_anonimo && !!post.autor_id && adminIds.has(post.autor_id);
   const isVereador = !!post.author_is_vereador && !post.is_anonimo;
   const highlight = isAdminAuthor || isVereador;
-  const authorName = post.is_anonimo ? 'Anônimo' : (post.autor_display_name || 'Cidadão');
-  const initials = post.is_anonimo ? '' : initialsOf(post.autor_display_name);
+  const resolvedName = post.author_name || post.autor_display_name || 'Cidadão';
+  const authorName = post.is_anonimo ? 'Anônimo' : resolvedName;
+  const initials = post.is_anonimo ? '' : initialsOf(resolvedName);
+  const isMagrao = isAdminAuthor || isVereador || post.is_official;
+  const avatarSrc = post.is_anonimo
+    ? null
+    : isMagrao
+      ? magraoAvatar.url
+      : post.author_avatar_url || null;
   
 
   // Prefetch da página de detalhe ao passar mouse/tocar — abre "instantâneo".
@@ -155,12 +162,8 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
       {/* cabeçalho: autor · cidade · tempo */}
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10 shrink-0 border border-border/60 bg-background">
-          {(isAdminAuthor || isVereador || post.is_official) && (
-            <AvatarImage
-              src={magraoAvatar.url}
-              alt="Magrão da Rádio"
-              className="object-cover"
-            />
+          {avatarSrc && (
+            <AvatarImage src={avatarSrc} alt={authorName} className="object-cover" />
           )}
           <AvatarFallback
             className={cn(
