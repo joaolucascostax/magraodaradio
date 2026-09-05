@@ -248,9 +248,11 @@ export default function EnqueteDetalhe() {
                 disabled={!live || hasVoted}
                 className={cn(
                   'relative w-full overflow-hidden rounded-2xl text-left transition-all duration-200',
-                  isSelected || isWinner
+                  isSelected
                     ? 'border-2 border-primary bg-primary/5'
-                    : 'border border-border bg-card hover:border-primary/40',
+                    : isWinner
+                      ? 'border-2 border-highlight/60 bg-highlight/5'
+                      : 'border border-border bg-card hover:border-primary/40',
                   (!live || hasVoted) ? 'cursor-default' : 'active:scale-[0.99]',
                 )}
               >
@@ -258,7 +260,7 @@ export default function EnqueteDetalhe() {
                   <div
                     className={cn(
                       'absolute inset-y-0 left-0 transition-all duration-700 ease-out',
-                      isWinner ? 'bg-highlight/20' : isSelected ? 'bg-primary/15' : 'bg-muted',
+                      isSelected ? 'bg-primary/15' : isWinner ? 'bg-highlight/20' : 'bg-muted',
                     )}
                     style={{ width: `${pct}%` }}
                   />
@@ -283,30 +285,40 @@ export default function EnqueteDetalhe() {
                     <p className={cn('text-sm font-bold leading-snug break-words', isSelected || isWinner ? 'text-foreground' : 'text-foreground/80')}>
                       {option.text}
                     </p>
-                    {showResults && (
-                      <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        {option.votes.toLocaleString('pt-BR')} {option.votes === 1 ? 'voto' : 'votos'}
-                      </p>
-                    )}
+                    <div className="mt-0.5 flex items-center gap-1.5">
+                      {showResults && (
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          {option.votes.toLocaleString('pt-BR')} {option.votes === 1 ? 'voto' : 'votos'}
+                        </span>
+                      )}
+                      {wasVoted && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-primary">
+                          <CheckCircle2 className="h-3 w-3" /> Seu voto
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="shrink-0 text-right">
                     {showResults && (
-                      <div className={cn('font-display text-lg font-extrabold tabular-nums', isWinner || isSelected ? 'text-primary' : 'text-muted-foreground')}>
+                      <div className={cn('font-display text-lg font-extrabold tabular-nums', isSelected ? 'text-primary' : isWinner ? 'text-highlight' : 'text-muted-foreground')}>
                         {pct}%
                       </div>
                     )}
-                    <div
-                      className={cn(
-                        'ml-auto mt-0.5 flex h-5 w-5 items-center justify-center border-2 transition-colors',
-                        poll.allowMultiple ? 'rounded-md' : 'rounded-full',
-                        isSelected ? 'border-primary bg-primary' : 'border-border bg-background',
-                      )}
-                    >
-                      {isSelected && <div className={cn('bg-primary-foreground', poll.allowMultiple ? 'h-2 w-2 rounded-sm' : 'h-2 w-2 rounded-full')} />}
-                    </div>
+                    {!showResults && (
+                      <div
+                        className={cn(
+                          'ml-auto flex h-5 w-5 items-center justify-center border-2 transition-colors',
+                          poll.allowMultiple ? 'rounded-md' : 'rounded-full',
+                          isSelected ? 'border-primary bg-primary' : 'border-border bg-background',
+                        )}
+                      >
+                        {isSelected && <div className={cn('bg-primary-foreground', poll.allowMultiple ? 'h-2 w-2 rounded-sm' : 'h-2 w-2 rounded-full')} />}
+                      </div>
+                    )}
                   </div>
                 </div>
+
               </button>
             );
           })}
