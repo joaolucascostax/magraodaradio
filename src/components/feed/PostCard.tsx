@@ -236,7 +236,7 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
           <div
             className={cn(
               'mt-3 w-full overflow-hidden rounded-xl bg-muted/40',
-              isInstagramUrl(post.video_url) ? 'aspect-[9/16]' : 'aspect-video',
+              isInstagramUrl(post.video_url) ? 'aspect-[4/5]' : 'aspect-video',
             )}
           >
             <iframe
