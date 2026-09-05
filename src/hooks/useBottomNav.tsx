@@ -1,30 +1,33 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
 
-type BottomNavContextType = {
-  hidden: boolean;
-  setHidden: (value: boolean) => void;
-};
+let hidden = false;
+const listeners = new Set<(value: boolean) => void>();
 
-const BottomNavContext = createContext<BottomNavContextType | null>(null);
-
-export function BottomNavProvider({ children }: { children: ReactNode }) {
-  const [hidden, setHidden] = useState(false);
-  const setHiddenCb = useCallback((value: boolean) => setHidden(value), []);
-  return (
-    <BottomNavContext.Provider value={{ hidden, setHidden: setHiddenCb }}>
-      {children}
-    </BottomNavContext.Provider>
-  );
+function emit() {
+  listeners.forEach((fn) => fn(hidden));
 }
 
 export function useBottomNavVisibility() {
-  const ctx = useContext(BottomNavContext);
-  if (!ctx) throw new Error('useBottomNavVisibility must be used within BottomNavProvider');
-  return ctx.hidden;
+  const [isHidden, setIsHidden] = useState(hidden);
+  useEffect(() => {
+    listeners.add(setIsHidden);
+    return () => {
+      listeners.delete(setIsHidden);
+    };
+  }, []);
+  return isHidden;
 }
 
 export function useSetBottomNavHidden() {
-  const ctx = useContext(BottomNavContext);
-  if (!ctx) return () => {};
-  return ctx.setHidden;
+  return useCallback((value: boolean) => {
+    if (hidden !== value) {
+      hidden = value;
+      emit();
+    }
+  }, []);
+}
+
+// Mantido apenas para compatibilidade; o estado agora vive em módulo.
+export function BottomNavProvider({ children }: { children: ReactNode }) {
+  return children;
 }
