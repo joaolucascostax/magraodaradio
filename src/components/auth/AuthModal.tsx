@@ -260,7 +260,8 @@ export default function AuthModal() {
                   <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="phone"
-                    autoFocus
+                    autoFocus={false}
+
                     value={phone}
                     onChange={(e) => setPhone(formatPhone(e.target.value))}
                     placeholder="(64) 9 9999-9999"
