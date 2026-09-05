@@ -332,7 +332,7 @@ export default function EnqueteDetalhe() {
       </div>
 
 
-      <PollComments pollId={poll.id} />
+      <div className="px-5"><PollComments pollId={poll.id} /></div>
 
 
       <AnimatePresence>
