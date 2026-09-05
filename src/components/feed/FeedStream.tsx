@@ -6,9 +6,10 @@ import PostCard from '@/components/feed/PostCard';
 import PollFeedCard from '@/components/feed/PollFeedCard';
 import CitySelect from '@/components/CitySelect';
 import { Button } from '@/components/ui/button';
-import { usePostsFeed, type PostTipo } from '@/hooks/usePostsFeed';
+import { usePostsFeed, type PostRow, type PostTipo } from '@/hooks/usePostsFeed';
 import { useCidade } from '@/hooks/useCidade';
 import { fetchPolls } from '@/lib/api';
+import type { Poll } from '@/data/mockData';
 import { isPollLive } from '@/lib/pollLifecycle';
 import { cn } from '@/lib/utils';
 
@@ -116,15 +117,28 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
         <EmptyFeed filter={filter} cidade={semCidade ? 'Goiás' : cidade} />
       ) : (
         <div className="divide-y divide-border">
-          {showPolls && polls.map((p) => <PollFeedCard key={p.id} poll={p} />)}
-          {posts.map((p) => (
-            <PostCard key={p.id} post={p} />
-          ))}
+          {mergeFeedByDate(posts, showPolls ? polls : []).map((item) =>
+            item.kind === 'poll' ? (
+              <PollFeedCard key={item.id} poll={item.poll} />
+            ) : (
+              <PostCard key={item.id} post={item.post} />
+            ),
+          )}
         </div>
       )}
 
     </div>
   );
+}
+
+type FeedItem =
+  | { kind: 'post'; id: string; date: string; post: PostRow }
+  | { kind: 'poll'; id: string; date: string; poll: Poll };
+
+function mergeFeedByDate(posts: PostRow[], polls: Poll[]): FeedItem[] {
+  const postItems: FeedItem[] = posts.map((p) => ({ kind: 'post', id: p.id, date: p.created_at, post: p }));
+  const pollItems: FeedItem[] = polls.map((p) => ({ kind: 'poll', id: p.id, date: p.createdAt, poll: p }));
+  return [...postItems, ...pollItems].sort((a, b) => +new Date(b.date) - +new Date(a.date));
 }
 
 function EmptyFeed({ filter, cidade }: { filter: FeedFilter; cidade: string }) {
