@@ -87,10 +87,13 @@ export default function Perfil() {
   });
 
   useEffect(() => {
-    if (!profile) return;
-    setNome(profile.display_name ?? '');
-    setCidade(profile.default_city ?? apoio?.cidade ?? '');
-  }, [profile, apoio?.cidade]);
+    setNome(
+      profile?.display_name?.trim() ||
+        (user.user_metadata?.display_name as string | undefined)?.trim() ||
+        (user.email ? user.email.split('@')[0] : ''),
+    );
+    setCidade(profile?.default_city ?? apoio?.cidade ?? '');
+  }, [profile, apoio?.cidade, user]);
 
   // Avatar é privado no armazenamento: gera URL assinada quando necessário.
   useEffect(() => {
@@ -180,8 +183,10 @@ export default function Perfil() {
       if (nomeLimpo.length < 2) throw new Error('Escreva seu nome com pelo menos 2 letras.');
       const { error } = await supabase
         .from('profiles')
-        .update({ display_name: nomeLimpo, default_city: cidade || null, default_uf: 'GO' })
-        .eq('user_id', user.id);
+        .upsert(
+          { user_id: user.id, display_name: nomeLimpo, default_city: cidade || null, default_uf: 'GO' },
+          { onConflict: 'user_id' },
+        );
       if (error) throw error;
       if (cidade && isApoiador && apoio?.cidade !== cidade) await apoiar.mutateAsync(cidade);
     },
@@ -204,7 +209,12 @@ export default function Perfil() {
       const path = `${user.id}/avatar-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
       if (upErr) throw upErr;
-      const { error } = await supabase.from('profiles').update({ avatar_url: path }).eq('user_id', user.id);
+      const { error } = await supabase
+        .from('profiles')
+        .upsert(
+          { user_id: user.id, display_name: nomeExibido, avatar_url: path },
+          { onConflict: 'user_id' },
+        );
       if (error) throw error;
       qc.invalidateQueries({ queryKey: ['my-profile', user.id] });
       toast.success('Foto atualizada!');
@@ -215,7 +225,12 @@ export default function Perfil() {
     }
   }
 
-  const nomeExibido = profile?.display_name?.trim() || (user.user_metadata?.display_name as string | undefined)?.trim() || 'Apoiador';
+  const nomeFallback =
+    (user.user_metadata?.display_name as string | undefined)?.trim() ||
+    (user.user_metadata?.full_name as string | undefined)?.trim() ||
+    (user.email ? user.email.split('@')[0] : '') ||
+    'Apoiador';
+  const nomeExibido = profile?.display_name?.trim() || nomeFallback;
   const cidadeExibida = profile?.default_city || apoio?.cidade || null;
   const desde = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
