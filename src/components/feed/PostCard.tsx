@@ -223,12 +223,12 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground line-clamp-3">{post.corpo}</p>
         )}
         {post.cover_url && (
-          <div className="mt-3 overflow-hidden rounded-xl bg-muted/40">
+          <div className="mt-3 aspect-[4/5] w-full overflow-hidden rounded-xl bg-muted/40">
             <img
               src={post.cover_url}
               alt={post.titulo}
               loading="lazy"
-              className="h-40 w-full object-cover sm:h-48"
+              className="h-full w-full object-cover"
             />
           </div>
         )}
