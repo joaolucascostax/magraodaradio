@@ -116,10 +116,13 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
         <EmptyFeed filter={filter} cidade={semCidade ? 'Goiás' : cidade} />
       ) : (
         <div className="divide-y divide-border">
-          {showPolls && polls.map((p) => <PollFeedCard key={p.id} poll={p} />)}
-          {posts.map((p) => (
-            <PostCard key={p.id} post={p} />
-          ))}
+          {mergeFeedByDate(posts, showPolls ? polls : []).map((item) =>
+            item.kind === 'poll' ? (
+              <PollFeedCard key={item.id} poll={item.poll} />
+            ) : (
+              <PostCard key={item.id} post={item.post} />
+            ),
+          )}
         </div>
       )}
 
