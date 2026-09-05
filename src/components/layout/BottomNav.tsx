@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, BarChart2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useBottomNavVisibility } from '@/hooks/useBottomNav';
 
 const items = [
   { to: '/', label: 'Início', icon: Home },
@@ -12,7 +13,8 @@ const HIDE_ON = [/^\/admin/, /^\/criar/, /^\/nova-demanda/];
 
 export default function BottomNav() {
   const { pathname } = useLocation();
-  if (HIDE_ON.some((rx) => rx.test(pathname))) return null;
+  const hiddenGlobally = useBottomNavVisibility();
+  if (hiddenGlobally || HIDE_ON.some((rx) => rx.test(pathname))) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-[max(env(safe-area-inset-bottom),8px)] pt-2 md:hidden">

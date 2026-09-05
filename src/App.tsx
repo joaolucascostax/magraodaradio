@@ -6,6 +6,7 @@ import Layout from "@/components/layout/Layout";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/hooks/useAuth";
+import { BottomNavProvider } from "@/hooks/useBottomNav";
 import AuthModal from "@/components/auth/AuthModal";
 import RequireAuth from "@/components/auth/RequireAuth";
 import Index from "./pages/Index";
@@ -46,9 +47,10 @@ const App = () => (
     <TooltipProvider>
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
-          <ScrollToTop />
-          <AuthModal />
+        <BottomNavProvider>
+          <AuthProvider>
+            <ScrollToTop />
+            <AuthModal />
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
@@ -83,7 +85,8 @@ const App = () => (
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </AuthProvider>
+          </AuthProvider>
+        </BottomNavProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

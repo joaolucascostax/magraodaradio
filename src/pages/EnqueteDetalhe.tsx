@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useParams } from 'react-router-dom';
+import { useSetBottomNavHidden } from '@/hooks/useBottomNav';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, BarChart3, CheckCircle2, Vote, Calendar, Share2, ListChecks, Loader2, Clock, Trophy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +21,7 @@ export default function EnqueteDetalhe() {
   const { user, openAuth } = useAuth();
   const adminIds = useAdminIds();
   const qc = useQueryClient();
+  const setBottomNavHidden = useSetBottomNavHidden();
 
   const { data: poll, isLoading } = useQuery({
     queryKey: ['poll', id], queryFn: () => fetchPoll(id!), enabled: !!id,
@@ -78,6 +80,17 @@ export default function EnqueteDetalhe() {
     },
   });
 
+  const isCheckingExistingVote = !!user && isLoadingVotes;
+
+  useEffect(() => {
+    if (!poll) return;
+    const live = isPollLive(poll);
+    const hasVoted = poll.options.some((o) => voted.has(o.id));
+    const shouldHide = !hasVoted && live && selected.size > 0 && !isCheckingExistingVote;
+    setBottomNavHidden(shouldHide);
+    return () => setBottomNavHidden(false);
+  }, [poll, voted, selected.size, isCheckingExistingVote, setBottomNavHidden]);
+
   if (isLoading) {
     return (
       <div className="px-4 max-w-2xl mx-auto py-6 sm:py-10">
@@ -107,7 +120,6 @@ export default function EnqueteDetalhe() {
   }
 
   const total = poll.options.reduce((s, o) => s + o.votes, 0);
-  const isCheckingExistingVote = !!user && isLoadingVotes;
   const hasVoted = poll.options.some((o) => voted.has(o.id));
   const winner = poll.options.reduce<typeof poll.options[number] | null>(
     (best, o) => (!best || o.votes > best.votes ? o : best), null,
@@ -115,6 +127,7 @@ export default function EnqueteDetalhe() {
   const byAdmin = !!poll.createdBy && adminIds.has(poll.createdBy);
   const live = isPollLive(poll);
   const countdown = live ? timeUntilClose(poll.endsAt) : null;
+
   const endedLabel = !live ? formatEndedAt(poll.endsAt) : null;
 
   function toggleSelect(optId: string) {
