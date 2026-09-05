@@ -153,6 +153,14 @@ export default function AdminPublicados() {
                   <Button size="sm" variant="outline" className="h-9" onClick={() => setEditing(p)}>
                     <Pencil className="h-3.5 w-3.5" /> Editar
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-9 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => setDeleting(p)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Apagar
+                  </Button>
                   <Link
                     to={`/reclamacao/${p.id}`}
                     target="_blank"
