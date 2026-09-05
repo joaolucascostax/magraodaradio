@@ -1040,6 +1040,13 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_post_support_counts: {
+        Args: { _post_ids: string[] }
+        Returns: {
+          like_count: number
+          post_id: string
+        }[]
+      }
       get_public_profiles: {
         Args: { _user_ids: string[] }
         Returns: {
@@ -1057,6 +1064,13 @@ export type Database = {
         Returns: boolean
       }
       is_banned: { Args: { _user_id: string }; Returns: boolean }
+      toggle_post_support: {
+        Args: { _post_id: string }
+        Returns: {
+          like_count: number
+          supported: boolean
+        }[]
+      }
       validar_cpf: { Args: { _cpf: string }; Returns: boolean }
     }
     Enums: {
