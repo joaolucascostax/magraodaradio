@@ -276,7 +276,7 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
           asChild
           variant="ghost"
           size="sm"
-          className="min-h-[44px] gap-2 rounded-full px-3 text-sm font-bold text-muted-foreground"
+          className="min-h-[44px] gap-2 rounded-full bg-muted/60 px-3 text-sm font-bold text-muted-foreground hover:bg-muted"
         >
           <Link to={`/reclamacao/${post.id}`} aria-label={`Ver comentários (${post.comment_count})`}>
             <MessageCircle className="h-[18px] w-[18px]" strokeWidth={2.2} />
@@ -290,7 +290,7 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
           onClick={share}
           onContextMenu={(e) => { e.preventDefault(); copyLink(); }}
           aria-label="Compartilhar no WhatsApp (segure para copiar link)"
-          className="ml-auto min-h-[44px] w-11 rounded-full text-muted-foreground"
+          className="ml-auto min-h-[44px] w-11 rounded-full bg-muted/60 text-muted-foreground hover:bg-muted"
         >
           <Share2 className="h-[18px] w-[18px]" strokeWidth={2} />
         </Button>
