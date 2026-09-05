@@ -74,6 +74,22 @@ export default function AdminPublicados() {
     onError: () => toast.error('Falha ao atualizar selo.'),
   });
 
+  const removePost = useMutation({
+    mutationFn: async (id: string) => {
+      await supabase.from('post_comments').delete().eq('post_id', id);
+      await supabase.from('post_reactions').delete().eq('post_id', id);
+      const { error } = await supabase.from('posts').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-publicados'] });
+      qc.invalidateQueries({ queryKey: ['posts-feed'] });
+      toast.success('Publicação apagada.');
+      setDeleting(null);
+    },
+    onError: (e) => toast.error('Falha ao apagar: ' + (e as Error).message),
+  });
+
   return (
     <div className="max-w-5xl mx-auto animate-fade-up">
       <div className="mb-5">
