@@ -978,27 +978,6 @@ export type Database = {
           },
         ]
       }
-      profiles_public: {
-        Row: {
-          avatar_url: string | null
-          display_name: string | null
-          is_vereador: boolean | null
-          user_id: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          display_name?: string | null
-          is_vereador?: boolean | null
-          user_id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          display_name?: string | null
-          is_vereador?: boolean | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
     }
     Functions: {
       close_expired_polls: { Args: never; Returns: number }
@@ -1017,6 +996,15 @@ export type Database = {
           phone_e164: string
           phone_verified: boolean
           updated_at: string
+          user_id: string
+        }[]
+      }
+      get_public_profiles: {
+        Args: { _user_ids: string[] }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          is_vereador: boolean
           user_id: string
         }[]
       }
