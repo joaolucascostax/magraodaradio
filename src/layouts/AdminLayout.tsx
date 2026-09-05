@@ -1,100 +1,18 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import { BarChart3, Inbox, MessagesSquare, Shield, LogOut, ExternalLink, BarChart2, MessageSquare, Award, Radio } from 'lucide-react';
+import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom';
+import { LayoutDashboard, ListChecks, Radio, BarChart2, MessageSquare, LogOut, ExternalLink, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarFooter,
-} from '@/components/ui/sidebar';
 
-function AdminSidebar({ pendingPosts }: { pendingPosts: number }) {
-  const { pathname } = useLocation();
-  const isActive = (path: string) =>
-    path === '/admin' ? pathname === '/admin' : pathname.startsWith(path);
-
-  const items = [
-    { title: 'Dashboard', url: '/admin', icon: BarChart3 },
-    { title: 'Moderar posts', url: '/admin/moderacao', icon: Inbox, badge: pendingPosts },
-    { title: 'Comentários', url: '/admin/comentarios', icon: MessagesSquare },
-    { title: 'Enquetes', url: '/admin/enquetes', icon: BarChart2 },
-    { title: 'Publicados & Selos', url: '/admin/publicados', icon: Award },
-    { title: 'Diário do Magrão', url: '/admin/diario', icon: Radio },
-    { title: 'Grupos WhatsApp', url: '/admin/grupos', icon: MessageSquare },
-  ];
-
-  const linkClass = (active: boolean) =>
-    `flex items-center gap-2.5 w-full ${
-      active ? 'font-semibold text-primary' : 'text-muted-foreground'
-    }`;
-
-  return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b">
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Shield className="h-4 w-4" />
-          </div>
-          <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-bold">Painel Admin</span>
-            <span className="text-[10px] text-muted-foreground">Magrão no Ar</span>
-          </div>
-        </div>
-      </SidebarHeader>
-
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Moderação</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    <NavLink to={item.url} end={item.url === '/admin'} className={linkClass(isActive(item.url))}>
-                      <item.icon className="h-4 w-4 shrink-0" />
-                      <span className="flex-1 group-data-[collapsible=icon]:hidden">{item.title}</span>
-                      {item.badge && item.badge > 0 ? (
-                        <Badge className="h-5 min-w-5 px-1.5 text-[10px] group-data-[collapsible=icon]:hidden">
-                          {item.badge}
-                        </Badge>
-                      ) : null}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter className="border-t">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Ver site">
-              <NavLink to="/" className="text-muted-foreground">
-                <ExternalLink className="h-4 w-4" />
-                <span className="group-data-[collapsible=icon]:hidden">Ver site</span>
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
-  );
-}
+const NAV = [
+  { to: '/admin', label: 'Visão geral', icon: LayoutDashboard, end: true },
+  { to: '/admin/conteudo', label: 'Conteúdo', icon: ListChecks, end: false },
+  { to: '/admin/diario', label: 'Diário', icon: Radio, end: false },
+  { to: '/admin/enquetes', label: 'Enquetes', icon: BarChart2, end: false },
+  { to: '/admin/grupos', label: 'Grupos', icon: MessageSquare, end: false },
+];
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -104,24 +22,18 @@ export default function AdminLayout() {
 
   useEffect(() => {
     if (!isAdmin) return;
-    supabase
-      .from('posts')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'pendente')
-      .then(({ count }) => setPending(count ?? 0));
+    const count = () =>
+      supabase
+        .from('posts')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pendente')
+        .then(({ count }) => setPending(count ?? 0));
+    count();
     const channel = supabase
       .channel('admin-pending')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
-        supabase
-          .from('posts')
-          .select('id', { count: 'exact', head: true })
-          .eq('status', 'pendente')
-          .then(({ count }) => setPending(count ?? 0));
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => { count(); })
       .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [isAdmin]);
 
   if (authLoading || roleLoading) {
@@ -135,30 +47,62 @@ export default function AdminLayout() {
   }
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-muted/20">
-        <AdminSidebar pendingPosts={pending} />
-        <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 flex items-center justify-between gap-2 border-b bg-card px-3 sm:px-4 sticky top-0 z-30">
-            <div className="flex items-center gap-2 min-w-0">
-              <SidebarTrigger />
-              <span className="text-sm font-semibold truncate">Painel administrativo</span>
+    <div className="min-h-screen bg-muted/20">
+      <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur">
+        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between gap-2 px-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Shield className="h-4 w-4" />
+            </span>
+            <div className="min-w-0 leading-tight">
+              <p className="truncate text-sm font-bold">Painel do Magrão</p>
+              <p className="truncate text-[11px] text-muted-foreground">
+                {pending > 0 ? `${pending} aguardando você` : 'Tudo em dia'}
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="hidden sm:inline text-xs text-muted-foreground truncate max-w-[180px]">
-                {user.email}
-              </span>
-              <Button size="sm" variant="ghost" onClick={handleLogout} className="gap-1.5">
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Sair</span>
-              </Button>
-            </div>
-          </header>
-          <main className="flex-1 overflow-auto p-4 sm:p-6">
-            <Outlet />
-          </main>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button asChild size="sm" variant="ghost" className="h-9 px-2">
+              <NavLink to="/" aria-label="Ver site"><ExternalLink className="h-4 w-4" /></NavLink>
+            </Button>
+            <Button size="sm" variant="ghost" className="h-9 px-2" onClick={handleLogout} aria-label="Sair">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+
+        <nav className="mx-auto max-w-4xl overflow-x-auto px-3 pb-2">
+          <ul className="flex gap-1.5">
+            {NAV.map((item) => (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    `inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[13px] font-semibold transition ${
+                      isActive
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'bg-muted/60 text-muted-foreground hover:bg-muted'
+                    }`
+                  }
+                >
+                  <item.icon className="h-3.5 w-3.5" />
+                  {item.label}
+                  {item.to === '/admin/conteudo' && pending > 0 && (
+                    <span className="ml-0.5 rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                      {pending}
+                    </span>
+                  )}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </header>
+
+      <main className="mx-auto max-w-4xl px-3 py-4 pb-16">
+        <Outlet />
+      </main>
+    </div>
   );
 }
