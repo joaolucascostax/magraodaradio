@@ -16,7 +16,6 @@ import Enquetes from "./pages/Enquetes";
 import EnqueteDetalhe from "./pages/EnqueteDetalhe";
 import Magrao from "./pages/Magrao";
 import Diario from "./pages/Diario";
-import Apoiadores from "./pages/Apoiadores";
 import Perfil from "./pages/Perfil";
 import AdminHome from "./pages/AdminHome";
 import AdminLogin from "./pages/AdminLogin";
@@ -57,13 +56,13 @@ const App = () => (
               <Route path="/demandas" element={<ErrorBoundary><Reclamacoes /></ErrorBoundary>} />
               <Route path="/nova-demanda" element={<ErrorBoundary><NovoPost /></ErrorBoundary>} />
               <Route path="/diario" element={<ErrorBoundary><Diario /></ErrorBoundary>} />
-              <Route path="/apoiadores" element={<ErrorBoundary><Apoiadores /></ErrorBoundary>} />
               <Route path="/magrao" element={<ErrorBoundary><Magrao /></ErrorBoundary>} />
 
               {/* Rotas antigas — mantidas para não quebrar links compartilhados */}
               <Route path="/reclamacoes" element={<Navigate to="/demandas" replace />} />
               <Route path="/nova-reclamacao" element={<Navigate to="/nova-demanda" replace />} />
               <Route path="/sobre" element={<Navigate to="/magrao" replace />} />
+              <Route path="/apoiadores" element={<Navigate to="/" replace />} />
 
               <Route path="/reclamacao/:id" element={<ErrorBoundary><DetalheReclamacao /></ErrorBoundary>} />
               <Route path="/enquetes" element={<ErrorBoundary><Enquetes /></ErrorBoundary>} />

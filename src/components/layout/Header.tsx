@@ -11,7 +11,6 @@ const navItems = [
   { label: 'Início', path: '/' },
   { label: 'Diário do Magrão', path: '/diario' },
   { label: 'Demandas', path: '/demandas' },
-  { label: 'Apoiadores', path: '/apoiadores' },
   { label: 'O Magrão', path: '/magrao' },
 ];
 

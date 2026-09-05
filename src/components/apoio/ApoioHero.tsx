@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom';
-import { Radio, ArrowRight } from 'lucide-react';
+import { Radio } from 'lucide-react';
 import ApoiarButton from '@/components/apoio/ApoiarButton';
 import { useApoioStats } from '@/hooks/useApoio';
 import { useMeuApoio } from '@/hooks/useApoio';
@@ -32,12 +31,9 @@ export default function ApoioHero() {
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <ApoiarButton size="lg" />
 
-        <Link
-          to="/apoiadores"
-          className="inline-flex items-center gap-1 text-sm font-bold underline-offset-4 hover:underline"
-        >
-          {totalApoiadores.toLocaleString('pt-BR')} apoiadores <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
+        <span className="text-sm font-bold opacity-90">
+          {totalApoiadores.toLocaleString('pt-BR')} apoiadores
+        </span>
       </div>
     </section>
   );

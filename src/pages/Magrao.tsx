@@ -80,9 +80,6 @@ export default function Magrao() {
             <Button asChild size="sm" variant="secondary" className="gap-1.5 rounded-full bg-background font-bold text-secondary hover:bg-background/90">
               <Link to="/demandas"><Megaphone className="h-4 w-4" /> Demandas</Link>
             </Button>
-            <Button asChild size="sm" variant="secondary" className="gap-1.5 rounded-full bg-background font-bold text-secondary hover:bg-background/90">
-              <Link to="/apoiadores"><Users className="h-4 w-4" /> Apoiadores</Link>
-            </Button>
           </div>
         </section>
       </div>
