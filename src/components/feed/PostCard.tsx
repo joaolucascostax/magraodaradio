@@ -119,8 +119,15 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
   const isAdminAuthor = !post.is_anonimo && !!post.autor_id && adminIds.has(post.autor_id);
   const isVereador = !!post.author_is_vereador && !post.is_anonimo;
   const highlight = isAdminAuthor || isVereador;
-  const authorName = post.is_anonimo ? 'Anônimo' : (post.autor_display_name || 'Cidadão');
-  const initials = post.is_anonimo ? '' : initialsOf(post.autor_display_name);
+  const resolvedName = post.author_name || post.autor_display_name || 'Cidadão';
+  const authorName = post.is_anonimo ? 'Anônimo' : resolvedName;
+  const initials = post.is_anonimo ? '' : initialsOf(resolvedName);
+  const isMagrao = isAdminAuthor || isVereador || post.is_official;
+  const avatarSrc = post.is_anonimo
+    ? null
+    : isMagrao
+      ? magraoAvatar.url
+      : post.author_avatar_url || null;
   
 
   // Prefetch da página de detalhe ao passar mouse/tocar — abre "instantâneo".
