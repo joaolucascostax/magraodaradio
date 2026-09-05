@@ -1,64 +1,21 @@
 import { Link } from 'react-router-dom';
-import { BadgeCheck, Radio, ArrowRight, Heart } from 'lucide-react';
+import { Radio, ArrowRight } from 'lucide-react';
 import ApoiarButton from '@/components/apoio/ApoiarButton';
 import { useApoioStats } from '@/hooks/useApoio';
 import { useMeuApoio } from '@/hooks/useApoio';
 
 /**
  * Bloco de topo do feed: a única área de cor cheia da tela.
- * Ação dominante = virar apoiador. Quando já apoia, vira barra de status.
+ * Ação dominante = virar apoiador.
  */
 
 export default function ApoioHero() {
   const { totalApoiadores, totalCidades } = useApoioStats();
-  const { isApoiador, apoio } = useMeuApoio();
+  const { isApoiador } = useMeuApoio();
 
-  if (isApoiador) {
-    return (
-      <div className="relative overflow-hidden rounded-2xl border border-secondary/10 bg-card p-4 shadow-card">
-        {/* Acento de marca no canto */}
-        <div className="absolute right-0 top-0 h-24 w-24 -translate-y-1/2 translate-x-1/2 rounded-full bg-accent opacity-10" />
+  // Após o login a barra de status do apoiador não é exibida aqui.
+  if (isApoiador) return null;
 
-        <div className="relative flex items-center justify-between gap-4">
-          {/* Esquerda: selo + info */}
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="relative shrink-0">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-                <BadgeCheck className="h-6 w-6" strokeWidth={2.5} />
-              </span>
-              <span className="absolute -bottom-1 -right-1 rounded border border-card bg-accent px-1.5 py-0.5 font-display text-[8px] font-extrabold text-secondary shadow-sm">
-                20.111
-              </span>
-            </div>
-
-            <div className="flex min-w-0 flex-col">
-              <h3 className="font-display text-[15px] font-bold leading-tight text-secondary">
-                Você é apoiador
-              </h3>
-              {apoio?.cidade && (
-                <p className="text-xs font-medium text-secondary/70">
-                  em {apoio.cidade}
-                </p>
-              )}
-              <p className="mt-0.5 text-xs font-medium text-secondary/60">
-                Magrão da Rádio 20.111
-              </p>
-            </div>
-          </div>
-
-          {/* Direita: chip de status */}
-          <div className="shrink-0">
-            <span className="inline-flex items-center gap-1 rounded-full border border-secondary/10 bg-background px-2 py-1.5 shadow-sm">
-              <Heart className="h-3 w-3 fill-primary text-primary" />
-              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-secondary">
-                {apoio?.cidade ?? 'Goiás'}
-              </span>
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lifted">
