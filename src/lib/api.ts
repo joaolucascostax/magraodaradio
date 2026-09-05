@@ -33,7 +33,7 @@ export function mapComplaint(r: PostRow): Complaint {
     officialResponseDate: r.official_response_date ?? undefined,
     promiseText: r.promise_text ?? undefined,
     promiseDeadline: r.promise_deadline ?? undefined,
-    supportCount: r.support_count ?? 0,
+    supportCount: r.like_count ?? r.support_count ?? 0,
     weeklySupportCount: r.weekly_support_count ?? 0,
     commentCount: r.comment_count,
     createdAt: r.created_at,
