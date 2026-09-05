@@ -6,6 +6,7 @@ import Layout from "@/components/layout/Layout";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/hooks/useAuth";
+import { BottomNavProvider } from "@/hooks/useBottomNav";
 import AuthModal from "@/components/auth/AuthModal";
 import RequireAuth from "@/components/auth/RequireAuth";
 import Index from "./pages/Index";
