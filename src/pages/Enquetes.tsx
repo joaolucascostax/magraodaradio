@@ -72,33 +72,43 @@ function PollCard({ poll, voted, byAdmin }: { poll: Poll; voted: boolean; byAdmi
           {poll.question}
         </h3>
 
-        {total >= 0 && poll.options.length > 0 && (
-          <div className="mb-4 space-y-2">
-            {sorted.map((opt, i) => (
-              <div key={opt.id}>
-                <div className="mb-1 flex items-center justify-between gap-2">
-                  <span className="flex items-center gap-1.5 min-w-0 text-[11px] text-foreground/80 font-medium truncate">
-                    {opt.imageUrl && <img src={opt.imageUrl} alt="" className="h-4 w-4 rounded object-cover shrink-0" />}
-                    {i === 0 && total > 0 && <span className="text-highlight font-bold">1º</span>}
-                    <span className="truncate">{opt.text}</span>
-                  </span>
-                  <span className="text-xs font-bold text-foreground shrink-0 tabular-nums">
-                    {pct(opt.votes)}%
-                    <span className="ml-1 font-normal text-muted-foreground">({opt.votes.toLocaleString('pt-BR')})</span>
-                  </span>
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className={`h-full rounded-full transition-all duration-700 ease-out ${
-                      i === 0 && total > 0 ? 'bg-highlight' : 'bg-primary/40'
-                    }`}
-                    style={{ width: `${pct(opt.votes)}%` }}
-                  />
+        {poll.options.length > 0 && (
+          <div className="mb-4 space-y-1.5">
+            {sorted.slice(0, 3).map((opt, i) => (
+              <div
+                key={opt.id}
+                className={`relative overflow-hidden rounded-xl border ${
+                  i === 0 && total > 0 ? 'border-primary/40 bg-primary/5' : 'border-border bg-card'
+                }`}
+              >
+                <div
+                  className={`absolute inset-y-0 left-0 transition-all duration-700 ease-out ${
+                    i === 0 && total > 0 ? 'bg-highlight/20' : 'bg-muted'
+                  }`}
+                  style={{ width: `${pct(opt.votes)}%` }}
+                />
+                <div className="relative flex items-center gap-2.5 p-2">
+                  {opt.imageUrl ? (
+                    <img src={opt.imageUrl} alt="" loading="lazy"
+                      className={`h-8 w-8 shrink-0 rounded-full border border-background object-cover ${i === 0 && total > 0 ? '' : 'grayscale opacity-70'}`} />
+                  ) : (
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-extrabold text-muted-foreground">
+                      {opt.text.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="min-w-0 flex-1 truncate text-[12px] font-bold text-foreground/85">{opt.text}</span>
+                  <span className="shrink-0 font-display text-sm font-extrabold tabular-nums text-foreground">{pct(opt.votes)}%</span>
                 </div>
               </div>
             ))}
+            {sorted.length > 3 && (
+              <p className="pl-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                +{sorted.length - 3} outras opções
+              </p>
+            )}
           </div>
         )}
+
 
         {!live && top1 && total > 0 && (
           <div className="mb-3 flex items-center gap-1.5 rounded-lg bg-highlight/10 px-2.5 py-1.5 text-xs">
