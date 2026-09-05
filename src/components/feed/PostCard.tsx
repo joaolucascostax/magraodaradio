@@ -204,20 +204,20 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => react('like')}
-          disabled={busy}
-          aria-pressed={myReaction === 'like'}
-          aria-label={myReaction === 'like' ? 'Remover apoio' : 'Apoiar demanda'}
+          onClick={toggle}
+          disabled={pending}
+          aria-pressed={supported}
+          aria-label={supported ? 'Remover apoio' : 'Apoiar demanda'}
           className={cn(
             'min-h-[44px] gap-2 rounded-full bg-muted/60 px-3 text-sm font-bold hover:bg-muted',
-            myReaction === 'like' ? 'text-primary' : 'text-muted-foreground',
+            supported ? 'text-primary' : 'text-muted-foreground',
           )}
         >
           <ThumbsUp
-            className={cn('h-[18px] w-[18px]', myReaction === 'like' && 'fill-current', pulse && 'scale-125')}
+            className={cn('h-[18px] w-[18px] transition-transform', supported && 'fill-current scale-110')}
             strokeWidth={2.2}
           />
-          <span className="tabular-nums">{post.like_count.toLocaleString('pt-BR')}</span>
+          <span className="tabular-nums">{supportCount.toLocaleString('pt-BR')}</span>
         </Button>
 
         <Button
