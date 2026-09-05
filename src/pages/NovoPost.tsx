@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { z } from 'zod';
-import { Newspaper, Landmark, AlertTriangle, MessageCircle, ImagePlus, X, Loader2, ArrowLeft, ArrowRight, Upload, MapPin, ShieldCheck, EyeOff, Check, FileText, Camera, Send, LayoutGrid } from 'lucide-react';
+import { Newspaper, Landmark, AlertTriangle, MessageCircle, ImagePlus, X, Loader2, ArrowLeft, ArrowRight, Upload, MapPin, ShieldCheck, EyeOff, Check, FileText, Camera, Send, LayoutGrid, ThumbsUp, Share2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useCidade } from '@/hooks/useCidade';
@@ -451,45 +451,76 @@ export default function NovoPost() {
               <div className="space-y-5">
                 <div>
                   <h1 className="font-display text-[22px] sm:text-2xl font-extrabold tracking-[-0.02em] text-secondary leading-[1.15]">
-                    Tudo certo? <span className="text-primary">Revise</span> e publique
+                    Veja como vai <span className="text-primary">aparecer</span> no feed
                   </h1>
                   <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
-                    Sua publicação passa pela moderação antes de ir pro feed.
+                    É assim que sua publicação fica na tela inicial. Ela passa pela moderação antes de ir pro ar.
                   </p>
                 </div>
 
-                <div className="rounded-[0.875rem] border border-border bg-muted/40 divide-y divide-border/70 overflow-hidden">
-                  <div className="flex items-center gap-3 px-4 py-3">
-                    <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-                      <tipoAtivo.icon className="h-4 w-4 text-secondary" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{tipoAtivo.label}</p>
-                      <p className="text-sm font-bold text-secondary truncate">{titulo}</p>
-                    </div>
+                {/* Prévia real do card do feed */}
+                <div className="rounded-[0.875rem] border border-border bg-background overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-border/70 bg-muted/40 px-3 py-2">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Prévia na tela inicial</span>
+                    <span className="text-[11px] font-semibold text-secondary">{tipoAtivo.label}</span>
                   </div>
-                  <div className="px-4 py-3">
-                    <p className="text-[13px] text-foreground/90 leading-relaxed line-clamp-3 whitespace-pre-line">{corpo}</p>
-                  </div>
-                  <div className="flex items-center gap-2 px-4 py-3 text-[13px] text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
-                    <span className="truncate">
-                      {cidadeNome}/GO{bairroFinal ? ` · ${bairroFinal}` : ''}
-                    </span>
+
+                  <article className="px-3 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-border/60 bg-muted flex items-center justify-center">
+                        {!anonimo && perfil?.avatar_url ? (
+                          <img src={perfil.avatar_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-xs font-bold text-muted-foreground">
+                            {anonimo || !perfil?.display_name ? <EyeOff className="h-4 w-4" /> : perfil.display_name.trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('')}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-bold text-secondary">
+                          {anonimo ? 'Anônimo' : perfil?.display_name || 'Apoiador'}
+                        </p>
+                        <div className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 truncate">
+                            <MapPin className="h-3 w-3 shrink-0" /> {cidadeNome}/GO
+                          </span>
+                          <span aria-hidden>·</span>
+                          <span className="shrink-0">agora</span>
+                          <span aria-hidden>·</span>
+                          <span className="shrink-0 font-semibold">{tipoAtivo.label}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <h3 className="mt-2 font-display text-base font-extrabold leading-snug text-foreground sm:text-lg">
+                      {titulo}
+                    </h3>
+                    <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-muted-foreground line-clamp-3">{corpo}</p>
+
                     {imagens.length > 0 && (
-                      <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold text-secondary shrink-0">
-                        <ImagePlus className="h-3.5 w-3.5" /> {imagens.length} foto{imagens.length > 1 ? 's' : ''}
-                      </span>
+                      <div className="mt-3 aspect-[4/5] w-full overflow-hidden rounded-xl bg-muted/40">
+                        <img src={imagens[0].preview} alt="" className="h-full w-full object-cover" />
+                      </div>
                     )}
-                  </div>
-                  {imagens.length > 0 && (
-                    <div className="flex gap-2 px-4 py-3">
-                      {imagens.map((img, i) => (
-                        <img key={i} src={img.preview} alt="" className="w-14 h-14 rounded-lg object-cover border border-border" />
-                      ))}
+
+                    {bairroFinal && (
+                      <p className="mt-2 text-xs text-muted-foreground">Bairro: {bairroFinal}</p>
+                    )}
+
+                    <div className="mt-3 flex items-center gap-1 opacity-70" aria-hidden>
+                      <span className="inline-flex min-h-[38px] items-center gap-2 rounded-full bg-muted/60 px-3 text-sm font-bold text-muted-foreground">
+                        <ThumbsUp className="h-[18px] w-[18px]" /> 0
+                      </span>
+                      <span className="inline-flex min-h-[38px] items-center gap-2 rounded-full bg-muted/60 px-3 text-sm font-bold text-muted-foreground">
+                        <MessageCircle className="h-[18px] w-[18px]" /> 0
+                      </span>
+                      <span className="ml-auto inline-flex min-h-[38px] w-10 items-center justify-center rounded-full bg-muted/60 text-muted-foreground">
+                        <Share2 className="h-[18px] w-[18px]" />
+                      </span>
                     </div>
-                  )}
+                  </article>
                 </div>
+
 
                 {/* Modo anônimo */}
                 <button
