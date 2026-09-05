@@ -1,13 +1,15 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Radio, Megaphone, User } from 'lucide-react';
+import { Home, Radio, Megaphone, BarChart2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const items = [
   { to: '/', label: 'Início', icon: Home },
   { to: '/diario', label: 'Diário', icon: Radio },
   { to: '/demandas', label: 'Demandas', icon: Megaphone },
+  { to: '/enquetes', label: 'Enquetes', icon: BarChart2 },
   { to: '/perfil', label: 'Perfil', icon: User },
 ];
+
 
 const HIDE_ON = [/^\/admin/, /^\/criar/, /^\/nova-demanda/];
 
