@@ -14,11 +14,6 @@ const tipoLabel: Record<string, string> = {
   noticia: 'Notícia', projeto: 'Projeto', enquete: 'Enquete', denuncia: 'Demanda', discussao: 'Conversa',
 };
 
-async function countOf(table: 'posts' | 'apoiadores' | 'post_comments' | 'polls', filter?: (q: never) => never) {
-  const { count } = await supabase.from(table).select('id', { count: 'exact', head: true });
-  return count ?? 0;
-}
-
 export default function AdminHome() {
   const qc = useQueryClient();
 
