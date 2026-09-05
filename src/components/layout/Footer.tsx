@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Instagram, MessageCircle, ShieldCheck } from 'lucide-react';
+import { Instagram, MessageCircle } from 'lucide-react';
 import Logo from '@/components/Logo';
 
 export default function Footer() {
@@ -12,9 +12,6 @@ export default function Footer() {
             A rede de apoiadores do Magrão da Rádio em Goiás. Acompanhe o trabalho, mande a demanda
             da sua cidade e participe todos os dias.
           </p>
-          <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success">
-            <ShieldCheck className="h-3.5 w-3.5" /> 1 apoiador = 1 voz
-          </div>
         </div>
         <div>
           <h4 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Plataforma</h4>
@@ -28,7 +25,6 @@ export default function Footer() {
         <div>
           <h4 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Onde estamos</h4>
           <p className="text-sm text-foreground/80">Goiás inteiro — 246 municípios</p>
-          <p className="mt-1 text-sm text-muted-foreground">Base em Goiás</p>
         </div>
         <div>
           <h4 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Redes</h4>
