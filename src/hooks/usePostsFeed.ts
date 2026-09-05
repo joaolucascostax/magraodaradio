@@ -61,13 +61,16 @@ async function fetchPostsFeed(opts: Required<Omit<Options, 'enabled'>>): Promise
     );
   }
 
+  const signed = await signAvatarPaths(Object.values(profMap).map((p) => p.avatar_url));
+
   return base.map((p) => {
     const prof = p.autor_id ? profMap[p.autor_id] : undefined;
+    const rawAvatar = prof?.avatar_url ?? null;
     return {
       ...p,
       author_is_vereador: !!prof?.is_vereador,
       author_name: prof?.display_name ?? null,
-      author_avatar_url: prof?.avatar_url ?? null,
+      author_avatar_url: rawAvatar ? signed[rawAvatar] ?? null : null,
     };
   });
 }
