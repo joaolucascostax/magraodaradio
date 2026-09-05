@@ -149,6 +149,47 @@ export type Database = {
         }
         Relationships: []
       }
+      poll_comments: {
+        Row: {
+          autor_display_name: string
+          autor_id: string | null
+          conteudo: string
+          created_at: string
+          id: string
+          is_anonimo: boolean
+          is_hidden: boolean
+          poll_id: string
+        }
+        Insert: {
+          autor_display_name: string
+          autor_id?: string | null
+          conteudo: string
+          created_at?: string
+          id?: string
+          is_anonimo?: boolean
+          is_hidden?: boolean
+          poll_id: string
+        }
+        Update: {
+          autor_display_name?: string
+          autor_id?: string | null
+          conteudo?: string
+          created_at?: string
+          id?: string
+          is_anonimo?: boolean
+          is_hidden?: boolean
+          poll_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_comments_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       poll_options: {
         Row: {
           cargo: string | null
