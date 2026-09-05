@@ -79,9 +79,7 @@ export default function ApoiarButton({ className, size = 'lg', full }: Props) {
               {isApoiador ? 'Seu apoio ao Magrão' : 'Entrar no time do Magrão'}
             </DialogTitle>
             <DialogDescription>
-              {isApoiador
-                ? 'Você já faz parte. Pode atualizar sua cidade ou retirar o apoio quando quiser.'
-                : `Já somos ${totalApoiadores.toLocaleString('pt-BR')} apoiadores em Goiás. Diga de qual cidade você é.`}
+              {isApoiador && 'Você já faz parte. Pode atualizar sua cidade ou retirar o apoio quando quiser.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -104,9 +102,6 @@ export default function ApoiarButton({ className, size = 'lg', full }: Props) {
                 <HeartOff className="h-4 w-4" /> Retirar apoio
               </Button>
             )}
-            <p className="text-center text-[11px] text-muted-foreground">
-              Só a contagem por cidade fica pública. Seu telefone nunca aparece.
-            </p>
           </div>
         </DialogContent>
       </Dialog>
