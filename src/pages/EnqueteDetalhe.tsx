@@ -7,6 +7,7 @@ import { ArrowLeft, BarChart3, CheckCircle2, Vote, Calendar, Share2, ListChecks,
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AdminBadge from '@/components/AdminBadge';
+import PollComments from '@/components/enquetes/PollComments';
 import { fetchPoll, fetchUserVotes } from '@/lib/api';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
