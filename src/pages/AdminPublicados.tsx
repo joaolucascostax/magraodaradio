@@ -184,6 +184,27 @@ export default function AdminPublicados() {
           qc.invalidateQueries({ queryKey: ['posts-feed'] });
         }}
       />
+
+      <AlertDialog open={!!deleting} onOpenChange={(o) => { if (!o) setDeleting(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apagar publicação?</AlertDialogTitle>
+            <AlertDialogDescription>
+              “{deleting?.titulo}” será removida do site junto com seus comentários e apoios. Não é possível desfazer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={removePost.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={removePost.isPending}
+              onClick={(e) => { e.preventDefault(); if (deleting) removePost.mutate(deleting.id); }}
+            >
+              {removePost.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Apagar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
