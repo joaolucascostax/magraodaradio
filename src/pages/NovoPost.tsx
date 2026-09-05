@@ -63,6 +63,19 @@ export default function NovoPost() {
   const [pendingSubmit, setPendingSubmit] = useState(false);
   const [anonimo, setAnonimo] = useState(false);
   const [bairro, setBairro] = useState<string>('');
+  const [perfil, setPerfil] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!user) { setPerfil(null); return; }
+    let ativo = true;
+    supabase
+      .from('profiles')
+      .select('display_name,avatar_url')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => { if (ativo) setPerfil((data as any) ?? null); });
+    return () => { ativo = false; };
+  }, [user]);
 
   // Cidade escolhida pelo usuário (qualquer município de Goiás). A prefeitura
   // é opcional: se ainda não existir cadastro, o post fica só com cidade/UF.
