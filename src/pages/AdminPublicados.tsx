@@ -1,8 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { Loader2, Award, Search, ExternalLink, MapPin, Pencil } from 'lucide-react';
+import { Loader2, Award, Search, ExternalLink, MapPin, Pencil, Trash2 } from 'lucide-react';
 import EditPostDialog from '@/components/admin/EditPostDialog';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
