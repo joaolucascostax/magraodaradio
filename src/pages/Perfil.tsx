@@ -180,8 +180,10 @@ export default function Perfil() {
       if (nomeLimpo.length < 2) throw new Error('Escreva seu nome com pelo menos 2 letras.');
       const { error } = await supabase
         .from('profiles')
-        .update({ display_name: nomeLimpo, default_city: cidade || null, default_uf: 'GO' })
-        .eq('user_id', user.id);
+        .upsert(
+          { user_id: user.id, display_name: nomeLimpo, default_city: cidade || null, default_uf: 'GO' },
+          { onConflict: 'user_id' },
+        );
       if (error) throw error;
       if (cidade && isApoiador && apoio?.cidade !== cidade) await apoiar.mutateAsync(cidade);
     },
