@@ -127,10 +127,6 @@ export default function EnqueteDetalhe() {
   const live = isPollLive(poll);
   const countdown = live ? timeUntilClose(poll.endsAt) : null;
 
-  useEffect(() => {
-    setBottomNavHidden(true);
-    return () => setBottomNavHidden(false);
-  }, [setBottomNavHidden]);
   const endedLabel = !live ? formatEndedAt(poll.endsAt) : null;
 
   function toggleSelect(optId: string) {
