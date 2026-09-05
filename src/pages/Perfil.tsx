@@ -247,12 +247,6 @@ export default function Perfil() {
   const feitos = checklist.filter((c) => c.done).length;
   const progresso = Math.round((feitos / checklist.length) * 100);
 
-  const stats = [
-    { icon: FileText, value: myComplaints.length, label: 'Demandas', color: 'bg-accent/10 text-accent' },
-    { icon: Heart, value: supports.size, label: 'Apoios', color: 'bg-highlight/10 text-highlight' },
-    { icon: Vote, value: voteCount, label: 'Votos', color: 'bg-primary/10 text-primary' },
-    { icon: MessageCircle, value: myComments.length, label: 'Comentários', color: 'bg-secondary/40 text-foreground' },
-  ];
 
   return (
     <div className="pb-24 sm:pb-10">
