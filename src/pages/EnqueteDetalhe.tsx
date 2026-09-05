@@ -120,7 +120,6 @@ export default function EnqueteDetalhe() {
   }
 
   const total = poll.options.reduce((s, o) => s + o.votes, 0);
-  const isCheckingExistingVote = !!user && isLoadingVotes;
   const hasVoted = poll.options.some((o) => voted.has(o.id));
   const winner = poll.options.reduce<typeof poll.options[number] | null>(
     (best, o) => (!best || o.votes > best.votes ? o : best), null,
