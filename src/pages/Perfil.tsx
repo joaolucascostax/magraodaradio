@@ -4,17 +4,14 @@ import { Link } from 'react-router-dom';
 import {
   Camera,
   CheckCircle2,
-  FileText,
   Heart,
   Loader2,
   LogOut,
   MapPin,
-  MessageCircle,
   Pencil,
   Phone,
   ShieldCheck,
   Sparkles,
-  Vote,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -247,12 +244,6 @@ export default function Perfil() {
   const feitos = checklist.filter((c) => c.done).length;
   const progresso = Math.round((feitos / checklist.length) * 100);
 
-  const stats = [
-    { icon: FileText, value: myComplaints.length, label: 'Demandas', color: 'bg-accent/10 text-accent' },
-    { icon: Heart, value: supports.size, label: 'Apoios', color: 'bg-highlight/10 text-highlight' },
-    { icon: Vote, value: voteCount, label: 'Votos', color: 'bg-primary/10 text-primary' },
-    { icon: MessageCircle, value: myComments.length, label: 'Comentários', color: 'bg-secondary/40 text-foreground' },
-  ];
 
   return (
     <div className="pb-24 sm:pb-10">
@@ -349,18 +340,6 @@ export default function Perfil() {
           </div>
         </div>
 
-        {/* Números */}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
-          {stats.map((item) => (
-            <div key={item.label} className="rounded-2xl border bg-card p-3 sm:p-4 text-center shadow-card">
-              <div className={`mx-auto mb-1.5 flex h-9 w-9 items-center justify-center rounded-xl ${item.color}`}>
-                <item.icon className="h-4 w-4" />
-              </div>
-              <p className="text-lg sm:text-xl font-black text-foreground">{item.value}</p>
-              <p className="text-[11px] text-muted-foreground">{item.label}</p>
-            </div>
-          ))}
-        </div>
 
         {/* Participação */}
         <div className="rounded-2xl border bg-card p-4 shadow-card">
