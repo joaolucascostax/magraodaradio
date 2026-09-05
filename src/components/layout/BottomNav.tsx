@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, BarChart2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useBottomNavVisibility } from '@/hooks/useBottomNav';
 
 const items = [
   { to: '/', label: 'Início', icon: Home },
