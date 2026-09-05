@@ -206,7 +206,12 @@ export default function Perfil() {
       const path = `${user.id}/avatar-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
       if (upErr) throw upErr;
-      const { error } = await supabase.from('profiles').update({ avatar_url: path }).eq('user_id', user.id);
+      const { error } = await supabase
+        .from('profiles')
+        .upsert(
+          { user_id: user.id, display_name: nomeExibido, avatar_url: path },
+          { onConflict: 'user_id' },
+        );
       if (error) throw error;
       qc.invalidateQueries({ queryKey: ['my-profile', user.id] });
       toast.success('Foto atualizada!');
