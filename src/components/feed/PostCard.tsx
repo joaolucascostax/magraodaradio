@@ -261,7 +261,7 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
           aria-pressed={myReaction === 'like'}
           aria-label={myReaction === 'like' ? 'Remover apoio' : 'Apoiar demanda'}
           className={cn(
-            'min-h-[44px] gap-2 rounded-full px-3 text-sm font-bold',
+            'min-h-[44px] gap-2 rounded-full bg-muted/60 px-3 text-sm font-bold hover:bg-muted',
             myReaction === 'like' ? 'text-primary' : 'text-muted-foreground',
           )}
         >
