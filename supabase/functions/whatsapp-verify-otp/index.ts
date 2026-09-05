@@ -26,10 +26,10 @@ Deno.serve(async (req) => {
   try {
     const bodyRaw = await req.json().catch(() => ({}));
     const { phone, code, name, cpf, lgpd } = bodyRaw ?? {};
-    if (!phone || !code) return json({ error: "Dados incompletos." }, 400);
+    if (!phone || !code) return fail("invalid_input", "Faltou o número ou o código.");
     const phoneE164 = normalizePhoneE164(phone);
-    if (!phoneE164) return json({ error: "Telefone inválido." }, 400);
-    if (!/^\d{4}$/.test(String(code))) return json({ error: "Código deve ter 4 dígitos." }, 400);
+    if (!phoneE164) return fail("invalid_phone", "Esse número de WhatsApp não parece válido. Confira o DDD.");
+    if (!/^\d{4}$/.test(String(code))) return fail("invalid_code_format", "O código tem 4 dígitos. Confira a mensagem.");
 
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
@@ -43,21 +43,29 @@ Deno.serve(async (req) => {
       .limit(1);
     if (selErr) {
       console.error("select otp", selErr);
-      return json({ error: "Erro ao validar." }, 500);
+      return fail("server", "Tivemos um problema aqui do nosso lado. Tente de novo em instantes.");
     }
     const otp = otps?.[0];
-    if (!otp) return json({ error: "Código não encontrado. Solicite um novo." }, 400);
+    if (!otp) return fail("code_not_found", "Não encontramos esse código. Toque em \"Reenviar código\".");
     if (new Date(otp.expires_at).getTime() < Date.now()) {
-      return json({ error: "Código expirado. Solicite outro." }, 400);
+      return fail("code_expired", "Esse código venceu. Toque em \"Reenviar código\".");
     }
     if ((otp.attempts ?? 0) >= 5) {
-      return json({ error: "Muitas tentativas. Solicite um novo código." }, 429);
+      return fail("too_many_attempts", "Muitas tentativas. Peça um novo código.");
     }
 
     const expectedHash = await sha256Hex(`${SALT}:${phoneE164}:${code}`);
     if (expectedHash !== otp.code_hash) {
-      await admin.from("phone_otps").update({ attempts: (otp.attempts ?? 0) + 1 }).eq("id", otp.id);
-      return json({ error: "Código incorreto." }, 400);
+      const attempts = (otp.attempts ?? 0) + 1;
+      await admin.from("phone_otps").update({ attempts }).eq("id", otp.id);
+      const left = Math.max(0, 5 - attempts);
+      return fail(
+        "code_wrong",
+        left > 0
+          ? `Código incorreto. Confira os 4 dígitos da mensagem (${left} ${left === 1 ? "tentativa" : "tentativas"} restantes).`
+          : "Muitas tentativas. Peça um novo código.",
+        { attempts_left: left },
+      );
     }
 
     // Verifica se já existe profile por telefone
@@ -75,15 +83,32 @@ Deno.serve(async (req) => {
       const cleanName = typeof name === "string" ? name.trim() : "";
       const cleanCpf = typeof cpf === "string" ? cpf.replace(/\D/g, "") : "";
       const lgpdOk = lgpd === true;
-      const dataMissing = cleanName.length < 2 || !validarCpf(cleanCpf) || !lgpdOk;
 
-      if (dataMissing) {
+      if (!cleanName && !cleanCpf && !lgpdOk) {
         // Não consome — deixa o cliente completar o cadastro e chamar de novo
         return json({ needs_signup: true }, 200);
+      }
+      if (cleanName.length < 2) return fail("name_required", "Escreva seu nome ou apelido (pelo menos 2 letras).", { needs_signup: true, field: "name" });
+      if (!validarCpf(cleanCpf)) return fail("cpf_invalid", "Esse CPF não é válido. Confira os números.", { needs_signup: true, field: "cpf" });
+      if (!lgpdOk) return fail("lgpd_required", "Para continuar, aceite os termos e a política de privacidade.", { needs_signup: true, field: "lgpd" });
+
+      // CPF já usado por outro número? Avisa ANTES de criar qualquer coisa.
+      const { data: cpfOwner } = await admin
+        .from("profiles")
+        .select("user_id, phone_e164")
+        .eq("cpf", cleanCpf)
+        .maybeSingle();
+      if (cpfOwner && cpfOwner.phone_e164 !== phoneE164) {
+        return fail(
+          "cpf_taken",
+          "Esse CPF já tem cadastro em outro número de WhatsApp. Entre com aquele número ou fale com a gente.",
+          { needs_signup: true, field: "cpf" },
+        );
       }
 
       // Cria user e profile
       let userId: string | null = null;
+      let createdNow = false;
       const { data: created, error: createErr } = await admin.auth.admin.createUser({
         email,
         email_confirm: true,
@@ -95,13 +120,14 @@ Deno.serve(async (req) => {
         const existing = list?.users?.find((u) => u.email === email);
         if (!existing) {
           console.error("create user", createErr);
-          return json({ error: "Não foi possível autenticar." }, 500);
+          return fail("server", "Não conseguimos criar seu acesso agora. Tente de novo em instantes.");
         }
         userId = existing.id;
       } else {
         userId = created.user?.id ?? null;
+        createdNow = true;
       }
-      if (!userId) return json({ error: "Falha ao identificar usuário." }, 500);
+      if (!userId) return fail("server", "Não conseguimos criar seu acesso agora. Tente de novo em instantes.");
 
       // Cria/atualiza profile
       const { data: profByUser } = await admin
@@ -124,9 +150,9 @@ Deno.serve(async (req) => {
         if (updErr) {
           console.error("update profile", updErr);
           if ((updErr as { code?: string }).code === "23505") {
-            return json({ error: "CPF já cadastrado. Se for seu, entre com o número original." }, 409);
+            return fail("cpf_taken", "Esse CPF já tem cadastro em outro número de WhatsApp. Entre com aquele número ou fale com a gente.", { needs_signup: true, field: "cpf" });
           }
-          return json({ error: "Falha ao atualizar cadastro." }, 500);
+          return fail("server", "Não conseguimos concluir seu cadastro agora. Tente de novo em instantes.");
         }
       } else {
         const { error: profErr } = await admin.from("profiles").insert({
@@ -139,10 +165,14 @@ Deno.serve(async (req) => {
         });
         if (profErr) {
           console.error("insert profile", profErr);
-          if ((profErr as { code?: string }).code === "23505") {
-            return json({ error: "CPF já cadastrado. Se for seu, entre com o número original." }, 409);
+          // Não deixa usuário órfão para trás
+          if (createdNow) {
+            await admin.auth.admin.deleteUser(userId).catch((e) => console.error("cleanup user", e));
           }
-          return json({ error: "Falha ao criar cadastro." }, 500);
+          if ((profErr as { code?: string }).code === "23505") {
+            return fail("cpf_taken", "Esse CPF já tem cadastro em outro número de WhatsApp. Entre com aquele número ou fale com a gente.", { needs_signup: true, field: "cpf" });
+          }
+          return fail("server", "Não conseguimos concluir seu cadastro agora. Tente de novo em instantes.");
         }
       }
 
@@ -151,7 +181,7 @@ Deno.serve(async (req) => {
       const { data: link, error: linkErr } = await admin.auth.admin.generateLink({ type: "magiclink", email });
       if (linkErr || !link?.properties?.hashed_token) {
         console.error("gen link", linkErr);
-        return json({ error: "Falha ao iniciar sessão." }, 500);
+        return fail("server", "Cadastro criado, mas não conseguimos abrir sua sessão. Peça um novo código para entrar.");
       }
       return json({ ok: true, token_hash: link.properties.hashed_token, email, display_name: cleanName });
     }
@@ -164,7 +194,7 @@ Deno.serve(async (req) => {
     const { data: link, error: linkErr } = await admin.auth.admin.generateLink({ type: "magiclink", email });
     if (linkErr || !link?.properties?.hashed_token) {
       console.error("gen link", linkErr);
-      return json({ error: "Falha ao iniciar sessão." }, 500);
+      return fail("server", "Não conseguimos abrir sua sessão agora. Tente de novo em instantes.");
     }
 
     return json({
@@ -175,9 +205,15 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error("verify-otp fatal", e);
-    return json({ error: "Erro interno." }, 500);
+    return fail("server", "Tivemos um problema aqui do nosso lado. Tente de novo em instantes.");
   }
 });
+
+// Erros de negócio vão com status 200 para que o corpo chegue ao app
+// (supabase.functions.invoke descarta o corpo em respostas não-2xx).
+function fail(code: string, error: string, extra: Record<string, unknown> = {}) {
+  return json({ error, code, ...extra }, 200);
+}
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
