@@ -38,40 +38,15 @@ export default function DetalheReclamacao() {
   const [newComment, setNewComment] = useState('');
   const [isAnonimo, setIsAnonimo] = useState(false);
   const [sliderPos, setSliderPos] = useState(50);
-  const supported = id ? supports.has(id) : false;
 
   const adminIds = useAdminIds();
 
-  const supportMutation = useMutation({
-    mutationFn: async () => {
-      if (!id || !user) return;
-      if (supported) {
-        // Toggle off: remove reação existente.
-        const { error } = await supabase
-          .from('post_reactions')
-          .delete()
-          .eq('post_id', id)
-          .eq('user_id', user.id);
-        if (error) throw error;
-      } else {
-        // Toggle on: upsert idempotente (evita erro de duplicate na volta rápida).
-        const { error } = await supabase
-          .from('post_reactions')
-          .upsert(
-            { post_id: id, user_id: user.id, tipo: 'like' },
-            { onConflict: 'post_id,user_id' },
-          );
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['complaint', id] });
-      qc.invalidateQueries({ queryKey: ['complaints'] });
-      qc.invalidateQueries({ queryKey: ['posts-feed'] });
-      qc.invalidateQueries({ queryKey: ['my-supports', user?.id] });
-    },
-    onError: () => toast({ title: 'Não foi possível registrar seu apoio.', variant: 'destructive' }),
-  });
+  const {
+    count: supportCount,
+    supported,
+    toggle: toggleSupport,
+    pending: supportPending,
+  } = usePostSupport(id ?? '', complaint?.supportCount ?? 0);
 
   const commentMutation = useMutation({
     mutationFn: async () => {
