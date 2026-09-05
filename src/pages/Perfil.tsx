@@ -343,18 +343,6 @@ export default function Perfil() {
           </div>
         </div>
 
-        {/* Números */}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
-          {stats.map((item) => (
-            <div key={item.label} className="rounded-2xl border bg-card p-3 sm:p-4 text-center shadow-card">
-              <div className={`mx-auto mb-1.5 flex h-9 w-9 items-center justify-center rounded-xl ${item.color}`}>
-                <item.icon className="h-4 w-4" />
-              </div>
-              <p className="text-lg sm:text-xl font-black text-foreground">{item.value}</p>
-              <p className="text-[11px] text-muted-foreground">{item.label}</p>
-            </div>
-          ))}
-        </div>
 
         {/* Participação */}
         <div className="rounded-2xl border bg-card p-4 shadow-card">
