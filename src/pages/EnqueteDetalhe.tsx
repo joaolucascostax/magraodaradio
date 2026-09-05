@@ -117,6 +117,12 @@ export default function EnqueteDetalhe() {
   const byAdmin = !!poll.createdBy && adminIds.has(poll.createdBy);
   const live = isPollLive(poll);
   const countdown = live ? timeUntilClose(poll.endsAt) : null;
+
+  useEffect(() => {
+    const shouldHide = !hasVoted && live && selected.size > 0 && !isCheckingExistingVote;
+    setBottomNavHidden(shouldHide);
+    return () => setBottomNavHidden(false);
+  }, [hasVoted, live, selected.size, isCheckingExistingVote, setBottomNavHidden]);
   const endedLabel = !live ? formatEndedAt(poll.endsAt) : null;
 
   function toggleSelect(optId: string) {
