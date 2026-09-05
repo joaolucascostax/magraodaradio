@@ -322,6 +322,9 @@ export default function EnqueteDetalhe() {
         </div>
       </div>
 
+      <PollComments pollId={poll.id} />
+
+
       <AnimatePresence>
         {!hasVoted && live && selected.size > 0 && !isCheckingExistingVote && (
           <motion.div
