@@ -6,9 +6,10 @@ import PostCard from '@/components/feed/PostCard';
 import PollFeedCard from '@/components/feed/PollFeedCard';
 import CitySelect from '@/components/CitySelect';
 import { Button } from '@/components/ui/button';
-import { usePostsFeed, type PostTipo } from '@/hooks/usePostsFeed';
+import { usePostsFeed, type PostRow, type PostTipo } from '@/hooks/usePostsFeed';
 import { useCidade } from '@/hooks/useCidade';
 import { fetchPolls } from '@/lib/api';
+import type { Poll } from '@/data/mockData';
 import { isPollLive } from '@/lib/pollLifecycle';
 import { cn } from '@/lib/utils';
 
