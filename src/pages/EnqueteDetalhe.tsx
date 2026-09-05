@@ -80,6 +80,8 @@ export default function EnqueteDetalhe() {
     },
   });
 
+  const isCheckingExistingVote = !!user && isLoadingVotes;
+
   useEffect(() => {
     if (!poll) return;
     const live = isPollLive(poll);
