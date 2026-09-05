@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useParams } from 'react-router-dom';
-import { useSetBottomNavHidden } from '@/hooks/useBottomNav';
+// import { useSetBottomNavHidden } from '@/hooks/useBottomNav';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, BarChart3, CheckCircle2, Vote, Calendar, Share2, ListChecks, Loader2, Clock, Trophy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
