@@ -43,18 +43,28 @@ async function fetchPostsFeed(opts: Required<Omit<Options, 'enabled'>>): Promise
   if (error) throw error;
   const base = (data ?? []) as unknown as PostBase[];
   const authorIds = Array.from(new Set(base.map((p) => p.autor_id).filter(Boolean))) as string[];
-  let vereadorMap: Record<string, boolean> = {};
+  let profMap: Record<string, { is_vereador: boolean; display_name: string | null; avatar_url: string | null }> = {};
   if (authorIds.length > 0) {
     const { data: profs } = await supabase
       .from('profiles')
-      .select('user_id,is_vereador')
+      .select('user_id,is_vereador,display_name,avatar_url')
       .in('user_id', authorIds);
-    vereadorMap = Object.fromEntries((profs ?? []).map((p) => [p.user_id, !!p.is_vereador]));
+    profMap = Object.fromEntries(
+      (profs ?? []).map((p) => [
+        p.user_id,
+        { is_vereador: !!p.is_vereador, display_name: p.display_name ?? null, avatar_url: p.avatar_url ?? null },
+      ]),
+    );
   }
-  return base.map((p) => ({
-    ...p,
-    author_is_vereador: p.autor_id ? !!vereadorMap[p.autor_id] : false,
-  }));
+  return base.map((p) => {
+    const prof = p.autor_id ? profMap[p.autor_id] : undefined;
+    return {
+      ...p,
+      author_is_vereador: !!prof?.is_vereador,
+      author_name: prof?.display_name ?? null,
+      author_avatar_url: prof?.avatar_url ?? null,
+    };
+  });
 }
 
 export function usePostsFeed(opts: Options = {}) {
