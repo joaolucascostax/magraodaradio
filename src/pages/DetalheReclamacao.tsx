@@ -16,6 +16,7 @@ import { DetailSkeleton } from '@/components/ui/skeletons';
 import { cn } from '@/lib/utils';
 import { getVideoEmbedUrl, isInstagramUrl } from '@/lib/videoEmbed';
 import { useAdminIds } from '@/hooks/useAdminIds';
+import { usePostSupport } from '@/hooks/usePostSupport';
 import AdminBadge from '@/components/AdminBadge';
 
 
@@ -38,40 +39,15 @@ export default function DetalheReclamacao() {
   const [newComment, setNewComment] = useState('');
   const [isAnonimo, setIsAnonimo] = useState(false);
   const [sliderPos, setSliderPos] = useState(50);
-  const supported = id ? supports.has(id) : false;
 
   const adminIds = useAdminIds();
 
-  const supportMutation = useMutation({
-    mutationFn: async () => {
-      if (!id || !user) return;
-      if (supported) {
-        // Toggle off: remove reação existente.
-        const { error } = await supabase
-          .from('post_reactions')
-          .delete()
-          .eq('post_id', id)
-          .eq('user_id', user.id);
-        if (error) throw error;
-      } else {
-        // Toggle on: upsert idempotente (evita erro de duplicate na volta rápida).
-        const { error } = await supabase
-          .from('post_reactions')
-          .upsert(
-            { post_id: id, user_id: user.id, tipo: 'like' },
-            { onConflict: 'post_id,user_id' },
-          );
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['complaint', id] });
-      qc.invalidateQueries({ queryKey: ['complaints'] });
-      qc.invalidateQueries({ queryKey: ['posts-feed'] });
-      qc.invalidateQueries({ queryKey: ['my-supports', user?.id] });
-    },
-    onError: () => toast({ title: 'Não foi possível registrar seu apoio.', variant: 'destructive' }),
-  });
+  const {
+    count: supportCount,
+    supported,
+    toggle: toggleSupport,
+    pending: supportPending,
+  } = usePostSupport(id ?? '', complaint?.supportCount ?? 0);
 
   const commentMutation = useMutation({
     mutationFn: async () => {
@@ -241,16 +217,13 @@ export default function DetalheReclamacao() {
               ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30 hover:bg-primary/95'
               : 'bg-accent/60 text-accent-foreground hover:bg-accent shadow-sm hover:shadow-md',
           )}
-          onClick={() => {
-            if (!user) { openAuth(); return; }
-            supportMutation.mutate();
-          }}
-          disabled={supportMutation.isPending}
+          onClick={toggleSupport}
+          disabled={supportPending}
           aria-pressed={supported}
         >
           <Heart className={cn('h-[18px] w-[18px] transition-transform', supported && 'fill-current animate-support-pop')} strokeWidth={2.5} />
           <span>{supported ? 'Apoiando' : 'Apoiar'}</span>
-          <span className="tabular-nums opacity-80">· {complaint.supportCount.toLocaleString('pt-BR')}</span>
+          <span className="tabular-nums opacity-80">· {supportCount.toLocaleString('pt-BR')}</span>
         </Button>
         <Button
           className="gap-2 rounded-xl min-h-[48px] px-5 bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold text-sm shadow-sm transition-all active:scale-[0.97]"
