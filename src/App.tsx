@@ -47,9 +47,10 @@ const App = () => (
     <TooltipProvider>
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
-          <ScrollToTop />
-          <AuthModal />
+        <BottomNavProvider>
+          <AuthProvider>
+            <ScrollToTop />
+            <AuthModal />
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
