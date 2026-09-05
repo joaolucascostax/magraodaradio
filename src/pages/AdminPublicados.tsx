@@ -34,6 +34,7 @@ export default function AdminPublicados() {
   const qc = useQueryClient();
   const [q, setQ] = useState('');
   const [editing, setEditing] = useState<Post | null>(null);
+  const [deleting, setDeleting] = useState<Post | null>(null);
 
 
   const { data: posts = [], isLoading } = useQuery({
