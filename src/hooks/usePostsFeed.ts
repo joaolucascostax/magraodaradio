@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import { signAvatarPaths } from '@/lib/avatars';
 
 type PostBase = Database['public']['Tables']['posts']['Row'];
 export type PostRow = PostBase & {

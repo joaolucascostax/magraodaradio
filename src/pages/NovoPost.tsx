@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { z } from 'zod';
 import { Newspaper, Landmark, AlertTriangle, MessageCircle, ImagePlus, X, Loader2, ArrowLeft, ArrowRight, Upload, MapPin, ShieldCheck, EyeOff, Check, FileText, Camera, Send, LayoutGrid, ThumbsUp, Share2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { signAvatarPath } from '@/lib/avatars';
 import { useAuth } from '@/hooks/useAuth';
 import { useCidade } from '@/hooks/useCidade';
 import CitySelect from '@/components/CitySelect';
@@ -73,7 +74,12 @@ export default function NovoPost() {
       .select('display_name,avatar_url')
       .eq('user_id', user.id)
       .maybeSingle()
-      .then(({ data }) => { if (ativo) setPerfil((data as any) ?? null); });
+      .then(async ({ data }) => {
+        if (!ativo) return;
+        const prof = (data as any) ?? null;
+        if (prof?.avatar_url) prof.avatar_url = await signAvatarPath(prof.avatar_url);
+        if (ativo) setPerfil(prof);
+      });
     return () => { ativo = false; };
   }, [user]);
 
