@@ -18,7 +18,7 @@ export default function BottomNav() {
     <div className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-[max(env(safe-area-inset-bottom),8px)] pt-2 md:hidden">
       <nav
         aria-label="Navegação principal"
-        className="mx-auto flex h-[62px] max-w-[360px] items-center justify-between rounded-[32px] border border-border/40 bg-background/70 shadow-[0_8px_32px_-8px_hsl(var(--secondary)_/_0.12)] backdrop-blur-xl"
+        className="mx-auto flex h-[62px] max-w-[360px] items-center justify-between overflow-hidden rounded-[32px] border border-border/40 bg-background/70 shadow-[0_8px_32px_-8px_hsl(var(--secondary)_/_0.12)] backdrop-blur-xl"
       >
         {items.map((it) => {
           const active = it.to === '/' ? pathname === '/' : pathname.startsWith(it.to);
