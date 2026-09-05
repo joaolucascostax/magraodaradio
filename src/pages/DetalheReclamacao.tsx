@@ -216,16 +216,13 @@ export default function DetalheReclamacao() {
               ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30 hover:bg-primary/95'
               : 'bg-accent/60 text-accent-foreground hover:bg-accent shadow-sm hover:shadow-md',
           )}
-          onClick={() => {
-            if (!user) { openAuth(); return; }
-            supportMutation.mutate();
-          }}
-          disabled={supportMutation.isPending}
+          onClick={toggleSupport}
+          disabled={supportPending}
           aria-pressed={supported}
         >
           <Heart className={cn('h-[18px] w-[18px] transition-transform', supported && 'fill-current animate-support-pop')} strokeWidth={2.5} />
           <span>{supported ? 'Apoiando' : 'Apoiar'}</span>
-          <span className="tabular-nums opacity-80">· {complaint.supportCount.toLocaleString('pt-BR')}</span>
+          <span className="tabular-nums opacity-80">· {supportCount.toLocaleString('pt-BR')}</span>
         </Button>
         <Button
           className="gap-2 rounded-xl min-h-[48px] px-5 bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold text-sm shadow-sm transition-all active:scale-[0.97]"
