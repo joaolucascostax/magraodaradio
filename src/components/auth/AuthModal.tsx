@@ -200,6 +200,8 @@ export default function AuthModal() {
       <DialogContent
         className="sm:max-w-md p-0 gap-0 overflow-hidden border-0 shadow-2xl rounded-2xl"
         aria-describedby={undefined}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+
       >
         <div className="relative bg-gradient-to-br from-secondary via-secondary to-primary/90 px-6 pt-6 pb-8 text-white">
           {step !== 'phone' && (
@@ -260,7 +262,8 @@ export default function AuthModal() {
                   <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="phone"
-                    autoFocus
+                    autoFocus={false}
+
                     value={phone}
                     onChange={(e) => setPhone(formatPhone(e.target.value))}
                     placeholder="(64) 9 9999-9999"
