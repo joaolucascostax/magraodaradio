@@ -25,6 +25,6 @@ export function useBottomNavVisibility() {
 
 export function useSetBottomNavHidden() {
   const ctx = useContext(BottomNavContext);
-  if (!ctx) throw new Error('useSetBottomNavHidden must be used within BottomNavProvider');
+  if (!ctx) return () => {};
   return ctx.setHidden;
 }
