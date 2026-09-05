@@ -172,7 +172,7 @@ export default function DetalheReclamacao() {
         <div
           className={cn(
             'relative mb-5 w-full overflow-hidden rounded-xl bg-muted/40 sm:mb-6 sm:rounded-2xl',
-            isInstagramUrl(complaint.videoUrl) ? 'aspect-[4/5]' : 'aspect-video',
+            isInstagramUrl(complaint.videoUrl) ? 'aspect-[9/16]' : 'aspect-video',
           )}
         >
           <iframe
