@@ -18,6 +18,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { AlertCircle } from 'lucide-react';
 import { formatCpf, cpfDigits, isValidCpf } from '@/lib/cpf';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +31,28 @@ function formatPhone(value: string) {
 
 type Step = 'phone' | 'code' | 'signup';
 
+type FnResult = {
+  ok?: boolean;
+  error?: string;
+  code?: string;
+  field?: 'name' | 'cpf' | 'lgpd';
+  needs_signup?: boolean;
+  token_hash?: string;
+  display_name?: string;
+};
+
+/** Lê o corpo da resposta mesmo quando a função responde com status de erro. */
+async function readFnError(error: unknown): Promise<string | null> {
+  const ctx = (error as { context?: { json?: () => Promise<unknown> } })?.context;
+  if (!ctx?.json) return null;
+  try {
+    const body = (await ctx.json()) as { error?: string };
+    return body?.error ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default function AuthModal() {
   const { isAuthOpen, closeAuth } = useAuth();
   const [step, setStep] = useState<Step>('phone');
@@ -40,6 +63,8 @@ export default function AuthModal() {
   const [lgpd, setLgpd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resendIn, setResendIn] = useState(0);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<'name' | 'cpf' | 'lgpd' | null>(null);
   const inFlightRef = useRef(false);
   const sessionStartedRef = useRef(false);
 
@@ -57,6 +82,8 @@ export default function AuthModal() {
     setCpf('');
     setLgpd(false);
     setResendIn(0);
+    setFormError(null);
+    setErrorField(null);
     inFlightRef.current = false;
     sessionStartedRef.current = false;
   };
@@ -71,11 +98,15 @@ export default function AuthModal() {
     if (inFlightRef.current) return;
     inFlightRef.current = true;
     setLoading(true);
+    setFormError(null);
     try {
       const { data, error } = await supabase.functions.invoke('whatsapp-send-otp', { body: { phone } });
-      const d = (data ?? {}) as { ok?: boolean; error?: string };
-      if (error || d.error) {
-        toast.error(d.error || error?.message || 'Não foi possível enviar o código.');
+      const d = (data ?? {}) as FnResult;
+      const msg = d.error ?? (error ? await readFnError(error) : null);
+      if (msg || error) {
+        const finalMsg = msg || 'Não conseguimos enviar o código agora. Tente de novo em instantes.';
+        setFormError(finalMsg);
+        toast.error(finalMsg);
         return;
       }
       setStep('code');
@@ -91,6 +122,8 @@ export default function AuthModal() {
     if (inFlightRef.current || sessionStartedRef.current) return;
     inFlightRef.current = true;
     setLoading(true);
+    setFormError(null);
+    setErrorField(null);
     try {
       const body: Record<string, unknown> = { phone, code };
       if (signupData) {
@@ -99,9 +132,14 @@ export default function AuthModal() {
         body.lgpd = signupData.lgpd;
       }
       const { data, error } = await supabase.functions.invoke('whatsapp-verify-otp', { body });
-      const d = (data ?? {}) as { error?: string; needs_signup?: boolean; token_hash?: string; display_name?: string };
-      if (error || d.error) {
-        toast.error(d.error || error?.message || 'Código inválido.');
+      const d = (data ?? {}) as FnResult;
+      const msg = d.error ?? (error ? await readFnError(error) : null);
+      if (msg || error) {
+        const finalMsg = msg || 'Não conseguimos confirmar o código agora. Tente de novo em instantes.';
+        if (d.needs_signup) setStep('signup');
+        setErrorField(d.field ?? null);
+        setFormError(finalMsg);
+        toast.error(finalMsg);
         return;
       }
       if (d.needs_signup) {
@@ -109,7 +147,8 @@ export default function AuthModal() {
         return;
       }
       if (!d.token_hash) {
-        toast.error('Falha ao iniciar sessão.');
+        setFormError('Não conseguimos abrir sua sessão. Peça um novo código.');
+        toast.error('Não conseguimos abrir sua sessão. Peça um novo código.');
         return;
       }
       sessionStartedRef.current = true;
@@ -119,7 +158,8 @@ export default function AuthModal() {
       });
       if (verifyErr) {
         sessionStartedRef.current = false;
-        toast.error('Falha ao iniciar sessão. Tente novamente.');
+        setFormError('Não conseguimos abrir sua sessão. Tente novamente.');
+        toast.error('Não conseguimos abrir sua sessão. Tente novamente.');
         return;
       }
       const first = (d.display_name || '').split(' ')[0];
@@ -134,21 +174,21 @@ export default function AuthModal() {
 
   const submitPhone = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phoneOk) return toast.error('Digite um WhatsApp válido.');
+    if (!phoneOk) { setFormError('Digite um WhatsApp válido, com DDD.'); return; }
     await sendCode();
   };
 
   const submitCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!codeOk) return toast.error('Digite o código de 4 dígitos.');
+    if (!codeOk) { setFormError('Digite os 4 dígitos que enviamos.'); return; }
     await verify();
   };
 
   const submitSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nameOk) return toast.error('Informe seu nome ou apelido.');
-    if (!cpfOk) return toast.error('CPF inválido.');
-    if (!lgpd) return toast.error('É preciso aceitar os termos.');
+    if (!nameOk) { setErrorField('name'); setFormError('Escreva seu nome ou apelido.'); return; }
+    if (!cpfOk) { setErrorField('cpf'); setFormError('Esse CPF não é válido. Confira os números.'); return; }
+    if (!lgpd) { setErrorField('lgpd'); setFormError('Aceite os termos para continuar.'); return; }
     await verify({ name: name.trim(), cpf: cpfDigits(cpf), lgpd: true });
   };
 
@@ -166,6 +206,8 @@ export default function AuthModal() {
             <button
               onClick={() => {
                 if (loading) return;
+                setFormError(null);
+                setErrorField(null);
                 setStep(step === 'signup' ? 'code' : 'phone');
               }}
               className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition"
@@ -232,6 +274,13 @@ export default function AuthModal() {
                 </p>
               </div>
 
+              {formError && (
+                <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs font-medium text-destructive">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
+
               <Button
                 type="submit"
                 className="w-full h-12 rounded-xl text-base font-bold shadow-md hover:shadow-lg transition-all"
@@ -274,6 +323,13 @@ export default function AuthModal() {
                 />
               </div>
 
+              {formError && (
+                <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs font-medium text-destructive">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
+
               <Button
                 type="submit"
                 className="w-full h-12 rounded-xl text-base font-bold shadow-md hover:shadow-lg transition-all"
@@ -315,7 +371,10 @@ export default function AuthModal() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Como quer ser chamado(a)"
                   maxLength={50}
-                  className="h-12 rounded-xl text-base"
+                  className={cn(
+                    'h-12 rounded-xl text-base',
+                    errorField === 'name' && 'border-destructive focus-visible:ring-destructive',
+                  )}
                 />
               </div>
 
@@ -333,19 +392,23 @@ export default function AuthModal() {
                     maxLength={14}
                     className={cn(
                       'h-12 rounded-xl text-base pr-11',
-                      cpf.length === 14 && !cpfOk && 'border-destructive focus-visible:ring-destructive',
+                      ((cpf.length === 14 && !cpfOk) || errorField === 'cpf') &&
+                        'border-destructive focus-visible:ring-destructive',
                     )}
                   />
                   {cpfOk && (
                     <CheckCircle2 className="absolute right-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-success" />
                   )}
                 </div>
-                 <p className="text-[11px] text-muted-foreground">
-                   {"\n"}
-                 </p>
+                <p className="text-[11px] text-muted-foreground">
+                  O CPF garante um cadastro por pessoa e não aparece no site.
+                </p>
               </div>
 
-              <div className="rounded-xl border border-border bg-muted/30 p-3">
+              <div className={cn(
+                'rounded-xl border bg-muted/30 p-3',
+                errorField === 'lgpd' ? 'border-destructive' : 'border-border',
+              )}>
                 <label className="flex items-start gap-2.5 cursor-pointer">
                   <Checkbox
                     id="lgpd"
@@ -358,6 +421,13 @@ export default function AuthModal() {
                   </span>
                 </label>
               </div>
+
+              {formError && (
+                <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs font-medium text-destructive">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
 
               <Button
                 type="submit"
