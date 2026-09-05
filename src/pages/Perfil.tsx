@@ -87,10 +87,13 @@ export default function Perfil() {
   });
 
   useEffect(() => {
-    if (!profile) return;
-    setNome(profile.display_name ?? '');
-    setCidade(profile.default_city ?? apoio?.cidade ?? '');
-  }, [profile, apoio?.cidade]);
+    setNome(
+      profile?.display_name?.trim() ||
+        (user.user_metadata?.display_name as string | undefined)?.trim() ||
+        (user.email ? user.email.split('@')[0] : ''),
+    );
+    setCidade(profile?.default_city ?? apoio?.cidade ?? '');
+  }, [profile, apoio?.cidade, user]);
 
   // Avatar é privado no armazenamento: gera URL assinada quando necessário.
   useEffect(() => {
@@ -222,7 +225,12 @@ export default function Perfil() {
     }
   }
 
-  const nomeExibido = profile?.display_name?.trim() || (user.user_metadata?.display_name as string | undefined)?.trim() || 'Apoiador';
+  const nomeFallback =
+    (user.user_metadata?.display_name as string | undefined)?.trim() ||
+    (user.user_metadata?.full_name as string | undefined)?.trim() ||
+    (user.email ? user.email.split('@')[0] : '') ||
+    'Apoiador';
+  const nomeExibido = profile?.display_name?.trim() || nomeFallback;
   const cidadeExibida = profile?.default_city || apoio?.cidade || null;
   const desde = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
