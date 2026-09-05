@@ -21,6 +21,13 @@ export default function EnqueteDetalhe() {
   const { user, openAuth } = useAuth();
   const adminIds = useAdminIds();
   const qc = useQueryClient();
+  const setBottomNavHidden = useSetBottomNavHidden();
+
+  useEffect(() => {
+    const shouldHide = !hasVoted && live && selected.size > 0 && !isCheckingExistingVote;
+    setBottomNavHidden(shouldHide);
+    return () => setBottomNavHidden(false);
+  }, [hasVoted, live, selected.size, isCheckingExistingVote, setBottomNavHidden]);
 
   const { data: poll, isLoading } = useQuery({
     queryKey: ['poll', id], queryFn: () => fetchPoll(id!), enabled: !!id,
