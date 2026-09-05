@@ -30,7 +30,7 @@ export default function BottomNav() {
               className={cn(
                 'group flex flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl py-2.5 mx-1 transition-all duration-300',
                 active
-                  ? 'bg-primary shadow-[0_4px_14px_-4px_hsl(var(--primary)_/_0.35)]'
+                  ? 'rounded-[28px] bg-primary shadow-[0_4px_14px_-4px_hsl(var(--primary)_/_0.35)]'
                   : 'hover:bg-muted/70',
               )}
             >
