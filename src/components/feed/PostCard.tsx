@@ -14,7 +14,7 @@ import { useAdminIds } from '@/hooks/useAdminIds';
 import { toast } from 'sonner';
 import { timeAgoBr } from '@/lib/timeAgoBr';
 import { cn } from '@/lib/utils';
-import { getVideoEmbedUrl } from '@/lib/videoEmbed';
+import { getVideoEmbedUrl, isInstagramUrl } from '@/lib/videoEmbed';
 import { fetchComplaint, fetchComments } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
 import { postTipoLabels } from '@/data/mockData';
@@ -233,7 +233,12 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
           </div>
         )}
         {post.video_url && getVideoEmbedUrl(post.video_url) && (
-          <div className="mt-3 aspect-video overflow-hidden rounded-xl bg-muted/40">
+          <div
+            className={cn(
+              'mt-3 w-full overflow-hidden rounded-xl bg-muted/40',
+              isInstagramUrl(post.video_url) ? 'aspect-[9/16]' : 'aspect-video',
+            )}
+          >
             <iframe
               src={getVideoEmbedUrl(post.video_url) ?? undefined}
               title={`Vídeo: ${post.titulo}`}

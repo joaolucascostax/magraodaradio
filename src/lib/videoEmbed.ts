@@ -32,6 +32,17 @@ export function getVideoEmbedUrl(value: string | null | undefined): string | nul
   return null;
 }
 
+export function isInstagramUrl(value: string | null | undefined): boolean {
+  if (!value) return false;
+
+  try {
+    const host = new URL(value).hostname.replace(/^www\./, '').toLowerCase();
+    return host === 'instagram.com' || host === 'instagr.am';
+  } catch {
+    return false;
+  }
+}
+
 export function isSupportedVideoUrl(value: string): boolean {
   return getVideoEmbedUrl(value) !== null;
 }

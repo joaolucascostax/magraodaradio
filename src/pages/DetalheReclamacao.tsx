@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { timeAgo } from '@/lib/timeAgo';
 import { DetailSkeleton } from '@/components/ui/skeletons';
 import { cn } from '@/lib/utils';
-import { getVideoEmbedUrl } from '@/lib/videoEmbed';
+import { getVideoEmbedUrl, isInstagramUrl } from '@/lib/videoEmbed';
 import { useAdminIds } from '@/hooks/useAdminIds';
 import AdminBadge from '@/components/AdminBadge';
 
@@ -169,7 +169,12 @@ export default function DetalheReclamacao() {
         </div>
       )}
       {complaint.videoUrl && getVideoEmbedUrl(complaint.videoUrl) && (
-        <div className="relative mb-5 aspect-video overflow-hidden rounded-xl sm:mb-6 sm:rounded-2xl bg-muted/40">
+        <div
+          className={cn(
+            'relative mb-5 w-full overflow-hidden rounded-xl bg-muted/40 sm:mb-6 sm:rounded-2xl',
+            isInstagramUrl(complaint.videoUrl) ? 'aspect-[9/16]' : 'aspect-video',
+          )}
+        >
           <iframe
             src={getVideoEmbedUrl(complaint.videoUrl) ?? undefined}
             title={`Vídeo: ${complaint.title}`}
