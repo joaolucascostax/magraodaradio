@@ -130,6 +130,16 @@ export default function FeedStream({ initialFilter = 'tudo', hideChips, hideCity
   );
 }
 
+type FeedItem =
+  | { kind: 'post'; id: string; date: string; post: PostRow }
+  | { kind: 'poll'; id: string; date: string; poll: Poll };
+
+function mergeFeedByDate(posts: PostRow[], polls: Poll[]): FeedItem[] {
+  const postItems: FeedItem[] = posts.map((p) => ({ kind: 'post', id: p.id, date: p.created_at, post: p }));
+  const pollItems: FeedItem[] = polls.map((p) => ({ kind: 'poll', id: p.id, date: p.createdAt, poll: p }));
+  return [...postItems, ...pollItems].sort((a, b) => +new Date(b.date) - +new Date(a.date));
+}
+
 function EmptyFeed({ filter, cidade }: { filter: FeedFilter; cidade: string }) {
   if (filter === 'oficial') {
     return (
