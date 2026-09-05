@@ -20,7 +20,10 @@ export function useBottomNavVisibility() {
 
 export function useSetBottomNavHidden() {
   return useCallback((value: boolean) => {
-    console.log('setBottomNavHidden', value);
+    if (hidden !== value) {
+      hidden = value;
+      emit();
+    }
   }, []);
 }
 
