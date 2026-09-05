@@ -45,17 +45,22 @@ async function fetchPostsFeed(opts: Required<Omit<Options, 'enabled'>>): Promise
   const authorIds = Array.from(new Set(base.map((p) => p.autor_id).filter(Boolean))) as string[];
   let profMap: Record<string, { is_vereador: boolean; display_name: string | null; avatar_url: string | null }> = {};
   if (authorIds.length > 0) {
-    const { data: profs } = await supabase
-      .from('profiles')
-      .select('user_id,is_vereador,display_name,avatar_url')
-      .in('user_id', authorIds);
+    const { data: profs } = await supabase.rpc('get_public_profiles' as never, {
+      _user_ids: authorIds,
+    } as never);
     profMap = Object.fromEntries(
-      (profs ?? []).map((p) => [
+      ((profs ?? []) as unknown as Array<{
+        user_id: string;
+        is_vereador: boolean | null;
+        display_name: string | null;
+        avatar_url: string | null;
+      }>).map((p) => [
         p.user_id,
         { is_vereador: !!p.is_vereador, display_name: p.display_name ?? null, avatar_url: p.avatar_url ?? null },
       ]),
     );
   }
+
   return base.map((p) => {
     const prof = p.autor_id ? profMap[p.autor_id] : undefined;
     return {
