@@ -164,15 +164,15 @@ export default function DetalheReclamacao() {
 
       {/* Photo hero */}
       {complaint.photoUrl && (
-        <div className="relative mb-5 sm:mb-6 overflow-hidden rounded-xl sm:rounded-2xl">
-          <img src={complaint.photoUrl} alt="" className="w-full max-h-56 sm:max-h-80 object-cover" />
+        <div className="relative mb-5 sm:mb-6 aspect-[4/5] w-full overflow-hidden rounded-xl sm:rounded-2xl">
+          <img src={complaint.photoUrl} alt="" className="h-full w-full object-cover" />
         </div>
       )}
       {complaint.videoUrl && getVideoEmbedUrl(complaint.videoUrl) && (
         <div
           className={cn(
             'relative mb-5 w-full overflow-hidden rounded-xl bg-muted/40 sm:mb-6 sm:rounded-2xl',
-            isInstagramUrl(complaint.videoUrl) ? 'aspect-[9/16]' : 'aspect-video',
+            isInstagramUrl(complaint.videoUrl) ? 'aspect-[4/5]' : 'aspect-video',
           )}
         >
           <iframe
