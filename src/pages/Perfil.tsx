@@ -381,9 +381,7 @@ export default function Perfil() {
               >
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-xs sm:text-base text-foreground">{c.title}</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {c.city} · {c.supportCount} apoios
-                  </p>
+                  <p className="text-[11px] text-muted-foreground">{c.city}</p>
                 </div>
                 <Badge className={`${statusColors[c.status]} shrink-0 rounded-lg font-semibold text-[10px]`}>
                   {statusLabels[c.status]}
