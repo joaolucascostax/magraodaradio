@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
       return json({ error: "Falha ao gerar código." }, 500);
     }
 
-    const msg = `*Magrão no Ar* — seu código é: *${code}*\n\nNão compartilhe com ninguém. Expira em 5 minutos.`;
+    const msg = `🟡 *Magrão no Ar*\n\nSeu código de acesso é: *${code}*\n⏳ Expira em 15 minutos. Não compartilhe com ninguém.\n\nCom esse cadastro você pode:\n✅ Acompanhar o *Diário do Magrão* em primeira mão\n✅ Criar demandas da sua cidade e cobrar soluções\n✅ Votar em enquetes e ajudar a definir prioridades\n✅ Comentar, apoiar e participar junto com a gente\n\nObrigado por fazer parte dessa correria com o Magrão! 🚀`;
     try {
       const delivery = await sendWhatsAppText(phoneE164, msg);
       console.log("evolution accepted", {
