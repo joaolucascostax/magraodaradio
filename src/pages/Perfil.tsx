@@ -215,7 +215,7 @@ export default function Perfil() {
     }
   }
 
-  const nomeExibido = profile?.display_name?.trim() || 'Apoiador';
+  const nomeExibido = profile?.display_name?.trim() || (user.user_metadata?.display_name as string | undefined)?.trim() || 'Apoiador';
   const cidadeExibida = profile?.default_city || apoio?.cidade || null;
   const desde = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
