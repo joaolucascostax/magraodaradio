@@ -21,7 +21,7 @@ export default function EnqueteDetalhe() {
   const { user, openAuth } = useAuth();
   const adminIds = useAdminIds();
   const qc = useQueryClient();
-  // const setBottomNavHidden = useSetBottomNavHidden();
+  const setBottomNavHidden = useSetBottomNavHidden();
 
   const { data: poll, isLoading } = useQuery({
     queryKey: ['poll', id], queryFn: () => fetchPoll(id!), enabled: !!id,
