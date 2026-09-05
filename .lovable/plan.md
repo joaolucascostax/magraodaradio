@@ -1,47 +1,32 @@
-# Votação, login e perfil: versão profissional
+# Corrigir o erro no cadastro e mostrar mensagens claras
 
-Três frentes: corrigir a contagem de votos (bug confirmado), deixar o ato de votar fluido, e transformar o perfil num perfil de verdade com edição.
+## O que está acontecendo
 
-## 1. O voto contando dobrado (bug confirmado)
+O registro de erro do servidor mostra o motivo real da falha: o **CPF digitado já está cadastrado** em outro número de WhatsApp (o banco recusa CPF repetido). Ou seja, não é uma falha aleatória — é uma regra de "1 pessoa = 1 cadastro" sendo aplicada.
 
-Verifiquei no banco: existem **dois gatilhos duplicados** somando o mesmo voto. Hoje a enquete "Wilder Morais" mostra **2 votos**, mas só existe **1 voto real** registrado.
+O problema é que essa explicação nunca chega na tela. O aviso amigável ("CPF já cadastrado") é enviado com um código de erro técnico, e o app descarta a mensagem e mostra apenas "Edge function returned 400: Error". Foi por isso que você tentou duas vezes sem entender o motivo.
 
-- Remover o gatilho duplicado, deixando apenas um.
-- Recalcular os contadores de todas as opções a partir dos votos reais, para os números já exibidos ficarem corretos.
-- Garantir na base que a mesma pessoa não pode votar duas vezes na mesma enquete (hoje isso é checado só antes de gravar, o que abre brecha em cliques rápidos ou duas abas).
+Um segundo efeito: na primeira tentativa a conta de acesso chega a ser criada antes do cadastro falhar, deixando um registro pela metade.
 
-## 2. Votar sem engasgo
+## O que vamos fazer
 
-- **Botão sobrepondo o menu de baixo**: o botão amarelo "Confirmar meu voto" vai passar a respeitar a barra Início/Diário/Demandas/Perfil, com o espaçamento correto no celular.
-- **Resposta imediata ao toque**: ao escolher uma opção, o preenchimento acontece na hora (sem esperar o servidor); a barra e a porcentagem já se movem, e se algo falhar volta ao estado anterior com aviso claro.
-- **Um clique = um voto**: o botão trava no primeiro toque e mostra "Registrando..." até terminar, sem chance de duplo envio.
-- **Confirmação boa**: mensagem de voto registrado + estado "Você já votou" visível, sem a tela pular.
-- Remover a tela de enquete antiga que ainda existe solta no código com uma segunda cópia da lógica de voto, para haver só um caminho de votação.
+1. **Fazer as mensagens chegarem na tela.** Toda resposta de erro do cadastro passa a ser entregue de um jeito que o app consiga ler, e a tela de login também passa a ler o texto do erro quando ele vier em formato técnico. Resultado: a pessoa lê o motivo, não um código.
 
-## 3. Login mais polido (mesmo fluxo)
+2. **Checar o CPF antes de criar qualquer coisa.** Se o CPF já pertencer a outro número, avisamos na hora — sem criar conta pela metade.
 
-Mantém WhatsApp + código, só melhora o acabamento:
+3. **Textos melhores, em português claro:**
+   - CPF já usado: "Esse CPF já tem cadastro em outro número de WhatsApp. Entre com aquele número ou fale com a gente."
+   - Código errado: "Código incorreto. Confira os 4 dígitos da mensagem." (mostrando quantas tentativas restam)
+   - Código vencido / não encontrado: "Esse código venceu. Toque em 'Reenviar código'."
+   - Muitas tentativas: "Muitas tentativas. Peça um novo código."
+   - Falhas nossas: "Tivemos um problema aqui do nosso lado. Tente de novo em instantes."
+   - O erro volta destacado no próprio formulário (não só como aviso que desaparece), e o campo com problema fica marcado.
 
-- Mensagens de erro específicas em vez de textos genéricos ("número inválido", "código errado", "código expirado, pedir outro").
-- Estados de carregamento em todos os botões e bloqueio de envio repetido.
-- Se a pessoa estava escolhendo uma opção de enquete e o login abre, a escolha é preservada e o voto segue depois de entrar.
-- Ajustes visuais: espaçamento, tamanho de toque e o texto vazio que sobrou embaixo do CPF.
-
-## 4. Perfil de verdade, com edição
-
-Hoje o perfil mostra "Cidadão" fixo e um código interno da conta. Passa a mostrar:
-
-- **Foto**, **nome do cadastro**, cidade e selo de apoiador.
-- WhatsApp mascarado (visível só para a própria pessoa), sem nunca mostrar código interno.
-- Números: demandas criadas, apoios dados, enquetes em que votou.
-- **Editar perfil**: trocar foto, nome e cidade, com salvamento e aviso de sucesso.
-- **Sair da conta**.
-- Lista das próprias demandas, como já existe, com estados vazios convidando à ação.
+4. **Limpeza visual:** remover a linha em branco solta embaixo do campo de CPF e acrescentar a explicação "O CPF garante um cadastro por pessoa e não aparece no site."
 
 ## Detalhes técnicos
 
-- Migração: `DROP TRIGGER trg_votes_count ON public.poll_votes`; `UPDATE poll_options SET vote_count = (SELECT count(*) FROM poll_votes ...)`; índice único `(poll_id, user_id, option_id)` em `poll_votes` (compatível com múltipla escolha) e ajuste no tratamento de erro `23505` como "já votou".
-- `EnqueteDetalhe.tsx`: barra de ação fixa com `bottom` respeitando a `BottomNav` (`z` abaixo de 40 / offset `pb`), `useMutation` com `onMutate` otimista sobre `['poll', id]` e rollback em `onError`.
-- Nova storage bucket pública `avatars` (se ainda não existir) para a foto de perfil; `profiles.avatar_url`, `display_name`, `default_city` atualizados via update do próprio registro (RLS já permite).
-- `Perfil.tsx` passa a ler `get_my_profile()`; excluir `src/components/home/ActivePoll.tsx` (não referenciado por nenhuma página).
-- Sem mudança de paleta, tipografia ou estrutura do feed.
+- `supabase/functions/whatsapp-verify-otp/index.ts`: respostas de erro passam a usar status 200 com `{ error, code }` (o `functions.invoke` engole o corpo em respostas não-2xx); consulta prévia em `profiles` por `cpf` antes de `auth.admin.createUser`; se o profile falhar depois da criação do usuário, remover o usuário órfão; incluir `attempts_left` na resposta de código incorreto.
+- `src/components/auth/AuthModal.tsx`: helper para extrair mensagem de `FunctionsHttpError` via `error.context.json()`; estado `formError` renderizado acima do botão em cada etapa; mapeamento de `code` para a cópia acima; remover o `<p>{"\n"}</p>`.
+- `supabase/functions/whatsapp-send-otp/index.ts`: mesmo tratamento de mensagens (limite de envio, número sem WhatsApp) com `code` e status 200.
+- Sem mudanças de banco de dados.
