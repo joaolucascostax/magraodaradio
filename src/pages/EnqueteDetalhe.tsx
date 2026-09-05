@@ -80,6 +80,15 @@ export default function EnqueteDetalhe() {
     },
   });
 
+  useEffect(() => {
+    if (!poll) return;
+    const live = isPollLive(poll);
+    const hasVoted = poll.options.some((o) => voted.has(o.id));
+    const shouldHide = !hasVoted && live && selected.size > 0 && !isCheckingExistingVote;
+    setBottomNavHidden(shouldHide);
+    return () => setBottomNavHidden(false);
+  }, [poll, voted, selected.size, isCheckingExistingVote, setBottomNavHidden]);
+
   if (isLoading) {
     return (
       <div className="px-4 max-w-2xl mx-auto py-6 sm:py-10">
