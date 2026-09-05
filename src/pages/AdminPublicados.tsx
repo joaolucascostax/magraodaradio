@@ -1,8 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { Loader2, Award, Search, ExternalLink, MapPin, Pencil } from 'lucide-react';
+import { Loader2, Award, Search, ExternalLink, MapPin, Pencil, Trash2 } from 'lucide-react';
 import EditPostDialog from '@/components/admin/EditPostDialog';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,6 +34,7 @@ export default function AdminPublicados() {
   const qc = useQueryClient();
   const [q, setQ] = useState('');
   const [editing, setEditing] = useState<Post | null>(null);
+  const [deleting, setDeleting] = useState<Post | null>(null);
 
 
   const { data: posts = [], isLoading } = useQuery({
@@ -67,6 +72,22 @@ export default function AdminPublicados() {
       }
     },
     onError: () => toast.error('Falha ao atualizar selo.'),
+  });
+
+  const removePost = useMutation({
+    mutationFn: async (id: string) => {
+      await supabase.from('post_comments').delete().eq('post_id', id);
+      await supabase.from('post_reactions').delete().eq('post_id', id);
+      const { error } = await supabase.from('posts').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-publicados'] });
+      qc.invalidateQueries({ queryKey: ['posts-feed'] });
+      toast.success('Publicação apagada.');
+      setDeleting(null);
+    },
+    onError: (e) => toast.error('Falha ao apagar: ' + (e as Error).message),
   });
 
   return (
@@ -132,6 +153,14 @@ export default function AdminPublicados() {
                   <Button size="sm" variant="outline" className="h-9" onClick={() => setEditing(p)}>
                     <Pencil className="h-3.5 w-3.5" /> Editar
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-9 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => setDeleting(p)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Apagar
+                  </Button>
                   <Link
                     to={`/reclamacao/${p.id}`}
                     target="_blank"
@@ -155,6 +184,27 @@ export default function AdminPublicados() {
           qc.invalidateQueries({ queryKey: ['posts-feed'] });
         }}
       />
+
+      <AlertDialog open={!!deleting} onOpenChange={(o) => { if (!o) setDeleting(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apagar publicação?</AlertDialogTitle>
+            <AlertDialogDescription>
+              “{deleting?.titulo}” será removida do site junto com seus comentários e apoios. Não é possível desfazer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={removePost.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={removePost.isPending}
+              onClick={(e) => { e.preventDefault(); if (deleting) removePost.mutate(deleting.id); }}
+            >
+              {removePost.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Apagar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
