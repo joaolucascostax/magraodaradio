@@ -4,17 +4,14 @@ import { Link } from 'react-router-dom';
 import {
   Camera,
   CheckCircle2,
-  FileText,
   Heart,
   Loader2,
   LogOut,
   MapPin,
-  MessageCircle,
   Pencil,
   Phone,
   ShieldCheck,
   Sparkles,
-  Vote,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
