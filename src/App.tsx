@@ -17,13 +17,11 @@ import Magrao from "./pages/Magrao";
 import Diario from "./pages/Diario";
 import Apoiadores from "./pages/Apoiadores";
 import Perfil from "./pages/Perfil";
-import Admin from "./pages/Admin";
+import AdminHome from "./pages/AdminHome";
 import AdminLogin from "./pages/AdminLogin";
-import AdminModeracao from "./pages/AdminModeracao";
-import AdminComentarios from "./pages/AdminComentarios";
+import AdminConteudo from "./pages/AdminConteudo";
 import AdminEnquetes from "./pages/AdminEnquetes";
 import AdminGrupos from "./pages/AdminGrupos";
-import AdminPublicados from "./pages/AdminPublicados";
 import AdminDiario from "./pages/AdminDiario";
 import AdminLayout from "./layouts/AdminLayout";
 import NovoPost from "./pages/NovoPost";
@@ -74,11 +72,12 @@ const App = () => (
               <Route path="/criar" element={<ErrorBoundary><NovoPost /></ErrorBoundary>} />
             </Route>
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<ErrorBoundary><Admin /></ErrorBoundary>} />
-              <Route path="moderacao" element={<ErrorBoundary><AdminModeracao /></ErrorBoundary>} />
-              <Route path="comentarios" element={<ErrorBoundary><AdminComentarios /></ErrorBoundary>} />
+              <Route index element={<ErrorBoundary><AdminHome /></ErrorBoundary>} />
+              <Route path="conteudo" element={<ErrorBoundary><AdminConteudo /></ErrorBoundary>} />
+              <Route path="moderacao" element={<Navigate to="/admin/conteudo" replace />} />
+              <Route path="publicados" element={<Navigate to="/admin/conteudo?aba=publicadas" replace />} />
+              <Route path="comentarios" element={<Navigate to="/admin/conteudo?aba=comentarios" replace />} />
               <Route path="enquetes" element={<ErrorBoundary><AdminEnquetes /></ErrorBoundary>} />
-              <Route path="publicados" element={<ErrorBoundary><AdminPublicados /></ErrorBoundary>} />
               <Route path="diario" element={<ErrorBoundary><AdminDiario /></ErrorBoundary>} />
               <Route path="grupos" element={<ErrorBoundary><AdminGrupos /></ErrorBoundary>} />
             </Route>
