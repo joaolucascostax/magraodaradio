@@ -16,6 +16,7 @@ import { DetailSkeleton } from '@/components/ui/skeletons';
 import { cn } from '@/lib/utils';
 import { getVideoEmbedUrl, isInstagramUrl } from '@/lib/videoEmbed';
 import { useAdminIds } from '@/hooks/useAdminIds';
+import { usePostSupport } from '@/hooks/usePostSupport';
 import AdminBadge from '@/components/AdminBadge';
 
 
