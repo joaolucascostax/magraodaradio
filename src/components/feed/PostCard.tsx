@@ -40,66 +40,14 @@ function initialsOf(name?: string | null) {
   return name.trim().split(/\s+/).slice(0, 2).map(p => p[0]?.toUpperCase() ?? '').join('');
 }
 
-type ReactionTipo = 'like';
-
 export default function PostCard({ post: initial }: { post: PostRow }) {
-  const { user, openAuth } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const adminIds = useAdminIds();
   const [post, setPost] = useState<PostRow>(initial);
-  const [myReaction, setMyReaction] = useState<ReactionTipo | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [pulse, setPulse] = useState(false);
+  const { count: supportCount, supported, toggle, pending } = usePostSupport(initial.id, initial.like_count);
 
   useEffect(() => { setPost(initial); }, [initial]);
-
-  useEffect(() => {
-    if (!user) { setMyReaction(null); return; }
-    supabase
-      .from('post_reactions')
-      .select('tipo')
-      .eq('post_id', post.id)
-      .eq('user_id', user.id)
-      .maybeSingle()
-      .then(({ data }) => setMyReaction((data?.tipo as ReactionTipo) ?? null));
-  }, [user, post.id]);
-
-  async function react(tipo: ReactionTipo) {
-    if (!user) { openAuth(); return; }
-    if (busy) return;
-    setBusy(true);
-    const prev = myReaction;
-    const isToggleOff = prev === 'like';
-    const delta = isToggleOff ? -1 : 1;
-    setPost((p) => ({ ...p, like_count: Math.max(0, p.like_count + delta) }));
-    setMyReaction(isToggleOff ? null : 'like');
-    if (!isToggleOff) {
-      setPulse(true);
-      window.setTimeout(() => setPulse(false), 350);
-    }
-
-    let error;
-    if (isToggleOff) {
-      ({ error } = await supabase.from('post_reactions').delete().eq('post_id', post.id).eq('user_id', user.id));
-    } else {
-      ({ error } = await supabase
-        .from('post_reactions')
-        .upsert({ post_id: post.id, user_id: user.id, tipo }, { onConflict: 'post_id,user_id' }));
-    }
-    if (error) {
-      toast.error('Não foi possível registrar seu apoio.');
-      setPost((p) => ({ ...p, like_count: Math.max(0, p.like_count - delta) }));
-      setMyReaction(prev);
-    } else {
-      // Fonte da verdade: revalida feed + detalhe.
-      qc.invalidateQueries({ queryKey: ['posts-feed'] });
-      qc.invalidateQueries({ queryKey: ['complaints'] });
-      qc.invalidateQueries({ queryKey: ['complaint', post.id] });
-      qc.invalidateQueries({ queryKey: ['my-supports', user.id] });
-    }
-    setBusy(false);
-  }
 
   async function share() {
     const url = `${window.location.origin}/reclamacao/${post.id}`;
