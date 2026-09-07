@@ -94,8 +94,13 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
 
   const hasVideo = !!post.video_url && getVideoEmbedUrl(post.video_url);
   const hasCover = !!post.cover_url;
-  const thumbnail = hasCover ? post.cover_url : null;
-  const showThumbnail = !!thumbnail;
+  const firstMedia = (post.media_urls ?? []).filter(Boolean)[0] ?? null;
+  const videoThumb =
+    getVideoThumbnailUrl(post.video_url) ?? getVideoThumbnailUrl(firstMedia);
+  const thumbnail = hasCover ? post.cover_url : videoThumb;
+  // Quando o post tem vídeo mas nenhuma miniatura carregável, mostramos um
+  // bloco visual da marca com o play, em vez de deixar o item sem imagem.
+  const showThumbnail = !!thumbnail || !!hasVideo;
   const extraVideoCount = (post.media_urls ?? []).filter(Boolean).length;
   const videoCount = hasVideo ? extraVideoCount + 1 : 0;
 
