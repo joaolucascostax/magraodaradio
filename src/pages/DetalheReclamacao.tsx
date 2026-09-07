@@ -384,52 +384,60 @@ export default function DetalheReclamacao() {
           )}
         </div>
 
-        <div className="space-y-2.5 sm:space-y-3">
+        <div className="divide-y divide-border/60">
           {comments.length === 0 && (
-            <div className="rounded-xl border border-dashed border-border bg-muted/30 p-6 text-center">
-              <MessageSquare className="mx-auto mb-2 h-6 w-6 text-muted-foreground/50" />
+            <div className="rounded-2xl border border-dashed border-border bg-muted/20 p-8 text-center">
+              <MessageSquare className="mx-auto mb-2 h-6 w-6 text-muted-foreground/40" />
               <p className="text-sm text-muted-foreground">Ainda não há comentários. Seja o primeiro a se manifestar.</p>
             </div>
           )}
           {comments.map((c) => {
             const isMine = !!user && c.authorId === user.id;
             const isAdminAuthor = !!c.authorId && adminIds.has(c.authorId);
+            const commentAvatar = isAdminAuthor ? magraoAvatar.url : c.authorAvatar;
             return (
-              <div key={c.id} className={cn(
-                'rounded-lg sm:rounded-xl p-3 sm:p-4',
-                isAdminAuthor
-                  ? 'ring-1 ring-accent/50 bg-accent/10'
-                  : c.isOfficial ? 'border-l-4 border-l-primary bg-primary/5' : 'bg-muted/50',
-              )}>
-                <div className="mb-1.5 sm:mb-2 flex items-center gap-2 flex-wrap">
-                  <div className={cn(
-                    'flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg text-[10px] sm:text-[11px] font-bold',
-                    isAdminAuthor
-                      ? 'bg-secondary text-secondary-foreground'
-                      : c.isOfficial ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
+              <div key={c.id} className="group flex gap-3 py-4 first:pt-0">
+                <Avatar className={cn(
+                  'h-9 w-9 shrink-0 ring-2 ring-background',
+                  isAdminAuthor && 'ring-accent',
+                )}>
+                  {commentAvatar && <AvatarImage src={commentAvatar} alt={c.authorName} className="object-cover" />}
+                  <AvatarFallback className={cn(
+                    'text-[11px] font-bold',
+                    isAdminAuthor ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground',
                   )}>
                     {c.authorName.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className={cn(
+                      'text-sm font-semibold text-foreground',
+                      isAdminAuthor && 'text-secondary',
+                    )}>{c.authorName}</span>
+                    {isAdminAuthor && <BadgeCheck className="h-3.5 w-3.5 text-accent" />}
+                    {!isAdminAuthor && c.isOfficial && (
+                      <Badge className="rounded-full bg-primary px-2 py-0 text-[9px] text-primary-foreground">Oficial</Badge>
+                    )}
+                    <span className="text-[11px] text-muted-foreground">· {timeAgo(c.createdAt)}</span>
+                    {isMine && (
+                      <Button
+                        variant="ghost" size="icon"
+                        className="ml-auto h-7 w-7 text-muted-foreground opacity-60 transition hover:text-destructive group-hover:opacity-100"
+                        aria-label="Excluir comentário"
+                        disabled={deleteComment.isPending}
+                        onClick={() => { if (window.confirm('Excluir este comentário?')) deleteComment.mutate(c.id); }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                   </div>
-                  <span className={cn(
-                    'text-xs sm:text-sm font-semibold text-foreground',
-                    isAdminAuthor && 'text-secondary font-extrabold',
-                  )}>{c.authorName}</span>
-                  {isAdminAuthor && <AdminBadge />}
-                  {!isAdminAuthor && c.isOfficial && <Badge className="bg-primary text-primary-foreground text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0 rounded-md">Oficial</Badge>}
-                  <span className="text-[10px] sm:text-xs text-muted-foreground ml-auto">{timeAgo(c.createdAt)}</span>
-                  {isMine && (
-                    <Button
-                      variant="ghost" size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                      aria-label="Excluir comentário"
-                      disabled={deleteComment.isPending}
-                      onClick={() => { if (window.confirm('Excluir este comentário?')) deleteComment.mutate(c.id); }}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
+                  <p className={cn(
+                    'mt-1.5 whitespace-pre-wrap break-words rounded-2xl rounded-tl-md px-3.5 py-2.5 text-sm leading-relaxed text-foreground',
+                    isAdminAuthor ? 'bg-accent/15' : 'bg-muted/60',
+                  )}>{c.content}</p>
                 </div>
-                <p className="text-xs sm:text-sm text-foreground pl-9 sm:pl-10 whitespace-pre-wrap break-words">{c.content}</p>
               </div>
             );
           })}
