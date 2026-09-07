@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ThumbsUp, MessageCircle, Share2, MapPin, BadgeCheck, UserRound, CheckCircle2, Clock, Landmark, Play } from 'lucide-react';
-import VereadorBadge from '@/components/VereadorBadge';
-import AdminBadge from '@/components/AdminBadge';
+import { ThumbsUp, MessageCircle, Share2, MapPin, BadgeCheck, UserRound, Play } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdminIds } from '@/hooks/useAdminIds';
@@ -14,25 +10,27 @@ import { usePostSupport } from '@/hooks/usePostSupport';
 import { toast } from 'sonner';
 import { timeAgoBr } from '@/lib/timeAgoBr';
 import { cn } from '@/lib/utils';
-import { getVideoEmbedUrl, isInstagramUrl } from '@/lib/videoEmbed';
+import { getVideoEmbedUrl } from '@/lib/videoEmbed';
 import { fetchComplaint, fetchComments } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
 import { postTipoLabels } from '@/data/mockData';
 import magraoAvatar from '@/assets/magrao-campanha-2026.jpg.asset.json';
 import type { PostRow } from '@/hooks/usePostsFeed';
 
-const tipoBadgeClasses: Record<string, string> = {
-  noticia: 'bg-primary/10 text-primary border-primary/20',
-  projeto: 'bg-warning/10 text-warning border-warning/20',
-  denuncia: 'bg-destructive/10 text-destructive border-destructive/20',
-  discussao: 'bg-secondary/10 text-secondary border-secondary/20',
-  enquete: 'bg-success/10 text-success border-success/20',
+const tipoAccentBg: Record<string, string> = {
+  noticia: 'bg-primary',
+  projeto: 'bg-warning',
+  denuncia: 'bg-destructive',
+  discussao: 'bg-secondary',
+  enquete: 'bg-success',
 };
 
-const SELO_META: Record<string, { label: string; icon: any; className: string }> = {
-  resolvido_magrao: { label: 'Resolvido pelo Magrão', icon: CheckCircle2, className: 'bg-success text-success-foreground' },
-  em_andamento: { label: 'Em andamento', icon: Clock, className: 'bg-warning text-warning-foreground' },
-  encaminhado_camara: { label: 'Encaminhado à Câmara', icon: Landmark, className: 'bg-primary text-primary-foreground' },
+const tipoBadgeClasses: Record<string, string> = {
+  noticia: 'bg-primary/10 text-primary',
+  projeto: 'bg-warning/15 text-warning-foreground',
+  denuncia: 'bg-destructive/10 text-destructive',
+  discussao: 'bg-secondary/10 text-secondary-foreground',
+  enquete: 'bg-success/10 text-success',
 };
 
 function initialsOf(name?: string | null) {
@@ -66,27 +64,24 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
 
   const isAdminAuthor = !post.is_anonimo && !!post.autor_id && adminIds.has(post.autor_id);
   const isVereador = !!post.author_is_vereador && !post.is_anonimo;
-  const highlight = isAdminAuthor || isVereador;
+  const isOfficial = post.is_official;
+  const showAuthor = !post.is_anonimo;
   const resolvedName = post.author_name || post.autor_display_name || 'Cidadão';
   const authorName = post.is_anonimo ? 'Anônimo' : resolvedName;
   const initials = post.is_anonimo ? '' : initialsOf(resolvedName);
-  const isMagrao = isAdminAuthor || isVereador || post.is_official;
+  const isMagrao = isAdminAuthor || isVereador || isOfficial;
   const avatarSrc = post.is_anonimo
     ? null
     : isMagrao
       ? magraoAvatar.url
       : post.author_avatar_url || null;
-  
 
-  // Prefetch da página de detalhe ao passar mouse/tocar — abre "instantâneo".
   const prefetchDetail = () => {
     qc.prefetchQuery({ queryKey: ['complaint', post.id], queryFn: () => fetchComplaint(post.id), staleTime: 30_000 });
     qc.prefetchQuery({ queryKey: ['comments', post.id], queryFn: () => fetchComments(post.id), staleTime: 30_000 });
   };
 
   function handleCardClick(e: React.MouseEvent<HTMLDivElement>) {
-    // Não navega se o clique foi em botões, links, inputs, selects, elementos com role=button,
-    // contenteditable, ou se o usuário está selecionando texto.
     const target = e.target as HTMLElement;
     const interactive = target.closest(
       'a, button, input, textarea, select, [role="button"], [contenteditable="true"]'
@@ -97,162 +92,137 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
     navigate(`/reclamacao/${post.id}`);
   }
 
-  const selo = post.selo ? SELO_META[post.selo as string] : null;
-  const SeloIcon = selo?.icon;
+  const hasVideo = !!post.video_url && getVideoEmbedUrl(post.video_url);
+  const hasCover = !!post.cover_url;
+  const thumbnail = hasCover ? post.cover_url : null;
+  const showThumbnail = !!thumbnail;
+  const extraVideoCount = (post.media_urls ?? []).filter(Boolean).length;
+  const videoCount = hasVideo ? extraVideoCount + 1 : 0;
+
+  const metaLocation = post.cidade && post.uf
+    ? `${post.cidade}/${post.uf}`
+    : post.cidade || 'Goiás inteiro';
 
   return (
     <article
       onClick={handleCardClick}
       onMouseEnter={prefetchDetail}
       onFocus={prefetchDetail}
-      className="group cursor-pointer bg-background px-1 py-4 transition-colors hover:bg-muted/30 sm:px-2"
+      className="group relative cursor-pointer border-b border-border bg-background px-5 py-4 transition-all hover:bg-muted/20 active:scale-[0.995]"
     >
-      {/* cabeçalho: autor · cidade · tempo */}
-      <div className="flex items-center gap-3">
-        <Avatar className="h-10 w-10 shrink-0 border border-border/60 bg-background">
-          {avatarSrc && (
-            <AvatarImage src={avatarSrc} alt={authorName} className="object-cover" />
+      {/* Barra de destaque por tipo */}
+      <div className={cn('absolute left-0 top-0 bottom-0 w-1.5', tipoAccentBg[post.tipo] ?? 'bg-muted')} />
+
+      {/* Cabeçalho: tipo · local · tempo */}
+      <div className="mb-2 flex items-center gap-2">
+        <span
+          className={cn(
+            'rounded-sm px-2 py-0.5 text-[9px] font-black uppercase tracking-widest',
+            tipoBadgeClasses[post.tipo] ?? 'bg-muted text-muted-foreground'
           )}
-          <AvatarFallback
-            className={cn(
-              'text-xs font-bold',
-              post.is_anonimo
-                ? 'bg-muted text-muted-foreground'
-                : highlight
-                  ? 'bg-secondary text-secondary-foreground'
-                  : 'bg-primary/10 text-primary',
-            )}
-          >
-            {post.is_anonimo || !initials ? <UserRound className="h-4 w-4" /> : initials}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <span className={cn('truncate text-sm font-bold', isAdminAuthor && 'text-secondary')}>
-              {authorName}
-            </span>
-            {(isAdminAuthor || isVereador || post.is_official) && (
-              <BadgeCheck className="h-4 w-4 shrink-0 text-primary" aria-label="Verificado" />
-            )}
-          </div>
-          <div className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-            {post.cidade && (
-              <>
-                <span className="flex items-center gap-1 truncate">
-                  <MapPin className="h-3 w-3 shrink-0" /> {post.cidade}{post.uf ? `/${post.uf}` : ''}
-                </span>
-                <span aria-hidden>·</span>
-              </>
-            )}
-            <span className="shrink-0">{timeAgoBr(post.created_at)}</span>
-            {post.tipo && (
-              <>
-                <span aria-hidden>·</span>
-                <span className="shrink-0 font-semibold">
-                  {postTipoLabels[post.tipo as keyof typeof postTipoLabels] ?? post.tipo}
-                </span>
-              </>
-            )}
-          </div>
-        </div>
+        >
+          {postTipoLabels[post.tipo as keyof typeof postTipoLabels] ?? post.tipo}
+        </span>
+        <span className="flex items-center gap-1 truncate text-[11px] font-semibold text-muted-foreground">
+          <MapPin className="h-3 w-3 shrink-0" />
+          <span className="truncate">{metaLocation}</span>
+          <span aria-hidden>•</span>
+          {timeAgoBr(post.created_at)}
+        </span>
       </div>
 
-      {selo && SeloIcon && (
-        <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-secondary">
-          <SeloIcon className="h-3 w-3" /> {selo.label}
+      {/* Conteúdo principal: título + thumbnail */}
+      <div className="flex gap-4">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-display text-[15px] font-bold leading-tight tracking-tight text-foreground line-clamp-2 transition-colors group-hover:text-primary">
+            {post.titulo}
+          </h3>
+          {post.corpo && (
+            <p className="mt-1 text-xs leading-snug text-muted-foreground line-clamp-2">{post.corpo}</p>
+          )}
+          {showAuthor && (
+            <div className="mt-2 flex items-center gap-1.5">
+              <Avatar className="h-4 w-4 rounded-full">
+                {avatarSrc && <AvatarImage src={avatarSrc} alt={authorName} className="object-cover" />}
+                <AvatarFallback className="bg-muted text-[8px] font-bold text-muted-foreground">
+                  {post.is_anonimo || !initials ? <UserRound className="h-2.5 w-2.5" /> : initials}
+                </AvatarFallback>
+              </Avatar>
+              <span className={cn('text-[10px] font-semibold', isMagrao && 'text-secondary')}>
+                {authorName}
+              </span>
+              {isMagrao && <BadgeCheck className="h-3 w-3 shrink-0 text-primary" aria-label="Verificado" />}
+            </div>
+          )}
         </div>
-      )}
 
-      <Link to={`/reclamacao/${post.id}`} className="mt-2 block">
-        <h3 className="font-display text-base font-extrabold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-lg">
-          {post.titulo}
-        </h3>
-        {post.corpo && (
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground line-clamp-3">{post.corpo}</p>
-        )}
-        {post.cover_url && (
-          <div className="mt-3 aspect-[4/5] w-full overflow-hidden rounded-xl bg-muted/40">
-            <img
-              src={post.cover_url}
-              alt={post.titulo}
-              loading="lazy"
-              className="h-full w-full object-cover"
-            />
+        {showThumbnail && (
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-sm">
+            <img src={thumbnail} alt="" className="h-full w-full object-cover" loading="lazy" />
+            {hasVideo && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/15">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-transform group-hover:scale-110">
+                  <Play className="h-4 w-4 fill-primary text-primary" />
+                </div>
+              </div>
+            )}
+            {videoCount > 1 && (
+              <span className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm">
+                <Play className="h-2.5 w-2.5 fill-current" /> {videoCount}
+              </span>
+            )}
           </div>
         )}
-        {post.video_url && getVideoEmbedUrl(post.video_url) && (() => {
-          const extraCount = post.media_urls?.filter(Boolean).length ?? 0;
-          const totalVideos = extraCount > 0 ? extraCount + 1 : 0;
-          return (
-            <div
-              className={cn(
-                'relative mt-3 w-full overflow-hidden rounded-xl bg-muted/40',
-                isInstagramUrl(post.video_url) ? 'aspect-[4/5]' : 'aspect-video',
-              )}
-            >
-              <iframe
-                src={getVideoEmbedUrl(post.video_url) ?? undefined}
-                title={`Vídeo: ${post.titulo}`}
-                className="h-full w-full"
-                loading="lazy"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-              {totalVideos > 1 && (
-                <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
-                  <Play className="h-3 w-3 fill-current" /> {totalVideos} vídeos
-                </span>
-              )}
-            </div>
-          );
-        })()}
-      </Link>
+      </div>
 
-      {/* ações essenciais */}
-      <div className="mt-3 flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggle}
-          disabled={pending}
-          aria-pressed={supported}
-          aria-label={supported ? 'Remover apoio' : 'Apoiar demanda'}
-          className={cn(
-            'min-h-[44px] gap-2 rounded-full bg-muted/60 px-3 text-sm font-bold hover:bg-muted',
-            supported ? 'text-primary' : 'text-muted-foreground',
-          )}
-        >
-          <ThumbsUp
-            className={cn('h-[18px] w-[18px] transition-transform', supported && 'fill-current scale-110')}
-            strokeWidth={2.2}
-          />
-          <span className="tabular-nums">{supportCount.toLocaleString('pt-BR')}</span>
-        </Button>
+      {/* Ações com profundidade/sombra */}
+      <div className="mt-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggle}
+            disabled={pending}
+            aria-pressed={supported}
+            aria-label={supported ? 'Remover apoio' : 'Apoiar demanda'}
+            className={cn(
+              'h-9 gap-1.5 rounded-full border border-border/50 bg-background px-3 text-xs font-bold shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-95',
+              supported
+                ? 'text-primary ring-1 ring-primary/20'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <ThumbsUp
+              className={cn('h-4 w-4 transition-transform', supported && 'fill-current scale-110')}
+              strokeWidth={2.2}
+            />
+            <span className="tabular-nums">{supportCount.toLocaleString('pt-BR')}</span>
+          </Button>
 
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="min-h-[44px] gap-2 rounded-full bg-muted/60 px-3 text-sm font-bold text-muted-foreground hover:bg-muted"
-        >
-          <Link to={`/reclamacao/${post.id}`} aria-label={`Ver comentários (${post.comment_count})`}>
-            <MessageCircle className="h-[18px] w-[18px]" strokeWidth={2.2} />
-            <span className="tabular-nums">{post.comment_count.toLocaleString('pt-BR')}</span>
-          </Link>
-        </Button>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="h-9 gap-1.5 rounded-full border border-border/50 bg-background px-3 text-xs font-bold text-muted-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:text-foreground hover:shadow-md active:scale-95"
+          >
+            <Link to={`/reclamacao/${post.id}`} aria-label={`Ver comentários (${post.comment_count})`}>
+              <MessageCircle className="h-4 w-4" strokeWidth={2.2} />
+              <span className="tabular-nums">{post.comment_count.toLocaleString('pt-BR')}</span>
+            </Link>
+          </Button>
+        </div>
 
         <Button
           variant="ghost"
-          size="sm"
+          size="icon"
           onClick={share}
           onContextMenu={(e) => { e.preventDefault(); copyLink(); }}
           aria-label="Compartilhar no WhatsApp (segure para copiar link)"
-          className="ml-auto min-h-[44px] w-11 rounded-full bg-muted/60 text-muted-foreground hover:bg-muted"
+          className="h-9 w-9 rounded-full border border-border/50 bg-background text-muted-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:text-foreground hover:shadow-md active:scale-95"
         >
-          <Share2 className="h-[18px] w-[18px]" strokeWidth={2} />
+          <Share2 className="h-4 w-4" strokeWidth={2} />
         </Button>
       </div>
     </article>
   );
 }
-
