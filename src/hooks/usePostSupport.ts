@@ -57,10 +57,8 @@ export function usePostSupport(postId: string, serverCount: number) {
         _post_id: postId,
       } as never);
       if (error) throw error;
-      const row = (Array.isArray(data) ? data[0] : data) as
-        | { like_count: number; supported: boolean }
-        | null
-        | undefined;
+      const raw: unknown = Array.isArray(data) ? (data as unknown[])[0] : data;
+      const row = raw as { like_count: number; supported: boolean } | null | undefined;
       if (!row) throw new Error('resposta_invalida');
       return { count: row.like_count, supported: row.supported };
     },
