@@ -26,6 +26,7 @@ export function mapComplaint(r: PostRow): Complaint {
     neighborhood: r.bairro ?? undefined,
     photoUrl: r.cover_url ?? undefined,
     videoUrl: r.video_url ?? undefined,
+    mediaUrls: (r as PostRow & { media_urls?: string[] | null }).media_urls ?? undefined,
     audioUrl: r.audio_url ?? undefined,
     afterPhotoUrl: r.after_photo_url ?? undefined,
     status: (r.status_denuncia ?? 'pendente') as ComplaintStatus,
