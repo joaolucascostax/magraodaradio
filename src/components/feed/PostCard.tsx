@@ -10,7 +10,7 @@ import { usePostSupport } from '@/hooks/usePostSupport';
 import { toast } from 'sonner';
 import { timeAgoBr } from '@/lib/timeAgoBr';
 import { cn } from '@/lib/utils';
-import { getVideoEmbedUrl } from '@/lib/videoEmbed';
+import { getVideoEmbedUrl, getVideoThumbnailUrl } from '@/lib/videoEmbed';
 import { fetchComplaint, fetchComments } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
 import { postTipoLabels } from '@/data/mockData';
@@ -43,6 +43,7 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
   const qc = useQueryClient();
   const adminIds = useAdminIds();
   const [post, setPost] = useState<PostRow>(initial);
+  const [thumbFailed, setThumbFailed] = useState(false);
   const { count: supportCount, supported, toggle, pending } = usePostSupport(initial.id, initial.like_count);
 
   useEffect(() => { setPost(initial); }, [initial]);
@@ -94,8 +95,13 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
 
   const hasVideo = !!post.video_url && getVideoEmbedUrl(post.video_url);
   const hasCover = !!post.cover_url;
-  const thumbnail = hasCover ? post.cover_url : null;
-  const showThumbnail = !!thumbnail;
+  const firstMedia = (post.media_urls ?? []).filter(Boolean)[0] ?? null;
+  const videoThumb =
+    getVideoThumbnailUrl(post.video_url) ?? getVideoThumbnailUrl(firstMedia);
+  const thumbnail = hasCover ? post.cover_url : videoThumb;
+  // Quando o post tem vídeo mas nenhuma miniatura carregável, mostramos um
+  // bloco visual da marca com o play, em vez de deixar o item sem imagem.
+  const showThumbnail = !!thumbnail || !!hasVideo;
   const extraVideoCount = (post.media_urls ?? []).filter(Boolean).length;
   const videoCount = hasVideo ? extraVideoCount + 1 : 0;
 
@@ -157,8 +163,17 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
         </div>
 
         {showThumbnail && (
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-sm">
-            <img src={thumbnail} alt="" className="h-full w-full object-cover" loading="lazy" />
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-secondary via-secondary/90 to-primary shadow-sm">
+            {thumbnail && !thumbFailed && (
+              <img
+                src={thumbnail}
+                alt=""
+                className="h-full w-full object-cover"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                onError={() => setThumbFailed(true)}
+              />
+            )}
             {hasVideo && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/15">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-transform group-hover:scale-110">
