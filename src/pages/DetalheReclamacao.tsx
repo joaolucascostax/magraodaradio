@@ -172,53 +172,48 @@ export default function DetalheReclamacao() {
         </div>
       )}
 
-      {/* Mídias complementares — a história completa (reels extras ou fotos) */}
+      {/* Mídias complementares (reels extras ou fotos) */}
       {(() => {
         const extras = (complaint.mediaUrls ?? []).filter(Boolean);
         if (extras.length === 0) return null;
-        const visible = showAllMedia ? extras : extras.slice(0, 1);
+        const visible = showAllMedia ? extras : extras.slice(0, 2);
         return (
-          <div className="mb-5 sm:mb-6">
-            <h3 className="mb-3 font-bold text-sm sm:text-base text-foreground">
-              🎬 Veja a história completa
-            </h3>
-            <div className="space-y-3">
-              {visible.map((url, i) => {
-                const embed = getVideoEmbedUrl(url);
-                if (embed) {
-                  return (
-                    <div
-                      key={url + i}
-                      className={cn(
-                        'w-full overflow-hidden rounded-xl bg-muted/40 sm:rounded-2xl',
-                        isInstagramUrl(url) ? 'aspect-[4/5]' : 'aspect-video',
-                      )}
-                    >
-                      <iframe
-                        src={embed}
-                        title={`Vídeo complementar ${i + 1}: ${complaint.title}`}
-                        className="h-full w-full"
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  );
-                }
+          <div className="mb-5 sm:mb-6 space-y-3">
+            {visible.map((url, i) => {
+              const embed = getVideoEmbedUrl(url);
+              if (embed) {
                 return (
-                  <div key={url + i} className="w-full overflow-hidden rounded-xl bg-muted/40 sm:rounded-2xl">
-                    <img src={url} alt={`Foto complementar ${i + 1} de ${complaint.title}`} loading="lazy" className="h-auto w-full object-cover" />
+                  <div
+                    key={url + i}
+                    className={cn(
+                      'w-full overflow-hidden rounded-xl bg-muted/40 sm:rounded-2xl',
+                      isInstagramUrl(url) ? 'aspect-[4/5]' : 'aspect-video',
+                    )}
+                  >
+                    <iframe
+                      src={embed}
+                      title={`Vídeo complementar ${i + 1}: ${complaint.title}`}
+                      className="h-full w-full"
+                      loading="lazy"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
                   </div>
                 );
-              })}
-            </div>
-            {!showAllMedia && extras.length > 1 && (
+              }
+              return (
+                <div key={url + i} className="w-full overflow-hidden rounded-xl bg-muted/40 sm:rounded-2xl">
+                  <img src={url} alt={`Foto complementar ${i + 1} de ${complaint.title}`} loading="lazy" className="h-auto w-full object-cover" />
+                </div>
+              );
+            })}
+            {!showAllMedia && extras.length > 2 && (
               <Button
                 variant="ghost"
                 onClick={() => setShowAllMedia(true)}
-                className="mt-3 min-h-[44px] w-full rounded-xl bg-muted/60 text-sm font-bold text-primary hover:bg-muted"
+                className="min-h-[44px] w-full rounded-xl bg-muted/60 text-sm font-bold text-primary hover:bg-muted"
               >
-                Ver mais vídeos ({extras.length - 1})
+                Ver mais vídeos ({extras.length - 2})
               </Button>
             )}
           </div>
