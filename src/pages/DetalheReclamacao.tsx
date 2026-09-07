@@ -5,6 +5,7 @@ import { ArrowLeft, BadgeCheck, Heart, Share2, AlertCircle, Trash2, MessageSquar
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { postTipoLabels, postTipoColors, statusLabels, statusColors } from '@/data/mockData';
 import { fetchComplaint, fetchComments, fetchUserSupports } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
@@ -18,6 +19,7 @@ import { getVideoEmbedUrl, isInstagramUrl } from '@/lib/videoEmbed';
 import { useAdminIds } from '@/hooks/useAdminIds';
 import { usePostSupport } from '@/hooks/usePostSupport';
 import AdminBadge from '@/components/AdminBadge';
+import magraoAvatar from '@/assets/magrao-campanha-2026.jpg.asset.json';
 
 
 export default function DetalheReclamacao() {
@@ -107,6 +109,8 @@ export default function DetalheReclamacao() {
     </div>
   );
 
+  const isMagrao = complaint.isVerified || adminIds.has(complaint.authorId ?? '');
+  const avatarSrc = isMagrao ? magraoAvatar.url : complaint.authorAvatar;
 
   return (
     <div className="px-4 max-w-3xl mx-auto py-4 sm:py-6 pb-20 sm:pb-8">
@@ -117,9 +121,14 @@ export default function DetalheReclamacao() {
 
       {/* Header */}
       <div className="mb-4 sm:mb-5 flex items-start gap-2.5 sm:gap-3">
-        <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-primary/10 text-primary text-sm sm:text-base font-bold shadow-sm">
-          {complaint.authorName.charAt(0)}
-        </div>
+        <Avatar className="h-10 w-10 sm:h-12 sm:w-12 shrink-0 rounded-lg sm:rounded-xl border border-border/60 bg-background">
+          {avatarSrc && (
+            <AvatarImage src={avatarSrc} alt={complaint.authorName} className="object-cover" />
+          )}
+          <AvatarFallback className="rounded-lg sm:rounded-xl bg-primary/10 text-primary text-sm sm:text-base font-bold">
+            {complaint.authorName.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5">
             <span className="font-bold text-sm sm:text-base text-foreground truncate">{complaint.authorName}</span>
