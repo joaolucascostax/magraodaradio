@@ -43,6 +43,7 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
   const qc = useQueryClient();
   const adminIds = useAdminIds();
   const [post, setPost] = useState<PostRow>(initial);
+  const [thumbFailed, setThumbFailed] = useState(false);
   const { count: supportCount, supported, toggle, pending } = usePostSupport(initial.id, initial.like_count);
 
   useEffect(() => { setPost(initial); }, [initial]);
