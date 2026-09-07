@@ -10,7 +10,7 @@ import { usePostSupport } from '@/hooks/usePostSupport';
 import { toast } from 'sonner';
 import { timeAgoBr } from '@/lib/timeAgoBr';
 import { cn } from '@/lib/utils';
-import { getVideoEmbedUrl } from '@/lib/videoEmbed';
+import { getVideoEmbedUrl, getVideoThumbnailUrl } from '@/lib/videoEmbed';
 import { fetchComplaint, fetchComments } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
 import { postTipoLabels } from '@/data/mockData';
