@@ -119,9 +119,6 @@ export default function DetalheReclamacao() {
       </Link>
 
 
-      const isMagrao = complaint.isVerified || adminIds.has(complaint.authorId ?? '');
-      const avatarSrc = isMagrao ? magraoAvatar.url : complaint.authorAvatar;
-
       {/* Header */}
       <div className="mb-4 sm:mb-5 flex items-start gap-2.5 sm:gap-3">
         <Avatar className="h-10 w-10 sm:h-12 sm:w-12 shrink-0 rounded-lg sm:rounded-xl border border-border/60 bg-background">
