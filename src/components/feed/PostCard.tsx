@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ThumbsUp, MessageCircle, Share2, MapPin, BadgeCheck, UserRound, CheckCircle2, Clock, Landmark } from 'lucide-react';
+import { ThumbsUp, MessageCircle, Share2, MapPin, BadgeCheck, UserRound, CheckCircle2, Clock, Landmark, Play } from 'lucide-react';
 import VereadorBadge from '@/components/VereadorBadge';
 import AdminBadge from '@/components/AdminBadge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -180,23 +180,32 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
             />
           </div>
         )}
-        {post.video_url && getVideoEmbedUrl(post.video_url) && (
-          <div
-            className={cn(
-              'mt-3 w-full overflow-hidden rounded-xl bg-muted/40',
-              isInstagramUrl(post.video_url) ? 'aspect-[4/5]' : 'aspect-video',
-            )}
-          >
-            <iframe
-              src={getVideoEmbedUrl(post.video_url) ?? undefined}
-              title={`Vídeo: ${post.titulo}`}
-              className="h-full w-full"
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        )}
+        {post.video_url && getVideoEmbedUrl(post.video_url) && (() => {
+          const extraCount = post.media_urls?.filter(Boolean).length ?? 0;
+          const totalVideos = extraCount > 0 ? extraCount + 1 : 0;
+          return (
+            <div
+              className={cn(
+                'relative mt-3 w-full overflow-hidden rounded-xl bg-muted/40',
+                isInstagramUrl(post.video_url) ? 'aspect-[4/5]' : 'aspect-video',
+              )}
+            >
+              <iframe
+                src={getVideoEmbedUrl(post.video_url) ?? undefined}
+                title={`Vídeo: ${post.titulo}`}
+                className="h-full w-full"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+              {totalVideos > 1 && (
+                <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
+                  <Play className="h-3 w-3 fill-current" /> {totalVideos} vídeos
+                </span>
+              )}
+            </div>
+          );
+        })()}
       </Link>
 
       {/* ações essenciais */}
