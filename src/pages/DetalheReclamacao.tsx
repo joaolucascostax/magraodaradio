@@ -109,6 +109,8 @@ export default function DetalheReclamacao() {
     </div>
   );
 
+  const isMagrao = complaint.isVerified || adminIds.has(complaint.authorId ?? '');
+  const avatarSrc = isMagrao ? magraoAvatar.url : complaint.authorAvatar;
 
   return (
     <div className="px-4 max-w-3xl mx-auto py-4 sm:py-6 pb-20 sm:pb-8">
