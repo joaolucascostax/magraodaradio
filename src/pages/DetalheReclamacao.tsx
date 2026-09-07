@@ -117,11 +117,19 @@ export default function DetalheReclamacao() {
       </Link>
 
 
+      const isMagrao = complaint.isVerified || adminIds.has(complaint.authorId ?? '');
+      const avatarSrc = isMagrao ? magraoAvatar.url : complaint.authorAvatar;
+
       {/* Header */}
       <div className="mb-4 sm:mb-5 flex items-start gap-2.5 sm:gap-3">
-        <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-primary/10 text-primary text-sm sm:text-base font-bold shadow-sm">
-          {complaint.authorName.charAt(0)}
-        </div>
+        <Avatar className="h-10 w-10 sm:h-12 sm:w-12 shrink-0 rounded-lg sm:rounded-xl border border-border/60 bg-background">
+          {avatarSrc && (
+            <AvatarImage src={avatarSrc} alt={complaint.authorName} className="object-cover" />
+          )}
+          <AvatarFallback className="rounded-lg sm:rounded-xl bg-primary/10 text-primary text-sm sm:text-base font-bold">
+            {complaint.authorName.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5">
             <span className="font-bold text-sm sm:text-base text-foreground truncate">{complaint.authorName}</span>
