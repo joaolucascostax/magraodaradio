@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Complaint, Comment, Poll, Category, ComplaintStatus, PostTipo } from '@/data/mockData';
 import type { Database } from '@/integrations/supabase/types';
+import { signAvatarPaths } from '@/lib/avatars';
 
 type PostRow = Database['public']['Tables']['posts']['Row'];
 type PostCommentRow = Database['public']['Tables']['post_comments']['Row'];
