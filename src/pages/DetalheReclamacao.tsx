@@ -5,6 +5,7 @@ import { ArrowLeft, BadgeCheck, Heart, Share2, AlertCircle, Trash2, MessageSquar
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { postTipoLabels, postTipoColors, statusLabels, statusColors } from '@/data/mockData';
 import { fetchComplaint, fetchComments, fetchUserSupports } from '@/lib/api';
 import { buildShareText } from '@/lib/shareText';
@@ -18,6 +19,7 @@ import { getVideoEmbedUrl, isInstagramUrl } from '@/lib/videoEmbed';
 import { useAdminIds } from '@/hooks/useAdminIds';
 import { usePostSupport } from '@/hooks/usePostSupport';
 import AdminBadge from '@/components/AdminBadge';
+import magraoAvatar from '@/assets/magrao-campanha-2026.jpg.asset.json';
 
 
 export default function DetalheReclamacao() {
