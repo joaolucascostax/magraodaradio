@@ -162,8 +162,17 @@ export default function PostCard({ post: initial }: { post: PostRow }) {
         </div>
 
         {showThumbnail && (
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-sm">
-            <img src={thumbnail} alt="" className="h-full w-full object-cover" loading="lazy" />
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-secondary via-secondary/90 to-primary shadow-sm">
+            {thumbnail && !thumbFailed && (
+              <img
+                src={thumbnail}
+                alt=""
+                className="h-full w-full object-cover"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                onError={() => setThumbFailed(true)}
+              />
+            )}
             {hasVideo && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/15">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-transform group-hover:scale-110">
