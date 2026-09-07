@@ -90,7 +90,26 @@ export async function fetchComplaint(id: string): Promise<Complaint | null> {
   const { data, error } = await supabase
     .from('posts_public' as never).select('*').eq('id', id).maybeSingle();
   if (error) throw error;
-  return data ? mapComplaint(data as unknown as PostRow) : null;
+  if (!data) return null;
+  const complaint = mapComplaint(data as unknown as PostRow);
+
+  // Carrega avatar do autor para exibir no cabeçalho da publicação.
+  if (complaint.authorId && !(data as unknown as PostRow).is_anonimo) {
+    try {
+      const { data: profs } = await supabase.rpc('get_public_profiles' as never, {
+        _user_ids: [complaint.authorId],
+      } as never);
+      const prof = (profs as any)?.[0];
+      if (prof?.avatar_url) {
+        const signed = await signAvatarPaths([prof.avatar_url]);
+        complaint.authorAvatar = signed[prof.avatar_url] ?? null;
+      }
+    } catch {
+      /* silencia: avatar é opcional */
+    }
+  }
+
+  return complaint;
 }
 
 export async function fetchComments(complaintId: string): Promise<Comment[]> {
