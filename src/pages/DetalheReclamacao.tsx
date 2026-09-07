@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, BadgeCheck, Heart, Share2, AlertCircle, Trash2, MessageSquare, Ghost, User, Send, Loader2 } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, Heart, Share2, AlertCircle, Trash2, MessageSquare, ChevronDown, Info, ShieldCheck, UserCheck, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
@@ -333,28 +333,36 @@ export default function DetalheReclamacao() {
               rows={2}
               className="resize-none rounded-none border-0 bg-transparent px-4 py-3 text-sm shadow-none focus-visible:ring-0"
             />
-            <div className="flex items-center justify-end gap-2 border-t border-border/50 bg-muted/30 px-3 py-2">
+            <div className="flex items-center justify-between gap-2 border-t border-border/50 bg-muted/30 px-3 py-2">
               {user && (
                 <button
                   type="button"
                   onClick={() => setIsAnonimo(!isAnonimo)}
                   className={cn(
-                    'flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all active:scale-95',
+                    'flex items-center gap-2.5 h-11 min-h-[44px] pl-2.5 pr-3 rounded-full border transition-all active:scale-95',
                     isAnonimo
-                      ? 'bg-secondary text-secondary-foreground shadow-md'
-                      : 'bg-muted text-foreground hover:bg-muted/80'
+                      ? 'bg-card border-primary/30 shadow-sm'
+                      : 'bg-card border-border shadow-sm hover:bg-muted/60'
                   )}
                   aria-label={isAnonimo ? 'Comentar anonimamente' : 'Comentar com meu nome'}
                 >
                   <span
                     className={cn(
-                      'flex h-6 w-6 items-center justify-center rounded-full',
-                      isAnonimo ? 'bg-accent text-secondary' : 'bg-background text-muted-foreground'
+                      'flex h-7 w-7 items-center justify-center rounded-full shrink-0',
+                      isAnonimo ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
                     )}
                   >
-                    {isAnonimo ? <Ghost className="h-3.5 w-3.5" /> : <User className="h-3.5 w-3.5" />}
+                    {isAnonimo ? <ShieldCheck className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                   </span>
-                  {isAnonimo ? 'Anônimo' : (profile?.display_name || 'Meu nome')}
+                  <div className="flex flex-col items-start">
+                    <span className="max-w-[140px] truncate text-[13px] font-semibold leading-tight text-foreground">
+                      {isAnonimo ? 'Cidadão Anônimo' : (profile?.display_name || 'Meu nome')}
+                    </span>
+                    <span className="text-[10px] leading-tight text-muted-foreground">
+                      {isAnonimo ? 'Identidade protegida' : 'Nome visível'}
+                    </span>
+                  </div>
+                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground ml-0.5" />
                 </button>
               )}
               <Button
@@ -363,24 +371,26 @@ export default function DetalheReclamacao() {
                   commentMutation.mutate();
                 }}
                 disabled={!newComment.trim() || commentMutation.isPending}
-                className="h-10 w-10 rounded-full bg-primary p-0 text-primary-foreground shadow-md hover:bg-primary/90 disabled:opacity-50"
+                className="ml-auto h-11 min-h-[44px] rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/90 disabled:opacity-50"
                 aria-label="Enviar comentário"
               >
                 {commentMutation.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Send className="h-4 w-4" />
+                  'Enviar'
                 )}
               </Button>
             </div>
           </div>
           {user && (
-            <p className="flex items-center gap-2 px-1 text-[11px] text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              {isAnonimo
-                ? 'Você comentará anonimamente. Toque no chip para mudar.'
-                : 'Seu nome ficará visível no comentário. Toque no chip para mudar.'}
-            </p>
+            <div className="flex items-start gap-2.5 px-2 text-[12px] text-muted-foreground">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+              <p className="leading-normal">
+                {isAnonimo
+                  ? 'Ao publicar anonimamente, seu nome e foto não serão visíveis para outros usuários.'
+                  : 'Seu nome e foto ficarão visíveis no comentário para outros usuários.'}
+              </p>
+            </div>
           )}
         </div>
 
