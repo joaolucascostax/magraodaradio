@@ -117,7 +117,33 @@ export async function fetchComments(complaintId: string): Promise<Comment[]> {
     .from('post_comments_public' as never).select('*').eq('post_id', complaintId)
     .eq('is_hidden', false).order('created_at', { ascending: true });
   if (error) throw error;
-  return ((data ?? []) as unknown as PostCommentRow[]).map(mapComment);
+  const rows = (data ?? []) as unknown as (PostCommentRow & { is_anonimo?: boolean | null })[];
+  const comments = rows.map(mapComment);
+
+  // Carrega fotos de perfil dos autores não anônimos (em lote).
+  const authorIds = [...new Set(rows.filter((r) => !r.is_anonimo).map((r) => r.autor_id).filter(Boolean))] as string[];
+  if (authorIds.length > 0) {
+    try {
+      const { data: profs } = await supabase.rpc('get_public_profiles' as never, {
+        _user_ids: authorIds,
+      } as never);
+      const profMap = new Map<string, string>();
+      for (const p of (profs as any[]) ?? []) {
+        if (p?.user_id && p?.avatar_url) profMap.set(p.user_id, p.avatar_url);
+      }
+      if (profMap.size > 0) {
+        const signed = await signAvatarPaths([...profMap.values()]);
+        for (const c of comments) {
+          const path = c.authorId ? profMap.get(c.authorId) : undefined;
+          if (path) c.authorAvatar = signed[path] ?? null;
+        }
+      }
+    } catch {
+      /* silencia: avatares são opcionais */
+    }
+  }
+
+  return comments;
 }
 
 export async function fetchPolls(): Promise<Poll[]> {
