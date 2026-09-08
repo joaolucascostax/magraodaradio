@@ -24,7 +24,9 @@ export function useApoioStats() {
   });
 
   const cidades = query.data ?? [];
-  const totalApoiadores = cidades.reduce((acc, c) => acc + (c.total ?? 0), 0);
+  // Base de lançamento exibida no contador (somada aos apoiadores reais).
+  const BASE_APOIADORES = 231;
+  const totalApoiadores = BASE_APOIADORES + cidades.reduce((acc, c) => acc + (c.total ?? 0), 0);
   const totalCidades = cidades.filter((c) => (c.total ?? 0) > 0).length;
 
   return { cidades, totalApoiadores, totalCidades, loading: query.isLoading };
